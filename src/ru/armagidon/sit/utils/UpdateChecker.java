@@ -35,8 +35,7 @@ public class UpdateChecker extends BukkitRunnable
             String current = SitPlugin.getInstance().getDescription().getVersion(), newest = versionObject.get("name").getAsString();
 
             if (!current.equalsIgnoreCase(newest)) {
-                SitPlugin.getInstance().getLogger().warning("Plugin Out of Date");
-                sendMessage("§bNew version "+newest+" is available now!",true);
+                sendMessage("§b[New version §a"+newest+" §bis available now!]",true);
             } else {
                 SitPlugin.getInstance().getLogger().info("Plugin Up to Date");
             }

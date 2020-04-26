@@ -2,15 +2,13 @@ package ru.armagidon.sit.poses;
 
 import org.bukkit.entity.Player;
 
-public class StandingPose extends PluginPose
+public class StandingPose implements IPluginPose
 {
 
-    public StandingPose(Player player) {super(player);}
+    public StandingPose() {}
 
     @Override
-    public void play(Player receiver, boolean log) {
-
-    }
+    public void play(Player receiver, boolean log) {}
 
     @Override
     public void stop(boolean log) {}

@@ -11,12 +11,6 @@ import java.util.List;
 
 public final class VectorUtils
 {
-
-    //west - 45-135
-    //north - (-135)-135
-    //east - (-135)-(-45)
-    //south - (-45)-45
-
     public static Block getDirBlock(Location plocation){
         Block cur = plocation.getBlock();
         BlockFace face = yawToFace(plocation.getYaw());
@@ -38,14 +32,14 @@ public final class VectorUtils
 
     public static float faceToYaw(BlockFace face){
         switch (face){
-            case EAST:
-                return 0;
             case WEST:
-                return 300;
+                return 0;
+            case EAST:
+                return 132;
             case NORTH:
-                return 100;
+                return 50;
             case SOUTH:
-                return 90;
+                return 290;
             default:
                 return 0;
         }

@@ -2,30 +2,31 @@ package ru.armagidon.sit;
 
 import org.bukkit.entity.Player;
 import ru.armagidon.sit.poses.*;
+import ru.armagidon.sit.poses.sit.SitPose;
 
 //SitPlugin player
 public class SitPluginPlayer
 {
     private final Player player;
 
-    private PluginPose pose;
+    private IPluginPose pose;
 
     public SitPluginPlayer(Player player) {
         this.player = player;
-        this.pose = new StandingPose(player);
+        this.pose = new StandingPose();
     }
 
     public Player getPlayer() {
         return player;
     }
 
-    public void setPose(PluginPose newpose) {
+    public void setPose(IPluginPose newpose) {
         this.pose = newpose;
     }
 
     public void changePose(EnumPose pose){
         this.pose.stop(true);
-        PluginPose newpose;
+        IPluginPose newpose;
         switch (pose){
             case LYING:
                 newpose = new LayPose(player);
@@ -34,17 +35,21 @@ public class SitPluginPlayer
                 newpose = new SwimPose(player);
                 break;
             case SITTING:
-                newpose = new SitPose(player);
+                newpose = SitPose.getInstance(player);
                 break;
             default:
-                newpose = new StandingPose(player);
+                newpose = new StandingPose();
                 break;
         }
         setPose(newpose);
         this.pose.play(null,true);
     }
 
-    public PluginPose getPose() {
+    public IPluginPose getPose() {
         return pose;
+    }
+
+    public EnumPose getPoseType(){
+        return getPose().getPose();
     }
 }

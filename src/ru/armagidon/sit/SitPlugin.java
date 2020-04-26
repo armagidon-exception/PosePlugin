@@ -1,6 +1,9 @@
 package ru.armagidon.sit;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -8,9 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.sit.poses.EnumPose;
-import ru.armagidon.sit.utils.BetterChairHandler;
-import ru.armagidon.sit.utils.UpdateChecker;
-import ru.armagidon.sit.utils.Utils;
+import ru.armagidon.sit.utils.BetterChairBridge;
+import ru.armagidon.sit.utils.nms.NMSUtils;
 
 import java.util.ArrayList;
 
@@ -19,22 +21,19 @@ import static ru.armagidon.sit.utils.Utils.*;
 public class SitPlugin extends JavaPlugin implements Listener
 {
 
+    public static BetterChairBridge bridge;
+
     private static SitPlugin instance;
 
     public static SitPlugin getInstance() {
         return instance;
     }
 
-
-    public static boolean chairenabled;
-
     @Override
     public void onEnable() {
         instance = this;
         getServer().getPluginManager().registerEvents(new ru.armagidon.sit.utils.Listener(players),this);
-
         TabCompleter c = (commandSender, command, s, strings) -> new ArrayList<>();
-
         getCommand("sit").setExecutor(this);
         getCommand("sit").setTabCompleter(c);
         getCommand("lay").setExecutor(this);
@@ -42,17 +41,15 @@ public class SitPlugin extends JavaPlugin implements Listener
         getCommand("swim").setExecutor(this);
         getCommand("swim").setTabCompleter(c);
         saveDefaultConfig();
-        if(Utils.CHECK_FOR_UPDATED)new UpdateChecker().runTaskAsynchronously(this);
-        BetterChairHandler h = new BetterChairHandler();
-        chairenabled = h.isEnabled();
-        if(!h.isEnabled()) getLogger().warning("BetterChair isn't presented. SIT-WITHOUT-COMMAND FUNCTION DISABLED!");
+        bridge = new BetterChairBridge(SitPlugin.getInstance());
+        System.out.println("RUNNING "+NMSUtils.SpigotVersion.currentVersion().name()+" NMS");
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
             SitPluginPlayer p = players.get(sender.getName());
-            if(!p.getPlayer().isOnGround()){
+            if(!onGround(p.getPlayer())){
                 sender.sendMessage(AIR);
                 return true;
             }
@@ -76,5 +73,10 @@ public class SitPlugin extends JavaPlugin implements Listener
     public void onDisable() {
         players.forEach((s,p)-> p.getPose().stop(false));
         Bukkit.getOnlinePlayers().forEach(p-> Bukkit.getOnlinePlayers().forEach(a-> p.showPlayer(this,a)));
+    }
+
+    public boolean onGround(Player player){
+        Location location = player.getLocation();
+        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR)&&player.isOnGround();
     }
 }
