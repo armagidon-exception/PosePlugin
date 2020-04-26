@@ -1,0 +1,12 @@
+stand-up-message: "§bYou've stood up"
+in-air: "§cYou can't do this in air"
+collidable: false
+check-for-updates: true
+swim-animation:
+  enabled: true
+  message: "§bYou're swimming"
+lay-animation:
+  message: "§bYou've laid down"
+sit-animation:
+  message: "§bYou've sat down"
+  sit-without-command: false
