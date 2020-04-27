@@ -33,7 +33,7 @@ public abstract class SitPose extends PluginPose {
     }
 
     public static SitPose getInstance(Player player){
-        if(SitPlugin.bridge.isActivated()){
+        if(SitPlugin.bridge!=null){
             return new ExternalSitPose(player);
         } else {
             return new InternalSitPose(player);

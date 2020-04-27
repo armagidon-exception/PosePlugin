@@ -1,7 +1,7 @@
 name: PosePlugin
 main: ru.armagidon.sit.SitPlugin
 api-version: 1.14
-version: 1.4 beta
+version: 1.4
 description: Sit Plugin
 softdepend:
   - BetterChair

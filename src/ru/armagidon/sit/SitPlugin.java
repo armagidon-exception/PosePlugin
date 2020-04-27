@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.sit.poses.EnumPose;
 import ru.armagidon.sit.utils.BetterChairBridge;
+import ru.armagidon.sit.utils.UpdateChecker;
 import ru.armagidon.sit.utils.nms.NMSUtils;
 
 import java.util.ArrayList;
@@ -41,8 +42,9 @@ public class SitPlugin extends JavaPlugin implements Listener
         getCommand("swim").setExecutor(this);
         getCommand("swim").setTabCompleter(c);
         saveDefaultConfig();
-        bridge = new BetterChairBridge(SitPlugin.getInstance());
+        if(getServer().getPluginManager().getPlugin("BetterChair")!=null) bridge = new BetterChairBridge(SitPlugin.getInstance());
         System.out.println("RUNNING "+NMSUtils.SpigotVersion.currentVersion().name()+" NMS");
+        new UpdateChecker().runTaskAsynchronously(this);
     }
 
     @Override

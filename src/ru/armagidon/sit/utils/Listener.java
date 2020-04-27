@@ -1,8 +1,6 @@
 package ru.armagidon.sit.utils;
 
 
-import de.Kurfat.Java.Minecraft.BetterChair.PlayerSitEvent;
-import de.Kurfat.Java.Minecraft.BetterChair.Types.Chair;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -11,12 +9,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
-import org.spigotmc.event.entity.EntityMountEvent;
 import ru.armagidon.sit.SitPlugin;
 import ru.armagidon.sit.SitPluginPlayer;
 import ru.armagidon.sit.poses.EnumPose;
 import ru.armagidon.sit.poses.StandingPose;
-import ru.armagidon.sit.poses.sit.ExternalSitPose;
 
 import java.util.Map;
 
@@ -72,28 +68,5 @@ public class Listener implements org.bukkit.event.Listener
     public void stop(StopAnimationEvent event){
         event.getPlayer().getPose().stop(true);
         event.getPlayer().setPose(new StandingPose());
-    }
-
-    @EventHandler
-    public void onSit(EntityMountEvent event){
-        if(SitPlugin.bridge.isActivated()) {
-            if (event.getEntity() instanceof Player) {
-                Player player = (Player) event.getEntity();
-                if (Chair.CACHE_BY_PLAYER.containsKey(player)) {
-                    Bukkit.getPluginManager().callEvent(new PlayerSitEvent(player, Chair.CACHE_BY_PLAYER.get(player), true));
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void sit(PlayerSitEvent event){
-        if(SitPlugin.bridge.isActivated()) {
-            if(event.isEnable()) {
-                SitPluginPlayer p = players.get(event.getPlayer().getName());
-                p.setPose(new ExternalSitPose(event.getPlayer()));
-                p.getPlayer().sendMessage(EnumPose.SITTING.getMessage());
-            }
-        }
     }
 }
