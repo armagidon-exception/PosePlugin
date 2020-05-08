@@ -37,17 +37,11 @@ public class SitPlugin extends JavaPlugin implements Listener
     @Override
     public void onEnable() {
         instance = this;
-        new ConfigurationManager();
+        initCommands();
         getServer().getPluginManager().registerEvents(new ru.armagidon.sit.utils.Listener(players),this);
-        TabCompleter c = (commandSender, command, s, strings) -> new ArrayList<>();
-        getCommand("sit").setExecutor(this);
-        getCommand("sit").setTabCompleter(c);
-        getCommand("lay").setExecutor(this);
-        getCommand("lay").setTabCompleter(c);
-        getCommand("swim").setExecutor(this);
-        getCommand("swim").setTabCompleter(c);
         saveDefaultConfig();
         initBridge();
+        new ConfigurationManager();
         if((Boolean) get(CHECK_FOR_UPDATED)) {
             checker = new UpdateChecker();
             checker.runTaskAsynchronously(this);
@@ -92,5 +86,15 @@ public class SitPlugin extends JavaPlugin implements Listener
     private void initBridge(){
         if(getServer().getPluginManager().getPlugin("BetterChair")!=null) bridge = new BetterChairBridge(SitPlugin.getInstance());
         System.out.println("RUNNING "+NMSUtils.SpigotVersion.currentVersion().name()+" NMS");
+    }
+
+    private void initCommands(){
+        TabCompleter c = (commandSender, command, s, strings) -> new ArrayList<>();
+        getCommand("sit").setExecutor(this);
+        getCommand("sit").setTabCompleter(c);
+        getCommand("lay").setExecutor(this);
+        getCommand("lay").setTabCompleter(c);
+        getCommand("swim").setExecutor(this);
+        getCommand("swim").setTabCompleter(c);
     }
 }

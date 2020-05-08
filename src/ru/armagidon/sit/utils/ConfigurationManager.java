@@ -9,7 +9,7 @@ import java.util.Map;
 public class ConfigurationManager
 {
     private static FileConfiguration config = SitPlugin.getPlugin(SitPlugin.class).getConfig();
-    private final Map<String, Object> fields = new HashMap<>();
+    private static final Map<String, Object> fields = new HashMap<>();
 
 
     //Keys
@@ -25,14 +25,17 @@ public class ConfigurationManager
     public static String SIT_WITHOUT_COMMAND = "sit-animation.sit-without-command";
 
 
+   static  {
+       fields();
+    }
+
     public ConfigurationManager() {
-        fields();
         init();
     }
 
 
     //Contains all config fields
-    private void fields(){
+    private static void fields(){
         fields.put(STAND_UP,"§bYou've stood up");
         fields.put(IN_AIR,"§cYou can't do this in air!");
         fields.put(COLLIDABLE,false);

@@ -1,6 +1,7 @@
 stand-up-message: §bYou've stood up
 in-air: §cYou can't do this in air
 collidable: false
+check-for-updates: true
 swim-animation:
   enabled: true
   message: §bYou're swimming
