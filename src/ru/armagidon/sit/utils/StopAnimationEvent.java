@@ -11,11 +11,13 @@ public class StopAnimationEvent extends Event
 
     private final EnumPose pose;
     private final SitPluginPlayer player;
+    private final boolean log;
 
 
-    public StopAnimationEvent(EnumPose pose, SitPluginPlayer player) {
+    public StopAnimationEvent(EnumPose pose, SitPluginPlayer player, boolean log) {
         this.pose = pose;
         this.player = player;
+        this.log = log;
     }
 
     public EnumPose getPose() {
@@ -34,5 +36,9 @@ public class StopAnimationEvent extends Event
 
     public static HandlerList getHandlerList() {
         return handlers;
+    }
+
+    public boolean isLog() {
+        return log;
     }
 }

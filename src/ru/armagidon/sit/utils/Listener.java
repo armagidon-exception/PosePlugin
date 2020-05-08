@@ -5,8 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.sit.SitPlugin;
@@ -15,7 +17,6 @@ import ru.armagidon.sit.poses.EnumPose;
 import ru.armagidon.sit.poses.StandingPose;
 
 import java.util.Map;
-
 //Listener of all necessary events
 public class Listener implements org.bukkit.event.Listener
 {
@@ -31,11 +32,34 @@ public class Listener implements org.bukkit.event.Listener
     @EventHandler
     public void join(PlayerJoinEvent event){
         players.put(event.getPlayer().getName(),new SitPluginPlayer(event.getPlayer()));
-        if(Utils.CHECK_FOR_UPDATED)new UpdateChecker().runTaskAsynchronously(SitPlugin.getInstance());
+        if(SitPlugin.checker !=null){
+            if(!SitPlugin.checker.uptodate&&event.getPlayer().isOp()){
+                SitPlugin.checker.sendNotification(event.getPlayer());
+            }
+        }
+    }
+
+    @EventHandler
+    public void teleport(PlayerTeleportEvent event){
+        if(!containsPlayer(event.getPlayer())) return;
+        SitPluginPlayer p  = players.get(event.getPlayer().getName());
+        if (!p.getPoseType().equals(EnumPose.STANDING)) {
+            Bukkit.getPluginManager().callEvent(new StopAnimationEvent(p.getPoseType(),p, false));
+        }
+    }
+
+    @EventHandler
+    public void death(PlayerDeathEvent event){
+        if(!containsPlayer(event.getEntity())) return;
+        SitPluginPlayer p = players.get(event.getEntity().getName());
+        if (!p.getPoseType().equals(EnumPose.STANDING)) {
+            Bukkit.getPluginManager().callEvent(new StopAnimationEvent(p.getPoseType(),p, false));
+        }
     }
 
     @EventHandler
     public void quit(PlayerQuitEvent event){
+        players.get(event.getPlayer().getName()).getPose().stop(false);
         players.remove(event.getPlayer().getName());
     }
 
@@ -44,11 +68,11 @@ public class Listener implements org.bukkit.event.Listener
     }
 
     @EventHandler
-    public void onShift(PlayerToggleSneakEvent event){
+    public void onSneak(PlayerToggleSneakEvent event){
         if(!containsPlayer(event.getPlayer())) return;
         SitPluginPlayer p = players.get(event.getPlayer().getName());
         if (p.getPoseType().equals(EnumPose.LYING)||p.getPoseType().equals(EnumPose.SWIM)) {
-            Bukkit.getPluginManager().callEvent(new StopAnimationEvent(p.getPoseType(),p));
+            Bukkit.getPluginManager().callEvent(new StopAnimationEvent(p.getPoseType(),p, true));
         }
     }
 
@@ -59,14 +83,14 @@ public class Listener implements org.bukkit.event.Listener
             if(!containsPlayer(player)) return;
             SitPluginPlayer p = players.get(player.getName());
             if(p.getPoseType().equals(EnumPose.SITTING)){
-                Bukkit.getPluginManager().callEvent(new StopAnimationEvent(p.getPoseType(),p));
+                Bukkit.getPluginManager().callEvent(new StopAnimationEvent(p.getPoseType(),p, true));
             }
         }
     }
 
     @EventHandler
     public void stop(StopAnimationEvent event){
-        event.getPlayer().getPose().stop(true);
+        event.getPlayer().getPose().stop(event.isLog());
         event.getPlayer().setPose(new StandingPose());
     }
 }

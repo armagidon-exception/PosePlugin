@@ -12,12 +12,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.sit.poses.EnumPose;
 import ru.armagidon.sit.utils.BetterChairBridge;
+import ru.armagidon.sit.utils.ConfigurationManager;
 import ru.armagidon.sit.utils.UpdateChecker;
 import ru.armagidon.sit.utils.nms.NMSUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import static ru.armagidon.sit.utils.Utils.*;
+import static ru.armagidon.sit.utils.ConfigurationManager.*;
 
 public class SitPlugin extends JavaPlugin implements Listener
 {
@@ -29,10 +32,12 @@ public class SitPlugin extends JavaPlugin implements Listener
     public static SitPlugin getInstance() {
         return instance;
     }
-
+    private static Map<String, SitPluginPlayer> players = new HashMap<>();
+    public static UpdateChecker checker;
     @Override
     public void onEnable() {
         instance = this;
+        new ConfigurationManager();
         getServer().getPluginManager().registerEvents(new ru.armagidon.sit.utils.Listener(players),this);
         TabCompleter c = (commandSender, command, s, strings) -> new ArrayList<>();
         getCommand("sit").setExecutor(this);
@@ -42,9 +47,11 @@ public class SitPlugin extends JavaPlugin implements Listener
         getCommand("swim").setExecutor(this);
         getCommand("swim").setTabCompleter(c);
         saveDefaultConfig();
-        if(getServer().getPluginManager().getPlugin("BetterChair")!=null) bridge = new BetterChairBridge(SitPlugin.getInstance());
-        System.out.println("RUNNING "+NMSUtils.SpigotVersion.currentVersion().name()+" NMS");
-        new UpdateChecker().runTaskAsynchronously(this);
+        initBridge();
+        if((Boolean) get(CHECK_FOR_UPDATED)) {
+            checker = new UpdateChecker();
+            checker.runTaskAsynchronously(this);
+        }
     }
 
     @Override
@@ -52,7 +59,7 @@ public class SitPlugin extends JavaPlugin implements Listener
         if(sender instanceof Player) {
             SitPluginPlayer p = players.get(sender.getName());
             if(!onGround(p.getPlayer())){
-                sender.sendMessage(AIR);
+                sender.sendMessage((String) get(IN_AIR));
                 return true;
             }
             if (label.equalsIgnoreCase("sit")) {
@@ -62,7 +69,7 @@ public class SitPlugin extends JavaPlugin implements Listener
                 p.changePose(EnumPose.LYING);
                 return true;
             } else if(label.equalsIgnoreCase("swim")){
-                if(SWIM_ENABLED){
+                if((Boolean) get(SWIM_ENABLED)){
                     p.changePose(EnumPose.SWIM);
                     return true;
                 }
@@ -80,5 +87,10 @@ public class SitPlugin extends JavaPlugin implements Listener
     public boolean onGround(Player player){
         Location location = player.getLocation();
         return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR)&&player.isOnGround();
+    }
+
+    private void initBridge(){
+        if(getServer().getPluginManager().getPlugin("BetterChair")!=null) bridge = new BetterChairBridge(SitPlugin.getInstance());
+        System.out.println("RUNNING "+NMSUtils.SpigotVersion.currentVersion().name()+" NMS");
     }
 }

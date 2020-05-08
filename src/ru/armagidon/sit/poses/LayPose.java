@@ -9,10 +9,10 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import ru.armagidon.sit.SitPlugin;
 import ru.armagidon.sit.SitPluginPlayer;
 import ru.armagidon.sit.utils.VectorUtils;
-import ru.armagidon.sit.utils.nms.FakePlayer;
+import ru.armagidon.sit.utils.nms.impl.FakePlayer;
 import ru.armagidon.sit.utils.nms.NMSUtils;
 
-import static ru.armagidon.sit.utils.Utils.COLLIDABLE;
+import static ru.armagidon.sit.utils.ConfigurationManager.*;
 import static ru.armagidon.sit.utils.VectorUtils.yawToFace;
 
 public class LayPose extends PluginPose
@@ -27,7 +27,7 @@ public class LayPose extends PluginPose
     @Override
     public void play(Player receiver,boolean log) {
         super.play(receiver,log);
-        getPlayer().setCollidable(COLLIDABLE);
+        getPlayer().setCollidable((Boolean) get(COLLIDABLE));
         if(receiver==null){
             VectorUtils.getNear(100,getPlayer()).forEach(this::playAnimation);
         } else {

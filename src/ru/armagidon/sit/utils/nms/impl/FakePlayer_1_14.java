@@ -6,10 +6,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import static ru.armagidon.sit.utils.Utils.sendPacket;
 import static ru.armagidon.sit.utils.VectorUtils.yawToFace;
+import static ru.armagidon.sit.utils.nms.NMSUtils.sendPacket;
 
-public class FakePlayer_1_14 implements ru.armagidon.sit.utils.nms.FakePlayer
+public class FakePlayer_1_14 implements FakePlayer
 {
     private final EntityPlayer fake;
     private final Player parent;

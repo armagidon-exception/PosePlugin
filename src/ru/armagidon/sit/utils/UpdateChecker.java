@@ -6,7 +6,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
-import org.bukkit.permissions.ServerOperator;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import ru.armagidon.sit.SitPlugin;
 
@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 public class UpdateChecker extends BukkitRunnable
 {
 
+    public boolean uptodate = false;
+    private String newest = "";
+
     @Override
     public void run() {
         try {
@@ -31,8 +34,10 @@ public class UpdateChecker extends BukkitRunnable
             String current = SitPlugin.getInstance().getDescription().getVersion();
 
             if (!current.equalsIgnoreCase(newest)) {
-                sendNotification("§6║ §b[New version §a"+newest+" §bis available now!]§6 ║");
+                uptodate = false;
+                this.newest = newest;
             } else {
+                uptodate = true;
                 SitPlugin.getInstance().getLogger().info("Plugin Up to Date");
             }
         } catch (IOException var7) {
@@ -41,18 +46,14 @@ public class UpdateChecker extends BukkitRunnable
 
     }
 
-    public void sendNotification(String message){
-            Bukkit.getOnlinePlayers().stream().filter(ServerOperator::isOp).forEach(p-> {
-                p.sendMessage("§6╔==================================╗");
-                p.sendMessage("§6║                                                   ║");
-                TextComponent link = new TextComponent("§bOpen");
-                TextComponent msg = new TextComponent(message);
-                msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new BaseComponent[]{link}));
-                msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,"https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose.76990/"));
-                p.spigot().sendMessage(msg);
-                p.sendMessage("§6║                                                   ║");
-                p.sendMessage("§6╚==================================╝");
-            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-            });
+    public void sendNotification(Player p){
+        TextComponent link = new TextComponent("§bOpen");
+        TextComponent msg = new TextComponent("§b§l> §bNew version §e§l§n"+newest +"§b is available now! Click and download!");
+        p.sendMessage(" ");
+        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new BaseComponent[]{link}));
+        msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,"https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose.76990/"));
+        p.spigot().sendMessage(msg);
+        p.sendMessage(" ");
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
     }
 }

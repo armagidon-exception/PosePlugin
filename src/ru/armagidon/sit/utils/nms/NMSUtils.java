@@ -1,11 +1,12 @@
 package ru.armagidon.sit.utils.nms;
 
+import net.minecraft.server.v1_15_R1.Packet;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
+import ru.armagidon.sit.utils.nms.impl.FakePlayer;
 import ru.armagidon.sit.utils.nms.impl.FakePlayer_1_14;
 import ru.armagidon.sit.utils.nms.impl.FakePlayer_1_15;
-import ru.armagidon.sit.utils.nms.impl.SwimAnimation_1_14;
-import ru.armagidon.sit.utils.nms.impl.SwimAnimation_1_15;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class NMSUtils
         }
 
         public static List<SpigotVersion> compatibleVersions() {
-            List<SpigotVersion> versions = new ArrayList();
+            List<SpigotVersion> versions = new ArrayList<>();
             SpigotVersion version = currentVersion();
             if (version == VERSION_UNKNOWN) {
                 return versions;
@@ -52,17 +53,6 @@ public class NMSUtils
         }
     }
 
-    public static SwimAnimation getSwimAnimationExecutor(){
-        switch (SpigotVersion.currentVersion()){
-            case VERSION_1_14:
-                return new SwimAnimation_1_14();
-            case VERSION_1_15:
-                return new SwimAnimation_1_15();
-            default:
-                throw new RuntimeException("Unsupportable version");
-        }
-    }
-
     public static FakePlayer getFakePlayerInstance(Player parent){
         switch (SpigotVersion.currentVersion()){
             case VERSION_1_14:
@@ -72,6 +62,14 @@ public class NMSUtils
             default:
                 throw new RuntimeException("Unsupportable version");
         }
+    }
+
+    public static void sendPacket(Player player, Packet<?> packet){
+        ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
+    }
+
+    public static void sendPacket(Player player, net.minecraft.server.v1_14_R1.Packet<?> packet){
+        ((org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
     }
 
 }
