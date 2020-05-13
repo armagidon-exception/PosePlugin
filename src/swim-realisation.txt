@@ -1,0 +1,2 @@
+1. If player doesn't have block above him, place a REAL barrier, and hide it to another players by using Player#sendBlockChange
+2. If player standing on stairs, send swim-animation packets with runnable.
