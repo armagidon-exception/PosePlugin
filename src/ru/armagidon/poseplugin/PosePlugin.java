@@ -12,10 +12,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.poseplugin.poses.EnumPose;
-import ru.armagidon.poseplugin.utils.BetterChairBridge;
-import ru.armagidon.poseplugin.utils.ConfigurationManager;
-import ru.armagidon.poseplugin.utils.EventListener;
-import ru.armagidon.poseplugin.utils.UpdateChecker;
+import ru.armagidon.poseplugin.utils.misc.BetterChairBridge;
+import ru.armagidon.poseplugin.utils.misc.ConfigurationManager;
+import ru.armagidon.poseplugin.utils.events.EventListener;
+import ru.armagidon.poseplugin.utils.misc.UpdateChecker;
 import ru.armagidon.poseplugin.utils.nms.NMSUtils;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static ru.armagidon.poseplugin.utils.ConfigurationManager.*;
+import static ru.armagidon.poseplugin.utils.misc.ConfigurationManager.*;
 
 public class PosePlugin extends JavaPlugin implements Listener
 {
@@ -87,7 +87,7 @@ public class PosePlugin extends JavaPlugin implements Listener
     }
 
     private void initBridge(){
-        if(getServer().getPluginManager().getPlugin("BetterChair")!=null) bridge = new BetterChairBridge(PosePlugin.getInstance());
+        if((Boolean) ConfigurationManager.get(SIT_WITHOUT_COMMAND)&&getServer().getPluginManager().getPlugin("BetterChair")!=null) bridge = new BetterChairBridge(PosePlugin.getInstance());
         System.out.println("RUNNING "+NMSUtils.SpigotVersion.currentVersion().name()+" NMS");
     }
 
@@ -97,7 +97,6 @@ public class PosePlugin extends JavaPlugin implements Listener
         PluginCommand sit =getCommand("sit");
         PluginCommand lay =getCommand("lay");
         PluginCommand swim =getCommand("swim");
-
         sit.setExecutor(this);
         sit.setTabCompleter(c);
         lay.setExecutor(this);

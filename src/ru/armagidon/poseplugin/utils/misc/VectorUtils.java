@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.utils;
+package ru.armagidon.poseplugin.utils.misc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

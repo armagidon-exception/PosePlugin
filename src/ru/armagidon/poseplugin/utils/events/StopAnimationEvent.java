@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.utils;
+package ru.armagidon.poseplugin.utils.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

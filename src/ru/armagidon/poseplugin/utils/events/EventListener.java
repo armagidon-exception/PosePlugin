@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.utils;
+package ru.armagidon.poseplugin.utils.events;
 
 
 import org.bukkit.Bukkit;
@@ -15,6 +15,7 @@ import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.PosePluginPlayer;
 import ru.armagidon.poseplugin.poses.EnumPose;
 import ru.armagidon.poseplugin.poses.StandingPose;
+import ru.armagidon.poseplugin.utils.nms.NMSUtils;
 
 import java.util.Map;
 //Listener of all necessary events
@@ -37,6 +38,14 @@ public class EventListener implements org.bukkit.event.Listener
                 PosePlugin.checker.sendNotification(event.getPlayer());
             }
         }
+        for (PosePluginPlayer pl : players.values()) {
+            if(pl.getPoseType().equals(EnumPose.LYING)){
+                Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->{
+                    pl.getPose().play(event.getPlayer(),false);
+                },2);
+            }
+        }
+        NMSUtils.getDamageReader(event.getPlayer()).inject();
     }
 
     @EventHandler
@@ -62,6 +71,7 @@ public class EventListener implements org.bukkit.event.Listener
     public void quit(PlayerQuitEvent event){
         players.get(event.getPlayer().getName()).getPose().stop(false);
         players.remove(event.getPlayer().getName());
+        NMSUtils.getDamageReader(event.getPlayer()).eject();
     }
 
     public boolean containsPlayer(Player player){
@@ -88,6 +98,8 @@ public class EventListener implements org.bukkit.event.Listener
             }
         }
     }
+
+
 
     @EventHandler
     public void stop(StopAnimationEvent event){

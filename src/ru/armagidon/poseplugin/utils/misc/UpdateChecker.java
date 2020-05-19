@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.utils;
+package ru.armagidon.poseplugin.utils.misc;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;

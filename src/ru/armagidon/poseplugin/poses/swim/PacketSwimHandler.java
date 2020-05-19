@@ -5,14 +5,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.scheduler.BukkitTask;
 import ru.armagidon.poseplugin.PosePlugin;
-import ru.armagidon.poseplugin.utils.nms.AnimationPlayer;
-import ru.armagidon.poseplugin.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.utils.nms.interfaces.AnimationPlayer;
 
 public class PacketSwimHandler implements ISwimAnimationHandler {
 
+    private final Player player;
     private BukkitTask task;
     private Runnable runnable;
-    public PacketSwimHandler() {
+    public PacketSwimHandler(Player player) {
+        this.player = player;
         task = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(),()-> {
             if(runnable!=null)runnable.run();
         },0,1);
@@ -21,8 +22,7 @@ public class PacketSwimHandler implements ISwimAnimationHandler {
 
     @Override
     public void play(Player target) {
-        AnimationPlayer player = NMSUtils.getAnimationPlayer();
-        runnable = ()-> Bukkit.getOnlinePlayers().forEach(p-> player.play(target,p, Pose.SWIMMING));
+        runnable = ()->Bukkit.getOnlinePlayers().forEach(p-> AnimationPlayer.play(target,p, Pose.SWIMMING));
     }
 
     @Override

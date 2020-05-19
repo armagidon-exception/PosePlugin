@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import ru.armagidon.poseplugin.PosePlugin;
 
-import static ru.armagidon.poseplugin.utils.VectorUtils.getBlock;
+import static ru.armagidon.poseplugin.utils.misc.VectorUtils.getBlock;
 
 public class CommonSwimHandler implements ISwimAnimationHandler {
 
@@ -19,13 +19,13 @@ public class CommonSwimHandler implements ISwimAnimationHandler {
     private BukkitTask task;
 
 
-    public CommonSwimHandler(int modifier, Player target) {
+    CommonSwimHandler(int modifier, Player target) {
         this.modifier = modifier;
         task = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(),()->{
-
-            Block above = getBlock(target.getLocation().add(0,modifier,0));
             Bukkit.getOnlinePlayers().stream().filter(receiver->!receiver.getName().equals(target.getName())).
-                    forEach(rec-> rec.sendBlockChange(above.getLocation(),cache.getData()));
+                    forEach(rec-> {
+                        if(cache!=null) rec.sendBlockChange(cache.getLocation(),cache.getData());
+                    });
 
         },0,1);
     }
@@ -51,13 +51,13 @@ public class CommonSwimHandler implements ISwimAnimationHandler {
         task.cancel();
     }
 
-    class CacheBlock
+    private class CacheBlock
     {
         private final Material material;
         private final BlockData data;
         private final Location location;
 
-        public CacheBlock(Material material, BlockData data, Location location) {
+        CacheBlock(Material material, BlockData data, Location location) {
             this.material = material;
             this.data = data;
             this.location = location;
@@ -67,15 +67,11 @@ public class CommonSwimHandler implements ISwimAnimationHandler {
             return location;
         }
 
-        public BlockData getData() {
+        BlockData getData() {
             return data;
         }
 
-        public Material getMaterial() {
-            return material;
-        }
-
-        public void restore(){
+        void restore(){
             getLocation().getBlock().setType(material);
             getLocation().getBlock().setBlockData(data);
         }

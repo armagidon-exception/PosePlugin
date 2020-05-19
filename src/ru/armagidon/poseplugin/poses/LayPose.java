@@ -5,17 +5,17 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitTask;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.PosePluginPlayer;
-import ru.armagidon.poseplugin.utils.VectorUtils;
 import ru.armagidon.poseplugin.utils.nms.NMSUtils;
-import ru.armagidon.poseplugin.utils.nms.FakePlayer;
+import ru.armagidon.poseplugin.utils.nms.interfaces.FakePlayer;
 
-import static ru.armagidon.poseplugin.utils.ConfigurationManager.COLLIDABLE;
-import static ru.armagidon.poseplugin.utils.ConfigurationManager.get;
-import static ru.armagidon.poseplugin.utils.VectorUtils.yawToFace;
+import static ru.armagidon.poseplugin.utils.misc.VectorUtils.yawToFace;
 
 public class LayPose extends PluginPose
 {
@@ -31,9 +31,9 @@ public class LayPose extends PluginPose
     @Override
     public void play(Player receiver,boolean log) {
         super.play(receiver,log);
-        getPlayer().setCollidable((Boolean) get(COLLIDABLE));
+        getPlayer().setCollidable(false);
         if(receiver==null){
-            VectorUtils.getNear(100,getPlayer()).forEach(this::playAnimation);
+            Bukkit.getOnlinePlayers().forEach(this::playAnimation);
         } else {
             playAnimation(receiver);
         }
@@ -53,13 +53,13 @@ public class LayPose extends PluginPose
         return EnumPose.LYING;
     }
 
-    public void playAnimation(Player receiver) {
+    private void playAnimation(Player receiver) {
         if(receiver.getUniqueId().equals(getPlayer().getUniqueId())) return;
         receiver.hidePlayer(PosePlugin.getInstance(),getPlayer());
         fake.spawn(receiver);
     }
 
-    public void stopAnimation(Player receiver){
+    private void stopAnimation(Player receiver){
         if(receiver.getUniqueId().equals(getPlayer().getUniqueId())) return;
         receiver.showPlayer(PosePlugin.getInstance(),getPlayer());
         fake.remove(receiver);
@@ -74,18 +74,40 @@ public class LayPose extends PluginPose
             if (!checkPosition(event.getFrom(), event.getTo())) event.setCancelled(true);
             if (event.getFrom().getYaw() != event.getTo().getYaw() || event.getFrom().getPitch() != event.getTo().getPitch()) {
                 if (constrainYaw()) {
-                    VectorUtils.getNear(100, getPlayer()).forEach(near -> fake.rotateHead(near, getPlayer().getLocation().getPitch(), getPlayer().getLocation().getYaw()));
+                    Bukkit.getOnlinePlayers().forEach(near -> fake.rotateHead(near, getPlayer().getLocation().getPitch(), getPlayer().getLocation().getYaw()));
                 }
             }
         }
     }
 
-    public boolean checkPosition(Location from, Location to){
-        if(from.getX()!=to.getX()||from.getY()!=to.getY()||from.getZ()!=to.getZ()) return false;
-        return true;
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event){
+        if (!containsPlayer(event.getPlayer())) return;
+        if (!event.getPlayer().getName().equalsIgnoreCase(getPlayer().getName())) return;
+        PosePluginPlayer p = getPlayers().get(getPlayer().getName());
+        if (p.getPoseType().equals(EnumPose.LYING)) {
+            if(event.getHand() == null) return;
+            boolean mainhand = event.getHand().equals(EquipmentSlot.HAND);
+            Bukkit.getOnlinePlayers().forEach(pl->fake.swingHand(pl,mainhand));
+        }
     }
 
-    public boolean constrainYaw(){
+    @EventHandler
+    public void onInteractAt(PlayerInteractAtEntityEvent event){
+        if (!containsPlayer(event.getPlayer())) return;
+        if (!event.getPlayer().getName().equalsIgnoreCase(getPlayer().getName())) return;
+        PosePluginPlayer p = getPlayers().get(getPlayer().getName());
+        if (p.getPoseType().equals(EnumPose.LYING)) {
+            boolean mainhand = event.getHand().equals(EquipmentSlot.HAND);
+            Bukkit.getOnlinePlayers().forEach(pl->fake.swingHand(pl,mainhand));
+        }
+    }
+
+    private boolean checkPosition(Location from, Location to){
+        return from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ();
+    }
+
+    private boolean constrainYaw(){
         BlockFace face = fake.getFace();
         BlockFace playerface = yawToFace(getPlayer().getLocation().getYaw());
 

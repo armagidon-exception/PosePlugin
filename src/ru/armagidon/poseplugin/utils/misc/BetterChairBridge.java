@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.utils;
+package ru.armagidon.poseplugin.utils.misc;
 
 import de.Kurfat.Java.Minecraft.BetterChair.PlayerSitEvent;
 import de.Kurfat.Java.Minecraft.BetterChair.TypeParseException;
@@ -13,6 +13,7 @@ import org.spigotmc.event.entity.EntityMountEvent;
 import ru.armagidon.poseplugin.PosePluginPlayer;
 import ru.armagidon.poseplugin.poses.EnumPose;
 import ru.armagidon.poseplugin.poses.sit.ExternalSitPose;
+import ru.armagidon.poseplugin.utils.events.EventListener;
 
 public class BetterChairBridge implements org.bukkit.event.Listener
 {

@@ -6,15 +6,13 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.PosePluginPlayer;
-import ru.armagidon.poseplugin.utils.EventListener;
+import ru.armagidon.poseplugin.utils.events.EventListener;
 
 import java.util.Map;
 
 public abstract class PluginPose implements IPluginPose, Listener
 {
     private final Player player;
-
-    private final Map<String, PosePluginPlayer> players = EventListener.players;
 
     public PluginPose(Player target) {
         this.player = target;
@@ -40,7 +38,7 @@ public abstract class PluginPose implements IPluginPose, Listener
         return EventListener.players;
     }
 
-    public boolean containsPlayer(Player player){
-        return players.containsKey(player.getName())&&players.get(player.getName())!=null;
+    public static boolean containsPlayer(Player player){
+        return EventListener.players.containsKey(player.getName())&&EventListener.players.get(player.getName())!=null;
     }
 }
