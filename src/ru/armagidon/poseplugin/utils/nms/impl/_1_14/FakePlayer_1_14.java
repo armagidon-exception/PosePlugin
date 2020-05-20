@@ -93,7 +93,7 @@ public class FakePlayer_1_14 implements FakePlayer
         DataWatcher watcher = fake.getDataWatcher();
         watcher.set(DataWatcherRegistry.a.a(15), (byte)127);
         watcher.set(DataWatcherRegistry.s.a(6), EntityPose.SLEEPING);
-        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(fake.getId(),watcher,false);
+        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(fake.getId(),watcher,true);
         sendPacket(receiver,metadata);
     }
 

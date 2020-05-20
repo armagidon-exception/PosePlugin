@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.poses;
+package ru.armagidon.poseplugin.api.poses;
 
 import static ru.armagidon.poseplugin.utils.misc.ConfigurationManager.*;
 public enum EnumPose

@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.poses.swim;
+package ru.armagidon.poseplugin.api.poses.swim;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

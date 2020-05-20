@@ -10,10 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.plugin.Plugin;
 import org.spigotmc.event.entity.EntityMountEvent;
-import ru.armagidon.poseplugin.PosePluginPlayer;
-import ru.armagidon.poseplugin.poses.EnumPose;
-import ru.armagidon.poseplugin.poses.sit.ExternalSitPose;
-import ru.armagidon.poseplugin.utils.events.EventListener;
+import ru.armagidon.poseplugin.PosePlugin;
+import ru.armagidon.poseplugin.api.PosePluginPlayer;
+import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
+import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.sit.ExternalSitPose;
 
 public class BetterChairBridge implements org.bukkit.event.Listener
 {
@@ -69,10 +70,13 @@ public class BetterChairBridge implements org.bukkit.event.Listener
 
     @EventHandler
     public void sit(PlayerSitEvent event){
-            if(event.isEnable()) {
-                PosePluginPlayer p = EventListener.players.get(event.getPlayer().getName());
-                p.setPose(new ExternalSitPose(event.getPlayer()));
-                p.getPlayer().sendMessage(EnumPose.SITTING.getMessage());
-            }
+        if(event.isEnable()) {
+            PosePluginPlayer p = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
+            PoseChangeEvent e = new PoseChangeEvent(p.getPoseType(), EnumPose.SITTING,p,true);
+            Bukkit.getPluginManager().callEvent(e);
+            if(e.isCancelled()) return;
+            p.setPose(new ExternalSitPose(event.getPlayer()));
+            if(e.isLog()) p.getPlayer().sendMessage(EnumPose.SITTING.getMessage());
+        }
     }
 }

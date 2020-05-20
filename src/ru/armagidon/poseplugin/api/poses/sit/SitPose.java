@@ -1,10 +1,10 @@
-package ru.armagidon.poseplugin.poses.sit;
+package ru.armagidon.poseplugin.api.poses.sit;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
-import ru.armagidon.poseplugin.poses.EnumPose;
-import ru.armagidon.poseplugin.poses.PluginPose;
+import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.PluginPose;
 
 public abstract class SitPose extends PluginPose {
 

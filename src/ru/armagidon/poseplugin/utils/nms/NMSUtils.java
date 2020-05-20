@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
+import ru.armagidon.poseplugin.utils.nms.impl._1_14.FakePlayer_1_14;
 import ru.armagidon.poseplugin.utils.nms.impl._1_15.DamagePacketReader;
 import ru.armagidon.poseplugin.utils.nms.impl._1_15.FakePlayer_1_15;
 import ru.armagidon.poseplugin.utils.nms.interfaces.FakePlayer;
@@ -61,6 +62,8 @@ public class NMSUtils
         switch (SpigotVersion.currentVersion()){
             case VERSION_1_15:
                 return new FakePlayer_1_15(parent);
+            case VERSION_1_14:
+                return new FakePlayer_1_14(parent);
             default:
                 throw new RuntimeException("Unsupported version");
         }

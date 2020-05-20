@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.poses.sit;
+package ru.armagidon.poseplugin.api.poses.sit;
 
 import de.Kurfat.Java.Minecraft.BetterChair.Types.Chair;
 import org.bukkit.Location;

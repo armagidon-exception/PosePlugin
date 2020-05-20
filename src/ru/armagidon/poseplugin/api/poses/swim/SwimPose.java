@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.poses.swim;
+package ru.armagidon.poseplugin.api.poses.swim;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,30 +9,34 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityToggleSwimEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import ru.armagidon.poseplugin.PosePluginPlayer;
-import ru.armagidon.poseplugin.poses.EnumPose;
-import ru.armagidon.poseplugin.poses.PluginPose;
+import ru.armagidon.poseplugin.api.PosePluginPlayer;
+import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.PluginPose;
+import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.utils.misc.ConfigurationManager;
 
+import static ru.armagidon.poseplugin.utils.misc.ConfigurationManager.*;
 import static ru.armagidon.poseplugin.utils.misc.VectorUtils.getBlock;
 
 public class SwimPose extends PluginPose {
 
     private ISwimAnimationHandler handler = null;
-
+    private final Block under;
+    private final Block above;
 
     public SwimPose(Player player) {
         super(player);
+        Location ploc = getPlayer().getLocation();
+        above = getBlock(ploc.clone().add(0,1,0));
+        under = getBlock(ploc.clone().subtract(0,1,0));
     }
 
     @Override
     public void play(Player receiver, boolean log) {
         super.play(receiver, log);
         getPlayer().setCollidable(false);
-        Location ploc = getPlayer().getLocation();
-        Block under = getBlock(ploc.clone().subtract(0,1,0));
-        Block above = getBlock(ploc.clone().add(0,1,0));
-        setHandler(under,above,ploc);
+        if(getBoolean(ConfigurationManager.PACKET_SWIM)) handler = new PacketSwimHandler(getPlayer());
+        else setHandler(under,above,getPlayer().getLocation());
         handler.play(getPlayer());
     }
 
@@ -48,19 +52,12 @@ public class SwimPose extends PluginPose {
         return EnumPose.SWIMMING;
     }
 
-    @EventHandler
+    @PersonalEventHandler
     public void move(PlayerMoveEvent event){
-        if(!containsPlayer(event.getPlayer())) return;
-        if(!event.getPlayer().getName().equals(getPlayer().getName())) return;
-        PosePluginPlayer p = getPlayers().get(event.getPlayer().getName());
-        if(p.getPoseType().equals(EnumPose.SWIMMING)){
-            Block under = getBlock(getPlayer().getLocation().clone().subtract(0,1,0));
-            Block above = getBlock(getPlayer().getLocation().clone().add(0,1,0));
-            if(moved(event.getFrom(),event.getTo())) {
-                setHandler(under,above,getPlayer().getLocation());
-                //Use swim handler
-                handler.play(getPlayer());
-            }
+        if(moved(event.getFrom(),event.getTo())) {
+            setHandler(under,above,getPlayer().getLocation());
+            //Use swim handler
+            handler.play(getPlayer());
         }
     }
 
@@ -80,28 +77,17 @@ public class SwimPose extends PluginPose {
         }
     }
 
-    @EventHandler
-    public void onDamage(EntityDamageEvent event){
-        if(!(event.getEntity() instanceof Player)) return;
-        Player pl = (Player) event.getEntity();
-        if(!pl.getName().equals(getPlayer().getName())||!containsPlayer(pl)) return;
-        PosePluginPlayer p = getPlayers().get(pl.getName());
-        if(!p.getPoseType().equals(EnumPose.SWIMMING)) return;
-        if(event.getCause().equals(EntityDamageEvent.DamageCause.SUFFOCATION)) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
+    @PersonalEventHandler
     public void damage(EntityDamageEvent event){
-        if(!(event.getEntity() instanceof Player)) return;
-        Player player = (Player) event.getEntity();
-        if(!containsPlayer(player)) return;
-        PosePluginPlayer p = getPlayers().get(player.getName());
-        if(!p.getPoseType().equals(EnumPose.SWIMMING)) return;
-        if(event.getCause().equals(EntityDamageEvent.DamageCause.SUFFOCATION)) return;
-        if(!(Boolean) ConfigurationManager.get(ConfigurationManager.STAND_UP_WHEN_DAMAGE)) return;
-        p.changePose(EnumPose.STANDING);
+        PosePluginPlayer p = getPosePluginPlayer();
+        if(event.getCause().equals(EntityDamageEvent.DamageCause.SUFFOCATION)){
+            event.setCancelled(true);
+            return;
+        }
+        if(!getBoolean(ConfigurationManager.STAND_UP_WHEN_DAMAGE)) {
+            PluginPose.callStopEvent(EnumPose.SWIMMING,p,false);
+            p.getPlayer().sendMessage(getString(STAND_UP_WHEN_DAMAGE_MSG));
+        }
     }
 
     private boolean moved(Location from, Location to){

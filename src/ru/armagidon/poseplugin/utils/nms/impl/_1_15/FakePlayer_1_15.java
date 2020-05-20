@@ -56,7 +56,8 @@ public class FakePlayer_1_15 implements FakePlayer
     public void rotateHead(Player receiver, float pitch, float yaw){
         PacketPlayOutEntity.PacketPlayOutEntityLook look = new PacketPlayOutEntity.PacketPlayOutEntityLook(fake.getId(),getFixRotation(this.yaw), getFixRotation(pitch), true);
         sendPacket(receiver,look);
-        PacketPlayOutEntityHeadRotation r = new PacketPlayOutEntityHeadRotation(fake,getFixRotation(yaw));
+        float y = getFace().equals(BlockFace.EAST) ? yaw-270:yaw-90;
+        PacketPlayOutEntityHeadRotation r = new PacketPlayOutEntityHeadRotation(fake,getFixRotation(y));
         sendPacket(receiver,r);
     }
 
