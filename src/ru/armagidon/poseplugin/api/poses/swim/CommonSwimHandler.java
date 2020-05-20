@@ -37,7 +37,8 @@ public class CommonSwimHandler implements ISwimAnimationHandler {
             cache.restore();
             cache = null;
         }
-        if(!above.getType().isSolid()|| Tag.BANNERS.isTagged(above.getType())){
+        if(Tag.PORTALS.isTagged(above.getType())) return;
+        if(!above.getType().isSolid()||Tag.BANNERS.isTagged(above.getType())){
             //If block above is air, place a fake barrier
             if(cache==null) cache = new CacheBlock(above.getType(),above.getBlockData(),above.getLocation());
             above.setType(Material.BARRIER);

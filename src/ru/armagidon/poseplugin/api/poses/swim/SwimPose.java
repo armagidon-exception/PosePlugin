@@ -6,16 +6,14 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityToggleSwimEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import ru.armagidon.poseplugin.api.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.utils.misc.ConfigurationManager;
 
-import static ru.armagidon.poseplugin.utils.misc.ConfigurationManager.*;
+import static ru.armagidon.poseplugin.utils.misc.ConfigurationManager.getBoolean;
 import static ru.armagidon.poseplugin.utils.misc.VectorUtils.getBlock;
 
 public class SwimPose extends PluginPose {
@@ -36,7 +34,7 @@ public class SwimPose extends PluginPose {
         super.play(receiver, log);
         getPlayer().setCollidable(false);
         if(getBoolean(ConfigurationManager.PACKET_SWIM)) handler = new PacketSwimHandler(getPlayer());
-        else setHandler(under,above,getPlayer().getLocation());
+        else setHandler(getPlayer().getLocation());
         handler.play(getPlayer());
     }
 
@@ -55,7 +53,7 @@ public class SwimPose extends PluginPose {
     @PersonalEventHandler
     public void move(PlayerMoveEvent event){
         if(moved(event.getFrom(),event.getTo())) {
-            setHandler(under,above,getPlayer().getLocation());
+            setHandler(getPlayer().getLocation());
             //Use swim handler
             handler.play(getPlayer());
         }
@@ -77,30 +75,17 @@ public class SwimPose extends PluginPose {
         }
     }
 
-    @PersonalEventHandler
-    public void damage(EntityDamageEvent event){
-        PosePluginPlayer p = getPosePluginPlayer();
-        if(event.getCause().equals(EntityDamageEvent.DamageCause.SUFFOCATION)){
-            event.setCancelled(true);
-            return;
-        }
-        if(!getBoolean(ConfigurationManager.STAND_UP_WHEN_DAMAGE)) {
-            PluginPose.callStopEvent(EnumPose.SWIMMING,p,false);
-            p.getPlayer().sendMessage(getString(STAND_UP_WHEN_DAMAGE_MSG));
-        }
-    }
-
     private boolean moved(Location from, Location to){
         return from.getX()!=to.getX()||from.getZ()!=to.getZ();
     }
 
 
-    private void setHandler(Block under,Block above,Location plocation){
+    private void setHandler(Location plocation){
 
         double y = plocation.getY();
         int blocky = plocation.getBlockY();
         //if player is standing on stairs, use packet handler
-        if(Tag.STAIRS.isTagged(under.getType())|| Tag.PORTALS.isTagged(above.getType())){
+        if(Tag.STAIRS.isTagged(under.getType())||Tag.PORTALS.isTagged(getBlock(plocation).getType())){
             changeHandler(new PacketSwimHandler(getPlayer()));
         }
         //If y greater than block y and under-block is full-high, place barrier in two blocks above
