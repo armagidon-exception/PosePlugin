@@ -65,13 +65,21 @@ public class PosePluginPlayer
     public void callPersonalEvent(Event event){
         try{
             PersonalListener listener = (PluginPose) getPose();
-            Method[] ms = listener.getClass().getDeclaredMethods();
-            for (Method m:ms) {
-                if(!m.isAnnotationPresent(PersonalEventHandler.class)) continue;
+            forEachMethods(listener, event);
+        }catch (ClassCastException e){ return;}
+    }
+
+    private void forEachMethods(PersonalListener listener, Event event){
+        Class superclass = listener.getClass();
+        while (superclass!=null) {
+            for (Method m : superclass.getDeclaredMethods()) {
+                if (!m.isAnnotationPresent(PersonalEventHandler.class)) continue;
                 try {
                     m.invoke(listener, event);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
-        }catch (ClassCastException e){ return;}
+            superclass = superclass.getSuperclass();
+        }
     }
 }
