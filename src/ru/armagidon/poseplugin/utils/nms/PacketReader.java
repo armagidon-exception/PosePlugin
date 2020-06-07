@@ -21,14 +21,14 @@ public abstract class PacketReader {
         return packetName;
     }
 
-    public void inject(){
+    public void inject() {
 
         try {
             Object nmsPlayer = sender.getClass().getMethod("getHandle").invoke(sender);
             Object plrConnection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
             Object nwm = plrConnection.getClass().getField("networkManager").get(plrConnection);
             channel = (Channel) nwm.getClass().getField("channel").get(nwm);
-            if(channel.pipeline().get(getPacketName())==null) {
+            if (channel.pipeline().get(getPacketName()) == null) {
                 channel.pipeline().addBefore("packet_handler", getPacketName(), new ChannelDuplexHandler() {
 
                     @Override
@@ -42,13 +42,14 @@ public abstract class PacketReader {
                     }
                 });
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-    public void eject(){
-        if(channel!=null&&channel.pipeline().get(getPacketName())!=null){
+
+    public void eject() {
+        if (channel != null && channel.pipeline().get(getPacketName()) != null) {
             channel.pipeline().remove(getPacketName());
         }
     }

@@ -6,10 +6,8 @@ import org.bukkit.event.HandlerList;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 
-public class StopAnimationEvent extends Event implements Cancellable
-{
+public class StopAnimationEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-
     private final EnumPose pose;
     private final PosePluginPlayer player;
     private boolean log;
@@ -62,7 +60,7 @@ public class StopAnimationEvent extends Event implements Cancellable
         return cause;
     }
 
-    public enum StopCause{
+    public enum StopCause {
         STOPPED,
         TELEPORT;
     }

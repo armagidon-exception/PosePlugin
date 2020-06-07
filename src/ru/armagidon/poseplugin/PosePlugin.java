@@ -26,14 +26,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class PosePlugin extends JavaPlugin implements Listener
-{
+public class PosePlugin extends JavaPlugin implements Listener {
     private static PosePlugin instance;
 
     public static PosePlugin getInstance() {
         return instance;
     }
-    private Map<String, PosePluginPlayer> players = new HashMap<>();
+
+    private final Map<String, PosePluginPlayer> players = new HashMap<>();
     public static UpdateChecker checker;
     private Messages messages;
     private FileConfiguration config;
@@ -47,14 +47,14 @@ public class PosePlugin extends JavaPlugin implements Listener
         this.config = getConfig();
         try {
             this.messages = new Messages(config.getString("locale", "en"));
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             getLogger().severe(e.getMessage());
         }
         //Init commands
         initCommands();
         //Register events
-        getServer().getPluginManager().registerEvents(new EventListener(players),this);
-        getServer().getPluginManager().registerEvents(new PersonalEventDispatcher(),this);
+        getServer().getPluginManager().registerEvents(new EventListener(players), this);
+        getServer().getPluginManager().registerEvents(new PersonalEventDispatcher(), this);
         //Save config
         saveDefaultConfig();
         //Check for updates
@@ -63,26 +63,32 @@ public class PosePlugin extends JavaPlugin implements Listener
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(sender instanceof Player) {
+        if (sender instanceof Player) {
             PosePluginPlayer p = players.get(sender.getName());
             EnumPose pose;
-            if (command.getName().equalsIgnoreCase("sit"))
-                pose = EnumPose.SITTING;
-            else if (command.getName().equalsIgnoreCase("lay"))
-                pose = EnumPose.LYING;
-            else if(command.getName().equalsIgnoreCase("swim")){
-                if(isSwimEnabled())
-                    pose = EnumPose.SWIMMING;
-                else {
-                    messages.send(Message.ANIMATION_DISABLED, sender);
+            switch (command.getName().toLowerCase()) {
+                case "sit":
+                    pose = EnumPose.SITTING;
+                    break;
+                case "lay":
+                    pose = EnumPose.LYING;
+                    break;
+                case "swim":
+                    if (isSwimEnabled())
+                        pose = EnumPose.SWIMMING;
+                    else {
+                        messages.send(Message.ANIMATION_DISABLED, sender);
+                        return true;
+                    }
+                    break;
+                default:
                     return true;
-                }
-            } else return true;
-            if(p.getPoseType().equals(pose)){
+            }
+            if (p.getPoseType().equals(pose)) {
                 p.getPose().stop(true);
                 return true;
             }
-            if(!onGround(p.getPlayer())){
+            if (!onGround(p.getPlayer())) {
                 messages.send(Message.IN_AIR, sender);
                 return true;
             }
@@ -94,30 +100,36 @@ public class PosePlugin extends JavaPlugin implements Listener
     @Override
     public void onDisable() {
         status = ServerStatus.SHUTTING_DOWN;
-        players.forEach((s,p)-> p.getPose().stop(false));
-        Bukkit.getOnlinePlayers().forEach(p-> Bukkit.getOnlinePlayers().forEach(a-> p.showPlayer(this,a)));
+        players.forEach((s, p) -> p.getPose().stop(false));
+        Bukkit.getOnlinePlayers().forEach(p -> Bukkit.getOnlinePlayers().forEach(a -> p.showPlayer(this, a)));
     }
 
-    private void initCommands(){
+    private void initCommands() {
         TabCompleter c = (commandSender, command, s, strings) -> new ArrayList<>();
-        PluginCommand sit =getCommand("sit");
-        PluginCommand lay =getCommand("lay");
-        PluginCommand swim =getCommand("swim");
-        sit.setExecutor(this);
-        sit.setTabCompleter(c);
-        lay.setExecutor(this);
-        lay.setTabCompleter(c);
-        swim.setExecutor(this);
-        swim.setTabCompleter(c);
+        PluginCommand sit = getCommand("sit");
+        PluginCommand lay = getCommand("lay");
+        PluginCommand swim = getCommand("swim");
+        if (sit != null) {
+            sit.setExecutor(this);
+            sit.setTabCompleter(c);
+        }
+        if (lay != null) {
+            lay.setExecutor(this);
+            lay.setTabCompleter(c);
+        }
+        if (swim != null) {
+            swim.setExecutor(this);
+            swim.setTabCompleter(c);
+        }
     }
 
-    private boolean onGround(Player player){
+    private boolean onGround(Player player) {
         Location location = player.getLocation();
-        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR)&&player.isOnGround();
+        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR) && player.isOnGround();
     }
 
-    public boolean containsPlayer(Player player){
-        return players.containsKey(player.getName())&&players.get(player.getName())!=null;
+    public boolean containsPlayer(Player player) {
+        return players.containsKey(player.getName()) && players.get(player.getName()) != null;
     }
 
     @Override
@@ -129,16 +141,16 @@ public class PosePlugin extends JavaPlugin implements Listener
         return players.get(player);
     }
 
-    public Messages message(){
+    public Messages message() {
         return messages;
     }
 
-    private boolean isSwimEnabled(){
+    private boolean isSwimEnabled() {
         return config.getBoolean("swim.enabled");
     }
 
-    private void checkForUpdates(){
-        if(config.getBoolean("check-for-updates")){
+    private void checkForUpdates() {
+        if (config.getBoolean("check-for-updates")) {
             checker = new UpdateChecker();
             checker.runTaskAsynchronously(this);
         }
@@ -148,7 +160,7 @@ public class PosePlugin extends JavaPlugin implements Listener
         return status;
     }
 
-    public enum ServerStatus{
+    public enum ServerStatus {
         ENABLING,
         SHUTTING_DOWN
     }

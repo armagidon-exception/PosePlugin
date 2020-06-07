@@ -7,7 +7,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class PluginLogger extends Logger {
-    private String pluginName;
+    private final String pluginName;
 
     /**
      * Creates a new PluginLogger that extracts the name from a plugin.
@@ -27,5 +27,4 @@ public class PluginLogger extends Logger {
         logRecord.setMessage(pluginName + logRecord.getMessage());
         super.log(logRecord);
     }
-
 }

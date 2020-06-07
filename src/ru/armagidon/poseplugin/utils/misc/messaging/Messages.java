@@ -6,25 +6,24 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.armagidon.poseplugin.PosePlugin;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.Function;
 
-public class Messages
-{
+public class Messages {
     private final FileConfiguration locale;
-    private Function<String, String> COLORIZE = (string)-> ChatColor.translateAlternateColorCodes('&',string);
-
+    private final Function<String, String> COLORIZE = (string) -> ChatColor.translateAlternateColorCodes('&', string);
 
     public Messages(String locale) {
         File localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "locale");
-        localeFolder.mkdirs();
+        if (!localeFolder.mkdirs())
+            throw new IllegalArgumentException("No directories created");
         saveEn(localeFolder);
-        File file = new File(localeFolder, locale+".yml");
-        if(!file.exists()){
-            throw new IllegalArgumentException("Locale file \""+locale+ "\" doesn't exists");
-        }
+        File file = new File(localeFolder, locale + ".yml");
+        if (!file.exists())
+            throw new IllegalArgumentException("Locale file \"" + locale + "\" doesn't exists");
         this.locale = YamlConfiguration.loadConfiguration(file);
     }
 
@@ -32,15 +31,14 @@ public class Messages
         send(message.getMessage(), sender);
     }
 
-    private void saveEn(File localeFolder){
+    private void saveEn(File localeFolder) {
         File en = new File(localeFolder, "en.yml");
-        if(!en.exists()){
-            try {
-                Files.copy(getClass().getResourceAsStream("/locale/en.yml"),
-                        Paths.get(en.getPath()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (en.exists())
+            return;
+        try {
+            Files.copy(getClass().getResourceAsStream("/locale/en.yml"), Paths.get(en.getPath()));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

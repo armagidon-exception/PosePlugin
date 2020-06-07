@@ -6,9 +6,7 @@ import org.bukkit.event.HandlerList;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 
-public class PoseChangeEvent extends Event implements Cancellable
-{
-
+public class PoseChangeEvent extends Event implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private boolean cancelled;
     private final EnumPose before;

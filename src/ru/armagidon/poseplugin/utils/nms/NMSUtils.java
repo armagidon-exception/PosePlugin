@@ -4,16 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-public class NMSUtils
-{
-    public NMSUtils(){
+public class NMSUtils {
+    public NMSUtils() {
     }
 
-    public static PacketReader getSwingReader(Player player){
+    public static PacketReader getSwingReader(Player player) {
         return new SwingPacketReader(player);
     }
 
@@ -22,7 +17,7 @@ public class NMSUtils
             Object nmsPlayer = receiver.getClass().getMethod("getHandle").invoke(receiver);
             Object plrConnection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
             plrConnection.getClass().getMethod("sendPacket", getNmsClass("Packet")).invoke(plrConnection, packet);
-        } catch (Exception e){
+        } catch (Exception e) {
             PosePlugin.getInstance().getLogger().severe(e.toString());
         }
     }

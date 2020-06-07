@@ -7,24 +7,22 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 
-public class PersonalEventDispatcher implements Listener
-{
-    @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)
-    public void onMove(PlayerMoveEvent event){
-        if(!containsPlayer(event.getPlayer())) return;
+public class PersonalEventDispatcher implements Listener {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    public void onMove(PlayerMoveEvent event) {
+        if (!containsPlayer(event.getPlayer())) return;
         PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
         player.callPersonalEvent(event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onDamage(EntityDamageEvent e){
-        if(!(e.getEntity() instanceof Player)) return;
+    public void onDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player)) return;
         Player p = (Player) e.getEntity();
-        if(!containsPlayer(p)) return;
+        if (!containsPlayer(p)) return;
         PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(p.getName());
         player.callPersonalEvent(e);
     }
@@ -32,6 +30,7 @@ public class PersonalEventDispatcher implements Listener
     private boolean containsPlayer(Player player) {
         return PosePlugin.getInstance().containsPlayer(player);
     }
+
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event) {
         if (!containsPlayer(event.getPlayer())) return;
@@ -54,19 +53,17 @@ public class PersonalEventDispatcher implements Listener
     }
 
     @EventHandler
-    public void onConsume(PlayerItemConsumeEvent event){
-        if(!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
+    public void onConsume(PlayerItemConsumeEvent event) {
+        if (!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
         PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
         player.callPersonalEvent(event);
     }
 
     @EventHandler
-    public void onClick(PlayerInteractEvent event){
-        if(!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
+    public void onClick(PlayerInteractEvent event) {
+        if (!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
         PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
-        if(event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK))
             player.callPersonalEvent(event);
-        }
     }
-
 }

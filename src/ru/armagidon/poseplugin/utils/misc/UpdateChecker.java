@@ -18,8 +18,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.stream.Collectors;
 
-public class UpdateChecker extends BukkitRunnable
-{
+public class UpdateChecker extends BukkitRunnable {
 
     public boolean uptodate = false;
     private String newest = "";
@@ -31,9 +30,7 @@ public class UpdateChecker extends BukkitRunnable
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String newest = reader.lines().collect(Collectors.toList()).get(0);
             reader.close();
-
             String current = PosePlugin.getInstance().getDescription().getVersion();
-
             if (!current.equalsIgnoreCase(newest)) {
                 uptodate = false;
                 this.newest = newest;
@@ -47,17 +44,17 @@ public class UpdateChecker extends BukkitRunnable
 
     }
 
-    public void sendNotification(Player p){
+    public void sendNotification(Player p) {
         TextComponent link = new TextComponent("§bDownload");
-        TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&',"&7&lNEW UPDATE &e"+newest+"&7&l AVAILABLE! CLICK TO DOWNLOAD!"));
-        p.sendMessage(ChatColor.translateAlternateColorCodes('&',"                   &f&l{[&3POSEPLUGIN&f&l]}"));
-        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new BaseComponent[]{link}));
-        msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,"https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose.76990/"));
+        TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&', "&7&lNEW UPDATE &e" + newest + "&7&l AVAILABLE! CLICK TO DOWNLOAD!"));
+        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "                   &f&l{[&3POSEPLUGIN&f&l]}"));
+        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{link}));
+        msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose.76990/"));
         p.spigot().sendMessage(msg);
-        p.sendMessage(ChatColor.translateAlternateColorCodes('&',"                   &f&l{[&3POSEPLUGIN&f&l]}"));
-        if(Bukkit.getPlayer("Armagidon_MC")!=null&&Bukkit.getPlayer("Armagidon_MC").isOnline()){
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&bDEVELOPER IS ONLINE ON THIS SERVER > &aArmagidon_MC"));
-        }
+        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "                   &f&l{[&3POSEPLUGIN&f&l]}"));
+        Player dev = Bukkit.getPlayer("Armagidon_MC");
+        if (dev != null && dev.isOnline())
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bDEVELOPER IS ONLINE ON THIS SERVER > &aArmagidon_MC"));
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
     }
 }

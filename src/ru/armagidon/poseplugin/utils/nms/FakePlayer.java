@@ -24,8 +24,7 @@ import java.util.Objects;
 
 import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
 
-public class FakePlayer
-{
+public class FakePlayer {
     private final Player parent;
     private final EntityPlayer fake;
     private final BlockPosition bedPos;
@@ -38,7 +37,7 @@ public class FakePlayer
     private final BukkitTask tickStarter;
 
     //Config fields
-    private boolean swingHand;
+    private final boolean swingHand;
     private final boolean invulnerable;
     private final boolean headrotation;
 
@@ -47,11 +46,11 @@ public class FakePlayer
     public FakePlayer(Player parent, boolean headrotation, boolean invulnerable, boolean swingHand) {
         this.parent = parent;
         this.fake = createNPC(parent);
-        this.parentLocation= parent.getLocation().clone();
+        this.parentLocation = parent.getLocation().clone();
 
         Location bedLoc = bedLocation(parentLocation);
         this.cache = new BlockCache(bedLoc.getBlock().getType(), bedLoc.getBlock().getBlockData(), bedLoc);
-        this.bedPos = new BlockPosition(bedLoc.getX(), bedLoc.getY(),bedLoc.getZ());
+        this.bedPos = new BlockPosition(bedLoc.getX(), bedLoc.getY(), bedLoc.getZ());
         this.access = this.bedBlockAccess();
         this.face = BlockFace.valueOf(getDirection(getParent().getLocation().getYaw()).name());
 
@@ -62,13 +61,13 @@ public class FakePlayer
         FAKE_PLAYERS.put(parent, this);
 
         //Load hitBox and start ticking
-        tickStarter = Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->{
+        tickStarter = Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), () -> {
             //Updating
-            syncTask = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), ()->{
+            syncTask = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), () -> {
                 Bukkit.getOnlinePlayers().forEach(this::tick);
-            },0,1);
+            }, 0, 1);
         }, 10);
-        fake.setPositionRotation(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(),parentLocation.getYaw(), parentLocation.getPitch());
+        fake.setPositionRotation(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(), parentLocation.getYaw(), parentLocation.getPitch());
     }
 
     //How to spawn lying player
@@ -86,7 +85,7 @@ public class FakePlayer
         sendPacket(receiver, new PacketPlayOutNamedEntitySpawn(fake));
         fake.setInvisible(true);
         sendPacket(receiver, new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false));
-        layPlayer(receiver,watcher);
+        layPlayer(receiver, watcher);
         sendPacket(receiver, move());
         fake.setInvisible(false);
         sendPacket(receiver, new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false));
@@ -95,8 +94,8 @@ public class FakePlayer
     public void remove(Player receiver) {
         PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fake.getId());
         sendPacket(receiver, destroy);
-        if(!tickStarter.isCancelled()) tickStarter.cancel();
-        if(syncTask!=null) syncTask.cancel();
+        if (!tickStarter.isCancelled()) tickStarter.cancel();
+        if (syncTask != null) syncTask.cancel();
         cache.restore(receiver);
         FAKE_PLAYERS.remove(this);
     }
@@ -107,10 +106,10 @@ public class FakePlayer
         //Update armor etc.
         updateEquipment(receiver);
         //Set position for npc
-        fake.setPosition(parentLocation.getX(),parentLocation.getY(),parentLocation.getZ());
+        fake.setPosition(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ());
         //Look
         float sub;
-        switch (face){
+        switch (face) {
             case NORTH:
                 sub = 0;
                 break;
@@ -124,12 +123,12 @@ public class FakePlayer
                 sub = 90;
                 break;
         }
-            if (headrotation) {
-                look(getParent().getLocation().getYaw() - sub, receiver);
-            }
+        if (headrotation) {
+            look(getParent().getLocation().getYaw() - sub, receiver);
+        }
     }
 
-    private DataWatcher cloneDataWatcher(){
+    private DataWatcher cloneDataWatcher() {
         EntityHuman human = new EntityHuman(fake.getWorld(), fake.getProfile()) {
 
             public boolean isSpectator() {
@@ -147,28 +146,30 @@ public class FakePlayer
         DataWatcher parentwatcher = vanillaplayer.getDataWatcher();
         byte overlays = parentwatcher.get(DataWatcherRegistry.a.a(16));
         byte arrows = parentwatcher.get(DataWatcherRegistry.a.a(0));
-        DataWatcher watcher =human.getDataWatcher();
+        DataWatcher watcher = human.getDataWatcher();
         watcher.set(DataWatcherRegistry.a.a(16), overlays);
-        watcher.set(DataWatcherRegistry.a.a(0),arrows);
-        try{
+        watcher.set(DataWatcherRegistry.a.a(0), arrows);
+        try {
             Field watcherField = Entity.class.getDeclaredField("datawatcher");
             watcherField.setAccessible(true);
             watcherField.set(human, watcher);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return human.getDataWatcher();
     }
 
-    private PacketPlayOutBlockChange spawnFakeBedPacket(BlockPosition location){
+    private PacketPlayOutBlockChange spawnFakeBedPacket(BlockPosition location) {
         return new PacketPlayOutBlockChange(access, location);
     }
 
-    private PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook move(){
-        return new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short)0,(short) 2,(short) 0,(byte)0,(byte)0,false);
+    private PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook move() {
+        return new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0, (short) 2, (short) 0, (byte) 0, (byte) 0, false);
     }
 
-    private byte getFixedRotation(float var1){ return (byte) (var1 * 256.0F / 360.0F); }
+    private byte getFixedRotation(float var1) {
+        return (byte) (var1 * 256.0F / 360.0F);
+    }
 
     private IBlockAccess bedBlockAccess() {
         final Float f = parent.getEyeLocation().getYaw();
@@ -179,7 +180,17 @@ public class FakePlayer
                 return Blocks.WHITE_BED.getBlockData().set(BlockBed.FACING, a).set(BlockBed.PART, BlockPropertyBedPart.HEAD);
             }
 
+            @Override
+            public Fluid getFluidIfLoaded(BlockPosition blockPosition) {
+                return null;
+            }
+
             public TileEntity getTileEntity(BlockPosition arg0) {
+                return null;
+            }
+
+            @Override
+            public IBlockData getTypeIfLoaded(BlockPosition blockPosition) {
                 return null;
             }
 
@@ -189,9 +200,9 @@ public class FakePlayer
         };
     }
 
-    private ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot){
+    private ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot) {
         org.bukkit.inventory.ItemStack eq;
-        switch (slot){
+        switch (slot) {
             case HEAD:
                 eq = e.getHelmet();
                 break;
@@ -213,7 +224,7 @@ public class FakePlayer
         return CraftItemStack.asNMSCopy(eq);
     }
 
-    private float transform(float rawyaw){
+    private float transform(float rawyaw) {
         rawyaw = rawyaw < 0.0F ? 360.0F + rawyaw : rawyaw;
         rawyaw = rawyaw % 360.0F;
         return rawyaw;
@@ -241,14 +252,14 @@ public class FakePlayer
         return a;
     }
 
-    private Location bedLocation(Location location){
+    private Location bedLocation(Location location) {
         Location l = location.clone();
         l.setY(0);
         return l;
     }
 
-    private GameProfile cloneProfile(Player parent){
-        EntityPlayer vanillaplayer = ((CraftPlayer)parent).getHandle();
+    private GameProfile cloneProfile(Player parent) {
+        EntityPlayer vanillaplayer = ((CraftPlayer) parent).getHandle();
         GameProfile gameProfile = new GameProfile(parent.getUniqueId(), parent.getName());
         gameProfile.getProperties().putAll(vanillaplayer.getProfile().getProperties());
         return gameProfile;
@@ -258,15 +269,11 @@ public class FakePlayer
         EntityPlayer vanillaplayer = ((CraftPlayer) parent).getHandle();
         World world = vanillaplayer.getWorld();
         return new EntityPlayer(Objects.requireNonNull(world.getMinecraftServer()), vanillaplayer.getWorldServer(), cloneProfile(parent), new PlayerInteractManager(vanillaplayer.getWorldServer())) {
-
-
             public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {
             }
 
-
             public void sendMessage(IChatBaseComponent ichatbasecomponent) {
             }
-
 
             public boolean isCreative() {
                 return false;
@@ -274,17 +281,15 @@ public class FakePlayer
         };
     }
 
-    private PacketPlayOutPlayerInfo getInfoPacket(){
-        PacketPlayOutPlayerInfo info = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
-        return info;
+    private PacketPlayOutPlayerInfo getInfoPacket() {
+        return new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
     }
 
-    private void layPlayer(Player receiver, DataWatcher watcher){
+    private void layPlayer(Player receiver, DataWatcher watcher) {
         try {
             EntityPlayer f = new EntityPlayer(fake.getMinecraftServer(), fake.getWorldServer(), fake.getProfile(), new PlayerInteractManager(fake.getWorldServer())) {
                 public void sendMessage(IChatBaseComponent ichatbasecomponent) {
                 }
-
 
                 public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {
                 }
@@ -292,23 +297,23 @@ public class FakePlayer
             f.e(fake.getId());
             Field dW = Entity.class.getDeclaredField("datawatcher");
             dW.setAccessible(true);
-            dW.set(f,watcher);
+            dW.set(f, watcher);
             f.entitySleep(bedPos);
             PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(f.getId(), f.getDataWatcher(), false);
             sendPacket(receiver, metadata);
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void animation(Player receiver, byte id) {
         PacketPlayOutEntityStatus status = new PacketPlayOutEntityStatus(fake, id);
-        sendPacket(receiver,status);
+        sendPacket(receiver, status);
     }
 
     public void swingHand(Player receiver, boolean mainHand) {
-        if(swingHand) {
+        if (swingHand) {
             int animation = mainHand ? 0 : 3;
             PacketPlayOutAnimation ani = new PacketPlayOutAnimation(fake, animation);
             sendPacket(receiver, ani);
@@ -319,39 +324,29 @@ public class FakePlayer
         return parent;
     }
 
-    private void updateEquipment(Player receiver){
-
-        for (EnumItemSlot slot:EnumItemSlot.values()){
-
+    private void updateEquipment(Player receiver) {
+        for (EnumItemSlot slot : EnumItemSlot.values()) {
             PacketPlayOutEntityEquipment eq = new PacketPlayOutEntityEquipment(fake.getId(), slot, getEquipmentBySlot(parent.getEquipment(), slot));
             sendPacket(receiver, eq);
         }
-
     }
 
     public void look(float YAW, Player receiver) {
         short vel = 0;
         byte yaw = getFixedRotation(YAW);
-
         PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(),
                 vel, vel, vel, yaw, getFixedRotation(90), true);
-
         sendPacket(receiver, moveLook);
 
     }
 
     public void handleHitBox(EntityDamageByEntityEvent e) {
-        if(!invulnerable&&getParent().getWorld().getPVP()){
-
-            if(e.getEntity().getType().equals(EntityType.ARMOR_STAND)){
-
+        if (!invulnerable && getParent().getWorld().getPVP()) {
+            if (e.getEntity().getType().equals(EntityType.ARMOR_STAND)) {
                 ArmorStand stand = (ArmorStand) e.getEntity();
-                if(stand.getPassengers().contains(getParent())){
-
-                    if(getParent().getGameMode().equals(GameMode.SURVIVAL)||getParent().getGameMode().equals(GameMode.ADVENTURE)){
-
+                if (stand.getPassengers().contains(getParent())) {
+                    if (getParent().getGameMode().equals(GameMode.SURVIVAL) || getParent().getGameMode().equals(GameMode.ADVENTURE)) {
                         getParent().damage(e.getDamage(), e.getDamager());
-
                     }
                 }
             }

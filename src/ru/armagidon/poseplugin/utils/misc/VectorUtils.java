@@ -11,16 +11,15 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class VectorUtils
-{
-    public static Block getDirBlock(Location plocation){
+public final class VectorUtils {
+    public static Block getDirBlock(Location plocation) {
         Block cur = getBlock(plocation);
         BlockFace face = yawToFace(plocation.getYaw());
-        if(face==null) return null;
+        if (face == null) return null;
         return cur.getRelative(face);
     }
 
-    public static final BlockFace[] axis = { BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH, BlockFace.EAST };
+    public static final BlockFace[] axis = {BlockFace.SOUTH, BlockFace.WEST, BlockFace.NORTH, BlockFace.EAST};
 
     public static BlockFace yawToFace(float yaw) {
         return axis[Math.round(yaw / 90f) & 0x3];
@@ -32,25 +31,25 @@ public final class VectorUtils
         return players;
     }
 
-    public static float faceToYaw(BlockFace face){
-        switch (face){
-            case WEST:
-                return 0;
+    public static float faceToYaw(BlockFace face) {
+        switch (face) {
             case EAST:
                 return 132;
             case NORTH:
                 return 50;
             case SOUTH:
                 return 290;
+            case WEST:
             default:
                 return 0;
         }
     }
-    public static Block getBlock(Location location){
+
+    public static Block getBlock(Location location) {
         int x = location.getBlockX();
         int z = location.getBlockZ();
         int y = NumberConversions.ceil(location.getY());
-        return location.getWorld().getBlockAt(x,y,z);
+        return location.getWorld().getBlockAt(x, y, z);
     }
 
     public static boolean hasIntersection(Vector p1, Vector p2, Vector min, Vector max) {
@@ -78,8 +77,8 @@ public final class VectorUtils
         return true;
     }
 
-    private static Vector absoluteVector(Vector v){
-        return new Vector(Math.abs(v.getX()),Math.abs(v.getY()),Math.abs(v.getZ()));
+    private static Vector absoluteVector(Vector v) {
+        return new Vector(Math.abs(v.getX()), Math.abs(v.getY()), Math.abs(v.getZ()));
     }
 
 }

@@ -26,30 +26,29 @@ import ru.armagidon.poseplugin.utils.nms.AnimationPlayer;
 import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
 
 public class SwimPose extends PluginPose {
-
     private final BukkitTask ticker;
+
     public SwimPose(Player target) {
         super(target);
         Block above = VectorUtils.getBlock(getPlayer().getLocation()).getRelative(BlockFace.UP);
-        ticker = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), ()->{
-            if(above.getType().isAir()){
+        ticker = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), () -> {
+            if (above.getType().isAir()) {
                 BlockData barrier = Bukkit.createBlockData(Material.BARRIER);
                 getPlayer().sendBlockChange(above.getLocation(), barrier);
             } else {
                 getPlayer().sendBlockChange(above.getLocation(), above.getBlockData());
             }
 
-        },0,1);
+        }, 0, 1);
     }
 
     @Override
     public void play(Player receiver, boolean log) {
         super.play(receiver, log);
-        if(receiver ==null){
-            Bukkit.getOnlinePlayers().forEach(p-> AnimationPlayer.play(getPlayer(), p, Pose.SWIMMING));
-        } else {
+        if (receiver == null)
+            Bukkit.getOnlinePlayers().forEach(p -> AnimationPlayer.play(getPlayer(), p, Pose.SWIMMING));
+        else
             AnimationPlayer.play(getPlayer(), receiver, Pose.SWIMMING);
-        }
     }
 
     @Override
@@ -57,15 +56,14 @@ public class SwimPose extends PluginPose {
         super.stop(log);
         Block above = VectorUtils.getBlock(getPlayer().getLocation()).getRelative(BlockFace.UP);
         getPlayer().sendBlockChange(above.getLocation(), above.getBlockData());
-        EntityPlayer player = ((CraftPlayer)getPlayer()).getHandle();
+        EntityPlayer player = ((CraftPlayer) getPlayer()).getHandle();
         player.getDataWatcher().set(DataWatcherRegistry.s.a(6), EntityPose.CROUCHING);
         PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(player.getId(), player.getDataWatcher(), false);
-        Bukkit.getOnlinePlayers().forEach(p-> {
+        Bukkit.getOnlinePlayers().forEach(p -> {
             sendPacket(p, metadata);
         });
-        if(!ticker.isCancelled()){
+        if (!ticker.isCancelled())
             ticker.cancel();
-        }
     }
 
     @Override
@@ -79,8 +77,8 @@ public class SwimPose extends PluginPose {
     }
 
     @PersonalEventHandler
-    public void onMove(PlayerMoveEvent event){
-        if(event.getTo().getX()!=event.getFrom().getX()||event.getTo().getZ()!=event.getFrom().getZ()) {
+    public void onMove(PlayerMoveEvent event) {
+        if (event.getTo().getX() != event.getFrom().getX() || event.getTo().getZ() != event.getFrom().getZ()) {
             Location center = VectorUtils.getBlock(getPlayer().getLocation()).getLocation().add(0.5, 0, 0.5);
             event.setCancelled(true);
             if (getPlayer().getLocation().distance(center) > 0.5) {

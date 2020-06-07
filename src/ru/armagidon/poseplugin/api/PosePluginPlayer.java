@@ -8,20 +8,18 @@ import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
-import ru.armagidon.poseplugin.api.poses.lay.LayPose;
 import ru.armagidon.poseplugin.api.poses.StandingPose;
+import ru.armagidon.poseplugin.api.poses.lay.LayPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalListener;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
-import ru.armagidon.poseplugin.utils.misc.messaging.Messages;
 
 import java.lang.reflect.Method;
 
 //SitPlugin player
-public class PosePluginPlayer
-{
+public class PosePluginPlayer {
     private final Player player;
 
     private IPluginPose pose;
@@ -39,62 +37,62 @@ public class PosePluginPlayer
         this.pose = newpose;
     }
 
-    public void changePose(EnumPose pose){
+    public void changePose(EnumPose pose) {
         PoseChangeEvent event = new PoseChangeEvent(this.pose.getPose(), pose, this, true);
         Bukkit.getPluginManager().callEvent(event);
-        if(event.isCancelled()) return;
-        if(player.isSleeping()){
+        if (event.isCancelled()) return;
+        if (player.isSleeping())
             player.wakeup(true);
-        }
         this.pose.stop(event.isLog());
-        IPluginPose newpose;
-        switch (event.getAfter()){
+        IPluginPose newPose;
+        switch (event.getAfter()) {
             case LYING: {
                 boolean prevent_invisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
-                if(prevent_invisible&&player.hasPotionEffect(PotionEffectType.INVISIBILITY)){
+                if (prevent_invisible && player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                     PosePlugin.getInstance().message().send(Message.LAY_PREVENT_INVISIBILITY, getPlayer());
                     return;
                 }
-                newpose = new LayPose(player);
+                newPose = new LayPose(player);
                 break;
             }
             case SWIMMING:
-                newpose = new SwimPose(player);
+                newPose = new SwimPose(player);
                 break;
             case SITTING:
-                newpose = new SitPose(player);
+                newPose = new SitPose(player);
                 break;
             default:
-                newpose = new StandingPose();
+                newPose = new StandingPose();
                 break;
         }
-        setPose(newpose);
-        this.pose.play(null,event.isLog());
+        setPose(newPose);
+        this.pose.play(null, event.isLog());
     }
 
     public IPluginPose getPose() {
         return pose;
     }
 
-    public EnumPose getPoseType(){
+    public EnumPose getPoseType() {
         return getPose().getPose();
     }
 
-    public void callPersonalEvent(Event event){
-        try{
+    public void callPersonalEvent(Event event) {
+        try {
             PersonalListener listener = (PersonalListener) getPose();
             forEachMethods(listener, event);
-        }catch (ClassCastException e){ return;}
+        } catch (ClassCastException ignored) {
+        }
     }
 
-    private void forEachMethods(PersonalListener listener, Event event){
+    private void forEachMethods(PersonalListener listener, Event event) {
         Class superclass = listener.getClass();
-        while (superclass!=null) {
+        while (superclass != null) {
             for (Method m : superclass.getDeclaredMethods()) {
                 if (!m.isAnnotationPresent(PersonalEventHandler.class)) continue;
                 try {
                     m.invoke(listener, event);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
             superclass = superclass.getSuperclass();
