@@ -1,21 +1,23 @@
 package ru.armagidon.poseplugin.api.poses;
 
-import static ru.armagidon.poseplugin.utils.misc.ConfigurationManager.*;
+import ru.armagidon.poseplugin.utils.misc.messaging.Message;
+
 public enum EnumPose
 {
 
-    STANDING((String)get(STAND_UP)),
-    SITTING((String)get(SIT_ANIMATION_MSG)),
-    LYING((String)get(LAY_ANIMATION_MSG)),
-    SWIMMING((String)get(SWIM_ANIMATION_MSG));
+    STANDING(Message.STAND_UP),
+    SITTING(Message.SIT_MSG),
+    LYING(Message.LAY_MSG),
+    SWIMMING(Message.SWIM_MSG);
 
-    private String message;
 
-    EnumPose(String message) {
-        this.message = message;
+    private final Message msg;
+
+    EnumPose(Message msg) {
+        this.msg =msg;
     }
 
-    public String getMessage() {
-        return message;
+    public Message getMessage() {
+        return msg;
     }
 }

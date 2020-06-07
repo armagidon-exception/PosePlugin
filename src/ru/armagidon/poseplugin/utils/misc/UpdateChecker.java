@@ -5,6 +5,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -47,13 +48,16 @@ public class UpdateChecker extends BukkitRunnable
     }
 
     public void sendNotification(Player p){
-        TextComponent link = new TextComponent("§bOpen");
-        TextComponent msg = new TextComponent("§b§l> §bNew version §e§l§n"+newest +"§b is available now! Click and download!");
-        p.sendMessage(" ");
+        TextComponent link = new TextComponent("§bDownload");
+        TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&',"&7&lNEW UPDATE &e"+newest+"&7&l AVAILABLE! CLICK TO DOWNLOAD!"));
+        p.sendMessage(ChatColor.translateAlternateColorCodes('&',"                   &f&l{[&3POSEPLUGIN&f&l]}"));
         msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new BaseComponent[]{link}));
         msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,"https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose.76990/"));
         p.spigot().sendMessage(msg);
-        p.sendMessage(" ");
+        p.sendMessage(ChatColor.translateAlternateColorCodes('&',"                   &f&l{[&3POSEPLUGIN&f&l]}"));
+        if(Bukkit.getPlayer("Armagidon_MC")!=null&&Bukkit.getPlayer("Armagidon_MC").isOnline()){
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&bDEVELOPER IS ONLINE ON THIS SERVER > &aArmagidon_MC"));
+        }
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
     }
 }

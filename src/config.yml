@@ -1,13 +1,13 @@
-stand-up-message: §bYou've stood up
-in-air: §cYou can't do this in air
-collidable: false
+locale: en
 check-for-updates: true
-swim-animation:
+swim:
+  stand-up-when-damaged: true
   enabled: true
-  message: §bYou're swimming
-  break-back: §cYou suddenly stood up, because someone tried to break your back!
-lay-animation:
-  message: §bYou've laid down
-sit-animation:
-  message: §bYou've sat down
-  sit-without-command: true
+lay:
+  stand-up-when-damaged: true
+  headrotation: true
+  player-invulnerable: false
+  swing-animation: true
+  prevent-use-when-invisible: false
+sit:
+  stand-up-when-damaged: true

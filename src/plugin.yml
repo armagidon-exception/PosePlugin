@@ -1,14 +1,13 @@
 name: PosePlugin
 main: ru.armagidon.poseplugin.PosePlugin
 api-version: 1.14
-version: 1.4.2 beta
+version: 1.7
 description: Give you opportunity to change your pose
+prefix: PosePlugin
 author: Armagidon_MC
-depend: [ProtocolLib]
-softdepend: [BetterChair]
 commands:
   sit:
-    usage: /poseplugin
+    usage: /sit
     permission-message: "§cYou can't do this for some reason! Sorry :("
     permission: poseplugin.command.sit
   lay:

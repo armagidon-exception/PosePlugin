@@ -14,12 +14,13 @@ public class StopAnimationEvent extends Event implements Cancellable
     private final PosePluginPlayer player;
     private boolean log;
     private boolean cancelled;
+    private final StopCause cause;
 
-
-    public StopAnimationEvent(EnumPose pose, PosePluginPlayer player, boolean log) {
+    public StopAnimationEvent(EnumPose pose, PosePluginPlayer player, boolean log, StopCause cause) {
         this.pose = pose;
         this.player = player;
         this.log = log;
+        this.cause = cause;
     }
 
     public EnumPose getPose() {
@@ -55,5 +56,14 @@ public class StopAnimationEvent extends Event implements Cancellable
     @Override
     public void setCancelled(boolean b) {
         this.cancelled = b;
+    }
+
+    public StopCause getCause() {
+        return cause;
+    }
+
+    public enum StopCause{
+        STOPPED,
+        TELEPORT;
     }
 }

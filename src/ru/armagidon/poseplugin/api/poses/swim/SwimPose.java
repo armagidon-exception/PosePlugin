@@ -1,48 +1,71 @@
 package ru.armagidon.poseplugin.api.poses.swim;
 
+import net.minecraft.server.v1_15_R1.DataWatcherRegistry;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
+import net.minecraft.server.v1_15_R1.EntityPose;
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityToggleSwimEvent;
+import org.bukkit.entity.Pose;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
+import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
-import ru.armagidon.poseplugin.utils.misc.ConfigurationManager;
+import ru.armagidon.poseplugin.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.utils.nms.AnimationPlayer;
 
-import static ru.armagidon.poseplugin.utils.misc.ConfigurationManager.getBoolean;
-import static ru.armagidon.poseplugin.utils.misc.VectorUtils.getBlock;
+import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
 
 public class SwimPose extends PluginPose {
 
-    private ISwimAnimationHandler handler = null;
-    private final Block under;
-    private final Block above;
+    private final BukkitTask ticker;
+    public SwimPose(Player target) {
+        super(target);
+        Block above = VectorUtils.getBlock(getPlayer().getLocation()).getRelative(BlockFace.UP);
+        ticker = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), ()->{
+            if(above.getType().isAir()){
+                BlockData barrier = Bukkit.createBlockData(Material.BARRIER);
+                getPlayer().sendBlockChange(above.getLocation(), barrier);
+            } else {
+                getPlayer().sendBlockChange(above.getLocation(), above.getBlockData());
+            }
 
-    public SwimPose(Player player) {
-        super(player);
-        Location ploc = getPlayer().getLocation();
-        above = getBlock(ploc.clone().add(0,1,0));
-        under = getBlock(ploc.clone().subtract(0,1,0));
+        },0,1);
     }
 
     @Override
     public void play(Player receiver, boolean log) {
         super.play(receiver, log);
-        getPlayer().setCollidable(false);
-        if(getBoolean(ConfigurationManager.PACKET_SWIM)) handler = new PacketSwimHandler(getPlayer());
-        else setHandler(getPlayer().getLocation());
-        handler.play(getPlayer());
+        if(receiver ==null){
+            Bukkit.getOnlinePlayers().forEach(p-> AnimationPlayer.play(getPlayer(), p, Pose.SWIMMING));
+        } else {
+            AnimationPlayer.play(getPlayer(), receiver, Pose.SWIMMING);
+        }
     }
 
     @Override
     public void stop(boolean log) {
         super.stop(log);
-        getPlayer().setCollidable(true);
-        if(handler!=null)handler.stop();
+        Block above = VectorUtils.getBlock(getPlayer().getLocation()).getRelative(BlockFace.UP);
+        getPlayer().sendBlockChange(above.getLocation(), above.getBlockData());
+        EntityPlayer player = ((CraftPlayer)getPlayer()).getHandle();
+        player.getDataWatcher().set(DataWatcherRegistry.s.a(6), EntityPose.CROUCHING);
+        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(player.getId(), player.getDataWatcher(), false);
+        Bukkit.getOnlinePlayers().forEach(p-> {
+            sendPacket(p, metadata);
+        });
+        if(!ticker.isCancelled()){
+            ticker.cancel();
+        }
     }
 
     @Override
@@ -50,54 +73,23 @@ public class SwimPose extends PluginPose {
         return EnumPose.SWIMMING;
     }
 
+    @Override
+    public String getSectionName() {
+        return "swim";
+    }
+
     @PersonalEventHandler
-    public void move(PlayerMoveEvent event){
-        if(moved(event.getFrom(),event.getTo())) {
-            setHandler(getPlayer().getLocation());
-            //Use swim handler
-            handler.play(getPlayer());
-        }
-    }
-
-    private boolean notFullHighBB(Block block){
-        if(block.getBoundingBox().getHeight()<1&&block.getBoundingBox().getHeight()>0) return true;
-        else if(block.getType().equals(Material.SNOW)) return true;
-        else return Tag.SLABS.isTagged(block.getType());
-    }
-
-    @EventHandler
-    public void swim(EntityToggleSwimEvent e){
-        if(e.getEntity() instanceof Player){
-            Player player = (Player) e .getEntity();
-            if(getPlayer().getName().equalsIgnoreCase(player.getName())){
-                if(e.isSwimming()) e.setCancelled(true);
+    public void onMove(PlayerMoveEvent event){
+        if(event.getTo().getX()!=event.getFrom().getX()||event.getTo().getZ()!=event.getFrom().getZ()) {
+            Location center = VectorUtils.getBlock(getPlayer().getLocation()).getLocation().add(0.5, 0, 0.5);
+            event.setCancelled(true);
+            if (getPlayer().getLocation().distance(center) > 0.5) {
+                Vector v = getPlayer().getLocation().getDirection().clone();
+                v.setY(0);
+                v.multiply(-1);
+                v.divide(new Vector(2, 0, 2));
+                getPlayer().setVelocity(v);
             }
         }
-    }
-
-    private boolean moved(Location from, Location to){
-        return from.getX()!=to.getX()||from.getZ()!=to.getZ();
-    }
-
-
-    private void setHandler(Location plocation){
-
-        double y = plocation.getY();
-        int blocky = plocation.getBlockY();
-        //if player is standing on stairs, use packet handler
-        if(Tag.STAIRS.isTagged(under.getType())||Tag.PORTALS.isTagged(getBlock(plocation).getType())){
-            changeHandler(new PacketSwimHandler(getPlayer()));
-        }
-        //If y greater than block y and under-block is full-high, place barrier in two blocks above
-        else if(blocky<y&&!notFullHighBB(under)){
-            changeHandler(new CommonSwimHandler(2,getPlayer()));
-        } else {
-            changeHandler(new CommonSwimHandler(1,getPlayer()));
-        }
-    }
-
-    private void changeHandler(ISwimAnimationHandler handler){
-        if(this.handler!=null) this.handler.stop();
-        this.handler = handler;
     }
 }

@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
+import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.utils.nms.NMSUtils;
@@ -43,14 +44,14 @@ public class EventListener implements org.bukkit.event.Listener
         }
         //Play lay pose animation
         for (PosePluginPlayer pl : players.values()) {
-            if(pl.getPoseType().equals(EnumPose.LYING)){
+            if(pl.getPoseType().equals(EnumPose.LYING)||pl.getPoseType().equals(EnumPose.SWIMMING)){
                 Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->{
                     pl.getPose().play(event.getPlayer(),false);
-                },2);
+                },1L);
             }
         }
         //Inject damage packet listener to player's channel pipeline
-        NMSUtils.getDamageReader(event.getPlayer()).inject();
+        NMSUtils.getSwingReader(event.getPlayer()).inject();
     }
 
     @EventHandler
@@ -60,7 +61,7 @@ public class EventListener implements org.bukkit.event.Listener
         //Remove player from playerlist
         players.remove(event.getPlayer().getName());
         //Eject damage packet reader out of player's channel pipeline
-        NMSUtils.getDamageReader(event.getPlayer()).eject();
+        NMSUtils.getSwingReader(event.getPlayer()).eject();
     }
 
     @EventHandler
@@ -72,8 +73,9 @@ public class EventListener implements org.bukkit.event.Listener
         if (!p.getPoseType().equals(EnumPose.STANDING)) {
             //if animation was swimming and teleport cause was unknown, ignore it.
             if(p.getPoseType().equals(EnumPose.SWIMMING)&&event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN)) return;
+            if(p.getPoseType().equals(EnumPose.LYING)&&event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN)) return;
             //Call StopAnimationEvent
-            PluginPose.callStopEvent(p.getPoseType(), p, true);
+            PluginPose.callStopEvent(p.getPoseType(), p, true, StopAnimationEvent.StopCause.TELEPORT);
         }
     }
 
@@ -88,7 +90,7 @@ public class EventListener implements org.bukkit.event.Listener
         PosePluginPlayer p = players.get(event.getEntity().getName());
         //If pose wasn't standing, call stop event
         if (!p.getPoseType().equals(EnumPose.STANDING)) {
-            PluginPose.callStopEvent(p.getPoseType(), p, false);
+            PluginPose.callStopEvent(p.getPoseType(), p, false, StopAnimationEvent.StopCause.STOPPED);
         }
     }
 
@@ -98,20 +100,8 @@ public class EventListener implements org.bukkit.event.Listener
         if(!containsPlayer(event.getPlayer())) return;
         PosePluginPlayer p = players.get(event.getPlayer().getName());
         //Call stop event
-        if (p.getPoseType().equals(EnumPose.LYING)||p.getPoseType().equals(EnumPose.SWIMMING)) {
-            PluginPose.callStopEvent(p.getPoseType(), p, true);
-        }
-    }
-
-    @EventHandler
-    public void onDismount(EntityDismountEvent dismount){
-        if(dismount.getEntity() instanceof Player && dismount.getDismounted() instanceof ArmorStand){
-            Player player = (Player) dismount.getEntity();
-            if(!containsPlayer(player)) return;
-            PosePluginPlayer p = players.get(player.getName());
-            if(p.getPoseType().equals(EnumPose.SITTING)){
-                PluginPose.callStopEvent(p.getPoseType(), p, true);
-            }
+        if (p.getPoseType().equals(EnumPose.SWIMMING)) {
+            PluginPose.callStopEvent(p.getPoseType(), p, true, StopAnimationEvent.StopCause.STOPPED);
         }
     }
 }

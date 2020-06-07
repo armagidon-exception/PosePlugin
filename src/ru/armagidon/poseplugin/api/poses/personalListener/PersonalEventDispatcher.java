@@ -4,23 +4,23 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 
 public class PersonalEventDispatcher implements Listener
 {
-    @EventHandler(ignoreCancelled = true,priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)
     public void onMove(PlayerMoveEvent event){
         if(!containsPlayer(event.getPlayer())) return;
         PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
         player.callPersonalEvent(event);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onDamage(EntityDamageEvent e){
         if(!(e.getEntity() instanceof Player)) return;
         Player p = (Player) e.getEntity();
@@ -32,19 +32,41 @@ public class PersonalEventDispatcher implements Listener
     private boolean containsPlayer(Player player) {
         return PosePlugin.getInstance().containsPlayer(player);
     }
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent event) {
         if (!containsPlayer(event.getPlayer())) return;
-        if (!event.getPlayer().getName().equalsIgnoreCase(event.getPlayer().getName())) return;
         PosePluginPlayer p = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
         p.callPersonalEvent(event);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onInteract(PlayerInteractAtEntityEvent event) {
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (!containsPlayer(event.getPlayer())) return;
-        if (!event.getPlayer().getName().equalsIgnoreCase(event.getPlayer().getName())) return;
         PosePluginPlayer p = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
         p.callPersonalEvent(event);
     }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void gameMode(PlayerGameModeChangeEvent event) {
+        if (!containsPlayer(event.getPlayer())) return;
+        PosePluginPlayer p = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
+        p.callPersonalEvent(event);
+    }
+
+    @EventHandler
+    public void onConsume(PlayerItemConsumeEvent event){
+        if(!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
+        PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
+        player.callPersonalEvent(event);
+    }
+
+    @EventHandler
+    public void onClick(PlayerInteractEvent event){
+        if(!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
+        PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
+        if(event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            player.callPersonalEvent(event);
+        }
+    }
+
 }

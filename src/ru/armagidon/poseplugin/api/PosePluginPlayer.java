@@ -1,13 +1,21 @@
 package ru.armagidon.poseplugin.api;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.potion.PotionEffectType;
+import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
-import ru.armagidon.poseplugin.api.poses.*;
+import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.IPluginPose;
+import ru.armagidon.poseplugin.api.poses.lay.LayPose;
+import ru.armagidon.poseplugin.api.poses.StandingPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalListener;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
+import ru.armagidon.poseplugin.utils.misc.messaging.Message;
+import ru.armagidon.poseplugin.utils.misc.messaging.Messages;
 
 import java.lang.reflect.Method;
 
@@ -33,18 +41,28 @@ public class PosePluginPlayer
 
     public void changePose(EnumPose pose){
         PoseChangeEvent event = new PoseChangeEvent(this.pose.getPose(), pose, this, true);
+        Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled()) return;
+        if(player.isSleeping()){
+            player.wakeup(true);
+        }
         this.pose.stop(event.isLog());
         IPluginPose newpose;
         switch (event.getAfter()){
-            case LYING:
+            case LYING: {
+                boolean prevent_invisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
+                if(prevent_invisible&&player.hasPotionEffect(PotionEffectType.INVISIBILITY)){
+                    PosePlugin.getInstance().message().send(Message.LAY_PREVENT_INVISIBILITY, getPlayer());
+                    return;
+                }
                 newpose = new LayPose(player);
                 break;
+            }
             case SWIMMING:
                 newpose = new SwimPose(player);
                 break;
             case SITTING:
-                newpose = SitPose.getInstance(player);
+                newpose = new SitPose(player);
                 break;
             default:
                 newpose = new StandingPose();
@@ -64,7 +82,7 @@ public class PosePluginPlayer
 
     public void callPersonalEvent(Event event){
         try{
-            PersonalListener listener = (PluginPose) getPose();
+            PersonalListener listener = (PersonalListener) getPose();
             forEachMethods(listener, event);
         }catch (ClassCastException e){ return;}
     }

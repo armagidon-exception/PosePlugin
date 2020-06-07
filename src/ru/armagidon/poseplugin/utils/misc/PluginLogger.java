@@ -17,7 +17,7 @@ public class PluginLogger extends Logger {
     public PluginLogger(Plugin context) {
         super(context.getClass().getCanonicalName(), null);
         String prefix = context.getDescription().getPrefix();
-        pluginName = prefix != null ? new StringBuilder().append("[").append(prefix).append("] ").toString() : "[" + context.getDescription().getName() + "] ";
+        pluginName = prefix != null ? "[" + prefix + "] " : "[" + context.getDescription().getName() + "] ";
         setParent(context.getServer().getLogger());
         setLevel(Level.ALL);
     }
