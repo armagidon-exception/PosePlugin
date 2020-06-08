@@ -1,16 +1,13 @@
 package ru.armagidon.poseplugin.utils.nms;
 
 import net.minecraft.server.v1_15_R1.*;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import ru.armagidon.poseplugin.utils.nms.NMSUtils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 
-import static ru.armagidon.poseplugin.utils.nms.NMSUtils.*;
+import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
 
 public interface AnimationPlayer
 {

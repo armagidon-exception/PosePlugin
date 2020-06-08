@@ -5,6 +5,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -19,6 +21,8 @@ import ru.armagidon.poseplugin.api.poses.sit.SitDriver;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
 import ru.armagidon.poseplugin.utils.nms.AnimationPlayer;
 import ru.armagidon.poseplugin.utils.nms.FakePlayer;
+
+import javax.annotation.PreDestroy;
 
 import static net.minecraft.server.v1_15_R1.MobEffects.INVISIBILITY;
 import static org.bukkit.Material.*;
@@ -73,7 +77,6 @@ public class LayPose extends PluginPose
             super.play(receiver,log);
             getPlayer().setCollidable(false);
             started = true;
-            Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), this::hideParent, HIDE_DELAY);
         }
     }
 
@@ -121,21 +124,24 @@ public class LayPose extends PluginPose
     }
 
     private void hideParent(){
-        EntityPlayer player = ((CraftPlayer)getPlayer()).getHandle();
-        PacketPlayOutEntityEffect effect = new PacketPlayOutEntityEffect(player.getId(),new MobEffect(INVISIBILITY, Short.MAX_VALUE, 1, false, false));
+        EntityPlayer player = ((CraftPlayer) getPlayer()).getHandle();
+        PacketPlayOutEntityEffect effect = new PacketPlayOutEntityEffect(player.getId(), new MobEffect(INVISIBILITY, Short.MAX_VALUE, 1, false, false));
         sendPacket(getPlayer(), effect);
         player.setInvisible(true);
     }
 
     private void showParent(){
-        EntityPlayer player = ((CraftPlayer)getPlayer()).getHandle();
-        PacketPlayOutRemoveEntityEffect effect = new PacketPlayOutRemoveEntityEffect(player.getId(), INVISIBILITY);
-        sendPacket(getPlayer(), effect);
-        player.setInvisible(false);
-        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(player.getId(), player.getDataWatcher(), true);
-        sendPacket(getPlayer(), metadata);
+        if(!getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+            EntityPlayer player = ((CraftPlayer) getPlayer()).getHandle();
+            PacketPlayOutRemoveEntityEffect effect = new PacketPlayOutRemoveEntityEffect(player.getId(), INVISIBILITY);
+            sendPacket(getPlayer(), effect);
+            player.setInvisible(false);
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(player.getId(), player.getDataWatcher(), true);
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                sendPacket(onlinePlayer, metadata);
+            }
+        }
     }
-
     @PersonalEventHandler
     public void onConsume(PlayerItemConsumeEvent e){
         if(e.getItem().getType().equals(POTION)||e.getItem().getType().equals(SPLASH_POTION)||e.getItem().getType().equals(LINGERING_POTION)){
@@ -162,5 +168,10 @@ public class LayPose extends PluginPose
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageByEntityEvent event){
+        fake.handleHitBox(event);
     }
 }

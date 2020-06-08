@@ -5,14 +5,19 @@ import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.utils.misc.BlockCache;
@@ -37,6 +42,8 @@ public class FakePlayer
     private BukkitTask syncTask;
     private final BukkitTask tickStarter;
 
+    private Slime hitbox;
+
     //Config fields
     private boolean swingHand;
     private final boolean invulnerable;
@@ -60,7 +67,11 @@ public class FakePlayer
         this.swingHand = swingHand;
 
         FAKE_PLAYERS.put(parent, this);
-
+        if(getParent().getGameMode().equals(GameMode.SURVIVAL)||getParent().getGameMode().equals(GameMode.ADVENTURE)) {
+            if (getParent().getWorld().getPVP() && !invulnerable) {
+                hitbox = createHitBox(getParent().getLocation());
+            }
+        }
         //Load hitBox and start ticking
         tickStarter = Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->{
             //Updating
@@ -98,6 +109,7 @@ public class FakePlayer
         if(!tickStarter.isCancelled()) tickStarter.cancel();
         if(syncTask!=null) syncTask.cancel();
         cache.restore(receiver);
+        if(hitbox!=null) hitbox.remove();
         FAKE_PLAYERS.remove(this);
     }
 
@@ -124,9 +136,24 @@ public class FakePlayer
                 sub = 90;
                 break;
         }
-            if (headrotation) {
-                look(getParent().getLocation().getYaw() - sub, receiver);
+        if (headrotation) {
+            look(getParent().getLocation().getYaw() - sub, receiver);
+        }
+        if(getParent().getWorld().getPVP()&&!invulnerable) {
+            if (hitbox != null) {
+                if (!(getParent().getGameMode().equals(GameMode.ADVENTURE) || getParent().getGameMode().equals(GameMode.SURVIVAL))) {
+                    hitbox.remove();
+                    hitbox = null;
+                }
+            } else {
+                if (getParent().getGameMode().equals(GameMode.ADVENTURE) || getParent().getGameMode().equals(GameMode.SURVIVAL)) {
+                    hitbox = createHitBox(getParent().getLocation());
+                }
             }
+        }
+        if(hitbox!=null){
+            hitbox.setHealth(parent.getHealth());
+        }
     }
 
     private DataWatcher cloneDataWatcher(){
@@ -343,18 +370,40 @@ public class FakePlayer
     public void handleHitBox(EntityDamageByEntityEvent e) {
         if(!invulnerable&&getParent().getWorld().getPVP()){
 
-            if(e.getEntity().getType().equals(EntityType.ARMOR_STAND)){
+            if(e.getEntity().getType().equals(EntityType.SLIME)){
 
-                ArmorStand stand = (ArmorStand) e.getEntity();
-                if(stand.getPassengers().contains(getParent())){
+                Slime slime = (Slime) e.getEntity();
+                if(slime.getCustomName().equalsIgnoreCase(getParent().getUniqueId().toString())){
 
                     if(getParent().getGameMode().equals(GameMode.SURVIVAL)||getParent().getGameMode().equals(GameMode.ADVENTURE)){
-
                         getParent().damage(e.getDamage(), e.getDamager());
-
+                        Bukkit.getOnlinePlayers().forEach(o -> {
+                            animation(o, (byte)2);
+                            if(o==parent) return;
+                            o.playSound(getParent().getLocation(), Sound.ENTITY_PLAYER_HURT,1,1);
+                        });
                     }
                 }
             }
         }
+    }
+
+    private Slime createHitBox(Location location){
+        Location spawnLoc = location.clone().multiply(0);
+        spawnLoc.setY(2);
+        Slime s =  location.getWorld().spawn(spawnLoc,Slime.class,(slime)->{
+            slime.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
+            slime.setGravity(false);
+            slime.setAI(false);
+            slime.setSize(1);
+            slime.setCustomNameVisible(false);
+            slime.setCustomName(getParent().getUniqueId().toString());
+            slime.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(getParent().getMaxHealth());
+            slime.setHealth(getParent().getHealth());
+          //  slime.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
+        });
+        Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->s.teleport(location.clone().add(0,0.3,0)),5);
+
+        return s;
     }
 }

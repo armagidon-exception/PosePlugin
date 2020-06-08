@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class PosePlugin extends JavaPlugin implements Listener
+public final class PosePlugin extends JavaPlugin implements Listener
 {
     private static PosePlugin instance;
 
@@ -48,6 +48,7 @@ public class PosePlugin extends JavaPlugin implements Listener
         try {
             this.messages = new Messages(config.getString("locale", "en"));
         } catch (IllegalArgumentException e){
+            Bukkit.getPluginManager().disablePlugin(this);
             getLogger().severe(e.getMessage());
         }
         //Init commands

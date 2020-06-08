@@ -20,10 +20,13 @@ public class Messages
     public Messages(String locale) {
         File localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "locale");
         localeFolder.mkdirs();
-        saveEn(localeFolder);
         File file = new File(localeFolder, locale+".yml");
         if(!file.exists()){
-            throw new IllegalArgumentException("Locale file \""+locale+ "\" doesn't exists");
+            try{
+                save(locale, localeFolder);
+            } catch (Exception e){
+                throw new IllegalArgumentException("Locale file \""+locale+ "\" doesn't exists");
+            }
         }
         this.locale = YamlConfiguration.loadConfiguration(file);
     }
@@ -32,15 +35,11 @@ public class Messages
         send(message.getMessage(), sender);
     }
 
-    private void saveEn(File localeFolder){
-        File en = new File(localeFolder, "en.yml");
+    private void save(String locale, File localeFolder) throws IOException {
+        File en = new File(localeFolder, locale+".yml");
         if(!en.exists()){
-            try {
-                Files.copy(getClass().getResourceAsStream("/locale/en.yml"),
+                Files.copy(getClass().getResourceAsStream("/locale/"+locale+".yml"),
                         Paths.get(en.getPath()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

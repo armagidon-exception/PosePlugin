@@ -1,0 +1,36 @@
+name: PosePlugin
+version: ${project.version}
+main: ru.armagidon.poseplugin.PosePlugin
+api-version: 1.15
+authors: [Armagidon_MC]
+description: ${project.description}
+commands:
+  sit:
+    usage: /sit
+    permission-message: "§cYou can't do this for some reason! Sorry :("
+    permission: poseplugin.command.sit
+  lay:
+    usage: /lay
+    permission-message: "§cYou can't do this for some reason! Sorry :("
+    permission: poseplugin.command.lay
+  swim:
+    usage: /swim
+    permission-message: "§cYou can't do this for some reason! Sorry :("
+    permission: poseplugin.command.swim
+permissions:
+  poseplugin.command.*:
+    description: Gives access to all plugin commands
+    default: op
+    children:
+      poseplugin.command.sit: true
+      poseplugin.command.lay: true
+      poseplugin.command.swim: true
+  poseplugin.command.sit:
+    description: Gives all access to /sit commands
+    default: true
+  poseplugin.command.lay:
+    description: Gives all access to /lay commands
+    default: true
+  poseplugin.command.swim:
+    description: Gives all access to /swim commands
+    default: true
