@@ -14,9 +14,7 @@ import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
@@ -27,19 +25,22 @@ import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
 
 public class SwimPose extends PluginPose {
 
-    private final BukkitTask ticker;
     public SwimPose(Player target) {
         super(target);
+        initTickModules();
+    }
+
+    @Override
+    protected void initTickModules() {
         Block above = VectorUtils.getBlock(getPlayer().getLocation()).getRelative(BlockFace.UP);
-        ticker = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), ()->{
+        addTickModule(()->{
             if(above.getType().isAir()){
                 BlockData barrier = Bukkit.createBlockData(Material.BARRIER);
                 getPlayer().sendBlockChange(above.getLocation(), barrier);
             } else {
                 getPlayer().sendBlockChange(above.getLocation(), above.getBlockData());
             }
-
-        },0,1);
+        });
     }
 
     @Override
@@ -60,12 +61,7 @@ public class SwimPose extends PluginPose {
         EntityPlayer player = ((CraftPlayer)getPlayer()).getHandle();
         player.getDataWatcher().set(DataWatcherRegistry.s.a(6), EntityPose.CROUCHING);
         PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(player.getId(), player.getDataWatcher(), false);
-        Bukkit.getOnlinePlayers().forEach(p-> {
-            sendPacket(p, metadata);
-        });
-        if(!ticker.isCancelled()){
-            ticker.cancel();
-        }
+        Bukkit.getOnlinePlayers().forEach(p-> sendPacket(p, metadata));
     }
 
     @Override
@@ -80,15 +76,17 @@ public class SwimPose extends PluginPose {
 
     @PersonalEventHandler
     public void onMove(PlayerMoveEvent event){
-        if(event.getTo().getX()!=event.getFrom().getX()||event.getTo().getZ()!=event.getFrom().getZ()) {
-            Location center = VectorUtils.getBlock(getPlayer().getLocation()).getLocation().add(0.5, 0, 0.5);
-            event.setCancelled(true);
-            if (getPlayer().getLocation().distance(center) > 0.5) {
-                Vector v = getPlayer().getLocation().getDirection().clone();
-                v.setY(0);
-                v.multiply(-1);
-                v.divide(new Vector(2, 0, 2));
-                getPlayer().setVelocity(v);
+        if(event.getTo()!=null) {
+            if (event.getTo().getX() != event.getFrom().getX() || event.getTo().getZ() != event.getFrom().getZ()) {
+                Location center = VectorUtils.getBlock(getPlayer().getLocation()).getLocation().add(0.5, 0, 0.5);
+                event.setCancelled(true);
+                if (getPlayer().getLocation().distance(center) > 0.5) {
+                    Vector v = getPlayer().getLocation().getDirection().clone();
+                    v.setY(0);
+                    v.multiply(-1);
+                    v.divide(new Vector(2, 0, 2));
+                    getPlayer().setVelocity(v);
+                }
             }
         }
     }

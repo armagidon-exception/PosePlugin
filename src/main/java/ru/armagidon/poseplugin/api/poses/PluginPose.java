@@ -11,7 +11,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import ru.armagidon.poseplugin.PosePlugin;
@@ -21,12 +20,17 @@ import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalListener;
 import ru.armagidon.poseplugin.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
+import ru.armagidon.poseplugin.utils.misc.ticking.TickModule;
+
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class PluginPose implements IPluginPose, Listener, PersonalListener
 {
     private final Player player;
     private Block under;
     private final FileConfiguration cfg;
+    private Set<TickModule> tickModules = ConcurrentHashMap.newKeySet();
 
     public PluginPose(Player target) {
         this.player = target;
@@ -38,7 +42,7 @@ public abstract class PluginPose implements IPluginPose, Listener, PersonalListe
         return player;
     }
 
-    protected PosePluginPlayer getPosePluginPlayer(){
+    protected final PosePluginPlayer getPosePluginPlayer(){
         return PosePlugin.getInstance().getPosePluginPlayer(player.getName());
     }
 
@@ -63,30 +67,26 @@ public abstract class PluginPose implements IPluginPose, Listener, PersonalListe
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getBlock().equals(under)) {
-            callStopEvent(getPose(), getPosePluginPlayer(),true, StopAnimationEvent.StopCause.STOPPED);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockPhysics(BlockPhysicsEvent event) {
+    public final void onBlockBreak(BlockBreakEvent event) {
         if (event.getBlock().equals(under)) {
             callStopEvent(getPose(), getPosePluginPlayer(),true, StopAnimationEvent.StopCause.STOPPED);
         }
     }
 
 
+    @SuppressWarnings("unused")
     @PersonalEventHandler
-    public void onDamage(EntityDamageEvent event){
+    public final void onDamage(EntityDamageEvent event){
         if (getBoolean("stand-up-when-damaged")) {
             stop(false);
             PosePlugin.getInstance().message().send(getSectionName()+".damage",getPlayer());
         }
     }
 
+    @SuppressWarnings("unused")
     @PersonalEventHandler
-    public void gameMode(PlayerGameModeChangeEvent event){
+    public final void gameMode(PlayerGameModeChangeEvent event){
+
         if(event.getNewGameMode().equals(GameMode.SPECTATOR)){
             callStopEvent(getPose(),getPosePluginPlayer(), true, StopAnimationEvent.StopCause.STOPPED);
         }
@@ -94,7 +94,38 @@ public abstract class PluginPose implements IPluginPose, Listener, PersonalListe
 
     public abstract String getSectionName();
 
-    public boolean getBoolean(String path){
+    protected final boolean getBoolean(String path){
         return cfg.getBoolean(getSectionName()+"."+path);
+    }
+
+    protected final void addTickModule(TickModule module){
+        if(module!=null){
+            tickModules.add(module);
+        } else {
+            throw new NullPointerException("Tried to use null tick module in "+getClass().getSimpleName());
+        }
+    }
+
+    private void removeTickModule(TickModule module){
+        if(module!=null&&tickModules.contains(module)){
+            tickModules.remove(module);
+        } else {
+            throw new NullPointerException("Tried to remove non-existing tick module in" + getClass().getSimpleName());
+        }
+    }
+
+    protected void initTickModules() {}
+
+    @Override
+    public final void tick() {
+        tickModules.forEach(module -> {
+            try{
+                module.tick();
+            }catch (Exception e){
+                PosePlugin.getInstance().getLogger().severe("While ticking error occurred, Ticking module was disabled!");
+                e.printStackTrace();
+                removeTickModule(module);
+            }
+        });
     }
 }

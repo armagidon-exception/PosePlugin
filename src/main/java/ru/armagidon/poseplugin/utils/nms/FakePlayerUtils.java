@@ -6,10 +6,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.PosePlugin;
@@ -17,7 +17,7 @@ import ru.armagidon.poseplugin.PosePlugin;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-public class FakePlayerUtils
+class FakePlayerUtils
 {
 
     static Slime createHitBox(Player parent, Location location){
@@ -145,7 +145,7 @@ public class FakePlayerUtils
             default:
                 eq = e.getItemInMainHand();
         }
-        return CraftItemStack.asNMSCopy(eq);
+        return eq;
     }
 
     private static GameProfile cloneProfile(Player parent){
