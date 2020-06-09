@@ -17,4 +17,9 @@ public class StandingPose implements IPluginPose
     public EnumPose getPose() {
         return EnumPose.STANDING;
     }
+
+    @Override
+    public void tick() {
+        //Standing pose doesn't tick anything
+    }
 }
