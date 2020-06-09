@@ -4,7 +4,6 @@ import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Pose;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -19,10 +18,7 @@ import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.sit.SitDriver;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
-import ru.armagidon.poseplugin.utils.nms.AnimationPlayer;
 import ru.armagidon.poseplugin.utils.nms.FakePlayer;
-
-import javax.annotation.PreDestroy;
 
 import static net.minecraft.server.v1_15_R1.MobEffects.INVISIBILITY;
 import static org.bukkit.Material.*;
@@ -30,7 +26,6 @@ import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
 
 public class LayPose extends PluginPose
 {
-    private static final long HIDE_DELAY = 3;
     private final FakePlayer fake;
     private final SitDriver driver;
     private boolean started = false;
@@ -45,22 +40,22 @@ public class LayPose extends PluginPose
         this.driver = new SitDriver(player, ()->stop(true));
         this.fake = new FakePlayer(player, getBoolean("headrotation"),
                 getBoolean("player-invulnerable"), getBoolean("swing-animation"));
-            invisibleTick = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), () -> {
-                hideParent();
-                if(!prevent_invisibility) {
-                    if (spawned) {
-                        if (getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                            Bukkit.getOnlinePlayers().forEach(this::stopAnimation);
-                            spawned = false;
-                        }
-                    } else {
-                        if (!getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                            Bukkit.getOnlinePlayers().forEach(this::playAnimation);
-                            spawned = true;
-                        }
+        invisibleTick = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), () -> {
+            if(!prevent_invisibility) {
+                if (spawned) {
+                    if (getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                        fake.broadCastRemove();
+                        spawned = false;
+                    }
+                } else {
+                    if (!getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                        fake.broadCastSpawn();
+                        spawned = true;
+                        hideParent();
                     }
                 }
-            }, 0, 1);
+            }
+        }, 0, 1);
     }
 
     @Override
@@ -73,6 +68,7 @@ public class LayPose extends PluginPose
             playAnimation0(receiver);
         }
         if(!started){
+            hideParent();
             driver.takeASeat();
             super.play(receiver,log);
             getPlayer().setCollidable(false);
@@ -86,7 +82,7 @@ public class LayPose extends PluginPose
         getPlayer().setCollidable(true);
         Bukkit.getOnlinePlayers().forEach(online->{
             online.showPlayer(PosePlugin.getInstance(),getPlayer());
-            stopAnimation(online);
+            fake.broadCastRemove();
         });
         driver.standUp();
         showParent();
@@ -105,22 +101,12 @@ public class LayPose extends PluginPose
 
     private void playAnimation0(Player receiver){
         if (receiver == null) {
-            Bukkit.getOnlinePlayers().forEach(online->{
-                online.hidePlayer(PosePlugin.getInstance(), getPlayer());
-                playAnimation(online);
-            });
+            Bukkit.getOnlinePlayers().forEach(online-> online.hidePlayer(PosePlugin.getInstance(), getPlayer()));
+            fake.broadCastSpawn();
         } else {
             receiver.hidePlayer(PosePlugin.getInstance(),getPlayer());
-            playAnimation(receiver);
+            fake.spawnToPlayer(receiver);
         }
-    }
-
-    private void playAnimation(Player receiver) {
-        fake.spawn(receiver);
-    }
-
-    private void stopAnimation(Player receiver){
-        fake.remove(receiver);
     }
 
     private void hideParent(){
@@ -146,11 +132,12 @@ public class LayPose extends PluginPose
     public void onConsume(PlayerItemConsumeEvent e){
         if(e.getItem().getType().equals(POTION)||e.getItem().getType().equals(SPLASH_POTION)||e.getItem().getType().equals(LINGERING_POTION)){
             PotionMeta meta = (PotionMeta) e.getItem().getItemMeta();
-            if(meta.getBasePotionData().getType().equals(PotionType.INVISIBILITY)){
-
-                if(prevent_invisibility){
-                    e.setCancelled(true);
-                    PosePlugin.getInstance().message().send(Message.LAY_PREVENT_USE_POTION, e.getPlayer());
+            if (meta != null) {
+                if(meta.getBasePotionData().getType().equals(PotionType.INVISIBILITY)){
+                    if(prevent_invisibility){
+                        e.setCancelled(true);
+                        PosePlugin.getInstance().message().send(Message.LAY_PREVENT_USE_POTION, e.getPlayer());
+                    }
                 }
             }
         }
@@ -161,10 +148,12 @@ public class LayPose extends PluginPose
         if(e.getItem()==null) return;
         if(e.getItem().getType().equals(POTION)||e.getItem().getType().equals(SPLASH_POTION)||e.getItem().getType().equals(LINGERING_POTION)){
             PotionMeta meta = (PotionMeta) e.getItem().getItemMeta();
-            if(meta.getBasePotionData().getType().equals(PotionType.INVISIBILITY)){
-                if(prevent_invisibility){
-                    e.setCancelled(true);
-                    PosePlugin.getInstance().message().send(Message.LAY_PREVENT_USE_POTION, e.getPlayer());
+            if(meta!=null) {
+                if (meta.getBasePotionData().getType().equals(PotionType.INVISIBILITY)) {
+                    if (prevent_invisibility) {
+                        e.setCancelled(true);
+                        PosePlugin.getInstance().message().send(Message.LAY_PREVENT_USE_POTION, e.getPlayer());
+                    }
                 }
             }
         }

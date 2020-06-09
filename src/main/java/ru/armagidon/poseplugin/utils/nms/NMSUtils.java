@@ -4,9 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Field;
 
 public class NMSUtils
 {
@@ -27,8 +25,18 @@ public class NMSUtils
         }
     }
 
-    public static Class<?> getNmsClass(String nmsClassName) throws Exception {
+    private static Class<?> getNmsClass(String nmsClassName) throws Exception {
         return Class.forName("net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + "." + nmsClassName);
+    }
+
+    static void setField(String name, Object source, Object value, Class<?> clazz){
+        try {
+            Field dW = clazz.getDeclaredField(name);
+            dW.setAccessible(true);
+            dW.set(source, value);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
