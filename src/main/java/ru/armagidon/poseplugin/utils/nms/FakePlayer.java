@@ -4,6 +4,7 @@ import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Material;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -29,46 +30,50 @@ public class FakePlayer implements Tickable
     private final BlockCache cache;
     private final BlockFace face;
 
+    private byte pOverLays;
+
     private Slime hitbox;
 
     //Config fields
-    private boolean swingHand;
+    private final boolean swingHand;
     private final boolean invulnerable;
-    private final boolean headrotation;
+    private final boolean headRotation;
+    private final boolean updateOverlays;
 
     static Map<Player, FakePlayer> FAKE_PLAYERS = new HashMap<>();
 
-    public FakePlayer(Player parent, boolean headrotation, boolean invulnerable, boolean swingHand) {
+    public FakePlayer(Player parent, boolean swingHand, boolean invulnerable, boolean headRotation, boolean updateOverlays) {
+        //Init npc
         this.parent = parent;
         this.fake = createNPC(parent);
         this.parentLocation= parent.getLocation().clone();
+        DataWatcher parentWatcher = ((CraftPlayer)parent).getHandle().getDataWatcher();
+        this.pOverLays = parentWatcher.get(DataWatcherRegistry.a.a(16));
 
+        //Init fake bed
         Location bedLoc = bedLocation(parentLocation);
         this.cache = new BlockCache(bedLoc.getBlock().getType(), bedLoc.getBlock().getBlockData(), bedLoc);
         this.bedPos = new BlockPosition(bedLoc.getX(), bedLoc.getY(),bedLoc.getZ());
         this.face = BlockFace.valueOf(getDirection(getParent().getLocation().getYaw()).name());
 
-        this.headrotation = headrotation;
-        this.invulnerable = invulnerable;
+        //Init config variables
         this.swingHand = swingHand;
+        this.invulnerable = invulnerable;
+        this.headRotation = headRotation;
+        this.updateOverlays = updateOverlays;
 
         FAKE_PLAYERS.put(parent, this);
+        //Spawn hitbox
         if(getParent().getGameMode().equals(GameMode.SURVIVAL)||getParent().getGameMode().equals(GameMode.ADVENTURE)) {
-            if (getParent().getWorld().getPVP() && !invulnerable) {
+            if (getParent().getWorld().getPVP() && !this.invulnerable) {
                 hitbox = createHitBox(getParent(), getParent().getLocation());
             }
         }
-        //Load hitBox and start ticking
+        //Position player
         fake.setPositionRotation(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(),parentLocation.getYaw(), parentLocation.getPitch());
     }
 
-    //How to spawn lying player
-    //Create player info
-    //Create spawn packet
-    //Create metadata packet
-    //Create move packet
-    //Create remove player info packet
-
+    //To single player
     public void spawnToPlayer(Player receiver) {
         sendPacket(receiver, spawnFakeBedPacket(parent,bedPos, bedBlockAccess(EnumDirection.valueOf(face.name()))));
         DataWatcher watcher = cloneDataWatcher(parent, fake);
@@ -81,6 +86,30 @@ public class FakePlayer implements Tickable
         sendPacket(receiver, new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false));
     }
 
+    private void layPlayer(Player receiver, DataWatcher watcher){
+        try {
+            EntityPlayer f = new EntityPlayer(fake.getMinecraftServer(), fake.getWorldServer(), fake.getProfile(), new PlayerInteractManager(fake.getWorldServer())) {
+                public void sendMessage(IChatBaseComponent ichatbasecomponent) {
+                }
+
+
+                public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {
+                }
+            };
+            f.e(fake.getId());
+            Field dW = Entity.class.getDeclaredField("datawatcher");
+            dW.setAccessible(true);
+            dW.set(f,watcher);
+            f.entitySleep(bedPos);
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(f.getId(), f.getDataWatcher(), false);
+            sendPacket(receiver, metadata);
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    //BroadCast
     public void broadCastSpawn() {
 
         PacketPlayOutNamedEntitySpawn spawner = new PacketPlayOutNamedEntitySpawn(fake);
@@ -132,16 +161,14 @@ public class FakePlayer implements Tickable
 
     }
 
-    private void updateBed(){
-        PacketPlayOutBlockChange change = spawnFakeBedPacket(parent, bedPos, bedBlockAccess(EnumDirection.valueOf(face.name())));
-        Bukkit.getOnlinePlayers().forEach(receiver->sendPacket(receiver, change));
-    }
-
+    //Ticker
     public void tick() {
         //Send fakeBed
         updateBed();
         //Update armor etc.
         updateEquipment();
+        //Update overlays
+        if(updateOverlays) updateOverlays();
         //Set position for npc
         fake.setPosition(parentLocation.getX(),parentLocation.getY(),parentLocation.getZ());
         //Look
@@ -160,9 +187,8 @@ public class FakePlayer implements Tickable
                 sub = 90;
                 break;
         }
-        if (headrotation) {
-            look(getParent().getLocation().getYaw() - sub);
-        }
+        if (headRotation) look(getParent().getLocation().getYaw() - sub);
+        //Update hitbox
         if(getParent().getWorld().getPVP()&&!invulnerable) {
             if (hitbox != null) {
                 if (!(getParent().getGameMode().equals(GameMode.ADVENTURE) || getParent().getGameMode().equals(GameMode.SURVIVAL))) {
@@ -180,27 +206,9 @@ public class FakePlayer implements Tickable
         }
     }
 
-    private void layPlayer(Player receiver, DataWatcher watcher){
-        try {
-            EntityPlayer f = new EntityPlayer(fake.getMinecraftServer(), fake.getWorldServer(), fake.getProfile(), new PlayerInteractManager(fake.getWorldServer())) {
-                public void sendMessage(IChatBaseComponent ichatbasecomponent) {
-                }
-
-
-                public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {
-                }
-            };
-            f.e(fake.getId());
-            Field dW = Entity.class.getDeclaredField("datawatcher");
-            dW.setAccessible(true);
-            dW.set(f,watcher);
-            f.entitySleep(bedPos);
-            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(f.getId(), f.getDataWatcher(), false);
-            sendPacket(receiver, metadata);
-
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+    private void updateBed(){
+        PacketPlayOutBlockChange change = spawnFakeBedPacket(parent, bedPos, bedBlockAccess(EnumDirection.valueOf(face.name())));
+        Bukkit.getOnlinePlayers().forEach(receiver->sendPacket(receiver, change));
     }
 
     public void animation(Player receiver, byte id) {
@@ -240,6 +248,20 @@ public class FakePlayer implements Tickable
 
         Bukkit.getOnlinePlayers().forEach(receiver->sendPacket(receiver, moveLook));
 
+    }
+
+    private void updateOverlays(){
+
+        DataWatcher parentWatcher = ((CraftPlayer)parent).getHandle().getDataWatcher();
+        byte cur = parentWatcher.get(DataWatcherRegistry.a.a(16));
+        if(cur!=pOverLays){
+
+            DataWatcher watcher = fake.getDataWatcher();
+            watcher.set(DataWatcherRegistry.a.a(16),cur);
+            this.pOverLays = cur;
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false);
+            Bukkit.getOnlinePlayers().forEach(online->sendPacket(online,metadata));
+        }
     }
 
     public void handleHitBox(EntityDamageByEntityEvent e) {
