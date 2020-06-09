@@ -38,7 +38,7 @@ public class LayPose extends PluginPose
         super(player);
         this.driver = new SitDriver(player, ()->stop(true));
         this.fake = new FakePlayer(player, getBoolean("headrotation"),
-                getBoolean("player-invulnerable"), getBoolean("swing-animation"));
+                getBoolean("player-invulnerable"), getBoolean("swing-animation"), getBoolean("updateOverlays"));
         initTickModules();
     }
 
