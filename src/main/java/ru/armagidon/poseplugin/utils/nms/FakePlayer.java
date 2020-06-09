@@ -1,17 +1,18 @@
 package ru.armagidon.poseplugin.utils.nms;
 
 import net.minecraft.server.v1_15_R1.*;
-import org.bukkit.Material;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
+import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.utils.misc.BlockCache;
-import ru.armagidon.poseplugin.utils.misc.ticking.Tickable;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import java.util.Map;
 import static ru.armagidon.poseplugin.utils.nms.FakePlayerUtils.*;
 import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
 
-public class FakePlayer implements Tickable
+public class FakePlayer
 {
     private final Player parent;
     private final EntityPlayer fake;
@@ -28,6 +29,9 @@ public class FakePlayer implements Tickable
     private final Location parentLocation;
     private final BlockCache cache;
     private final BlockFace face;
+
+    private BukkitTask syncTask;
+    private final BukkitTask tickStarter;
 
     private Slime hitbox;
 
@@ -59,6 +63,10 @@ public class FakePlayer implements Tickable
             }
         }
         //Load hitBox and start ticking
+        tickStarter = Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->{
+            //Updating
+            syncTask = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), ()-> Bukkit.getOnlinePlayers().forEach(this::tick),0,1);
+        }, 10);
         fake.setPositionRotation(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(),parentLocation.getYaw(), parentLocation.getPitch());
     }
 
@@ -127,21 +135,18 @@ public class FakePlayer implements Tickable
             cache.restore(receiver);
         });
 
+        if(!tickStarter.isCancelled()) tickStarter.cancel();
+        if(syncTask!=null) syncTask.cancel();
         if(hitbox!=null) hitbox.remove();
         FAKE_PLAYERS.remove(this);
 
     }
 
-    private void updateBed(){
-        PacketPlayOutBlockChange change = spawnFakeBedPacket(parent, bedPos, bedBlockAccess(EnumDirection.valueOf(face.name())));
-        Bukkit.getOnlinePlayers().forEach(receiver->sendPacket(receiver, change));
-    }
-
-    public void tick() {
+    private void tick(Player receiver) {
         //Send fakeBed
-        updateBed();
+        sendPacket(receiver, spawnFakeBedPacket(parent, bedPos, bedBlockAccess(EnumDirection.valueOf(face.name()))));
         //Update armor etc.
-        updateEquipment();
+        updateEquipment(receiver);
         //Set position for npc
         fake.setPosition(parentLocation.getX(),parentLocation.getY(),parentLocation.getZ());
         //Look
@@ -161,7 +166,7 @@ public class FakePlayer implements Tickable
                 break;
         }
         if (headrotation) {
-            look(getParent().getLocation().getYaw() - sub);
+            look(getParent().getLocation().getYaw() - sub, receiver);
         }
         if(getParent().getWorld().getPVP()&&!invulnerable) {
             if (hitbox != null) {
@@ -220,25 +225,24 @@ public class FakePlayer implements Tickable
         return parent;
     }
 
-    private void updateEquipment(){
+    private void updateEquipment(Player receiver){
+
         for (EnumItemSlot slot:EnumItemSlot.values()){
-            ItemStack eq = getEquipmentBySlot(parent.getEquipment(), slot);
-            if(eq!=null&&!eq.getType().equals(Material.AIR)) {
-                PacketPlayOutEntityEquipment eqPacket = new PacketPlayOutEntityEquipment(fake.getId(), slot, CraftItemStack.asNMSCopy(eq));
-                Bukkit.getOnlinePlayers().forEach(receiver -> sendPacket(receiver, eqPacket));
-            }
+
+            PacketPlayOutEntityEquipment eq = new PacketPlayOutEntityEquipment(fake.getId(), slot, getEquipmentBySlot(parent.getEquipment(), slot));
+            sendPacket(receiver, eq);
         }
 
     }
 
-    private void look(float YAW) {
+    private void look(float YAW, Player receiver) {
         short vel = 0;
         byte yaw = getFixedRotation(YAW);
 
         PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(),
                 vel, vel, vel, yaw, getFixedRotation(90), true);
 
-        Bukkit.getOnlinePlayers().forEach(receiver->sendPacket(receiver, moveLook));
+        sendPacket(receiver, moveLook);
 
     }
 

@@ -32,20 +32,15 @@ public class LayPose extends PluginPose
     private boolean spawned = false;
 
     private boolean prevent_invisibility = getBoolean("prevent-use-when-invisible");
-    private BukkitTask fakePlayerTickerTask;
+
+    private final BukkitTask invisibleTick;
 
     public LayPose(Player player) {
         super(player);
         this.driver = new SitDriver(player, ()->stop(true));
         this.fake = new FakePlayer(player, getBoolean("headrotation"),
                 getBoolean("player-invulnerable"), getBoolean("swing-animation"));
-        initTickModules();
-    }
-
-    @Override
-    protected void initTickModules() {
-        //Tick invisibility
-        addTickModule(() -> {
+        invisibleTick = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), () -> {
             if(!prevent_invisibility) {
                 if (spawned) {
                     if (getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
@@ -60,10 +55,7 @@ public class LayPose extends PluginPose
                     }
                 }
             }
-        });
-        addTickModule(driver::tick);
-        //Tick fake player
-        fakePlayerTickerTask = Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()-> addTickModule(fake::tick), 10);
+        }, 0, 1);
     }
 
     @Override
@@ -93,8 +85,8 @@ public class LayPose extends PluginPose
             fake.broadCastRemove();
         });
         driver.standUp();
-        if(fakePlayerTickerTask.isCancelled()) fakePlayerTickerTask.cancel();
         showParent();
+        invisibleTick.cancel();
     }
 
     @Override

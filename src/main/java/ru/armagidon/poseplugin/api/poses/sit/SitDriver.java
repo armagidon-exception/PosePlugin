@@ -9,16 +9,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.PosePlugin;
-import ru.armagidon.poseplugin.utils.misc.ticking.Tickable;
 
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
-public class SitDriver implements Listener, Tickable
+public class SitDriver implements Listener
 {
     private final Runnable execute;
+    private BukkitTask syncTask;
     private ArmorStand seat;
     private final Player sitter;
 
@@ -38,14 +40,27 @@ public class SitDriver implements Listener, Tickable
             armorStand.setCollidable(false);
             armorStand.addPassenger(sitter);
         }));
+        this.syncTask = Bukkit.getScheduler().runTaskTimer(PosePlugin.getInstance(), ()->{
+
+            try {
+                Object vanillaStand = seat.getClass().getMethod("getHandle").invoke(seat);
+                Field yawF = vanillaStand.getClass().getField("yaw");
+                yawF.set(vanillaStand, sitter.getLocation().getYaw());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        },0,1);
     }
 
     public void standUp() {
         HandlerList.unregisterAll(this);
+        if(syncTask!=null&&!syncTask.isCancelled()) syncTask.cancel();
         seat.remove();
         if(!PosePlugin.getInstance().getStatus().equals(PosePlugin.ServerStatus.SHUTTING_DOWN)) {
-            Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), () ->
-                    sitter.teleport(seat.getLocation().clone().add(0, 0.2D, 0).setDirection(sitter.getLocation().getDirection())), 1);
+            Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), () -> {
+                sitter.teleport(seat.getLocation().clone().add(0, 0.2D, 0).setDirection(sitter.getLocation().getDirection()));
+            }, 1);
         } else {
             sitter.setVelocity(new Vector(0,0.2,0));
         }
@@ -67,16 +82,6 @@ public class SitDriver implements Listener, Tickable
                 //If player dismounted from seat, do stuff
                 execute.run();
             }
-        }
-    }
-
-    public void tick(){
-        try {
-            Object vanillaStand = seat.getClass().getMethod("getHandle").invoke(seat);
-            Field yawF = vanillaStand.getClass().getField("yaw");
-            yawF.set(vanillaStand, sitter.getLocation().getYaw());
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }
