@@ -60,6 +60,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
         saveDefaultConfig();
         //Check for updates
         checkForUpdates();
+        tickTask();
     }
 
     @Override
@@ -104,12 +105,18 @@ public final class PosePlugin extends JavaPlugin implements Listener
         PluginCommand sit =getCommand("sit");
         PluginCommand lay =getCommand("lay");
         PluginCommand swim =getCommand("swim");
-        sit.setExecutor(this);
-        sit.setTabCompleter(c);
-        lay.setExecutor(this);
-        lay.setTabCompleter(c);
-        swim.setExecutor(this);
-        swim.setTabCompleter(c);
+        if(sit!=null) {
+            sit.setExecutor(this);
+            sit.setTabCompleter(c);
+        }
+        if(lay!=null) {
+            lay.setExecutor(this);
+            lay.setTabCompleter(c);
+        }
+        if(swim!=null) {
+            swim.setExecutor(this);
+            swim.setTabCompleter(c);
+        }
     }
 
     private boolean onGround(Player player){
@@ -147,6 +154,20 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     public ServerStatus getStatus() {
         return status;
+    }
+
+    private void tickTask(){
+        Bukkit.getScheduler().runTaskTimer(this,(task)->{
+            if(status.equals(ServerStatus.SHUTTING_DOWN)) {
+                task.cancel();
+            }
+            players.values().forEach(player-> {
+                if(!player.getPoseType().equals(EnumPose.STANDING)) {
+                    player.getPose().tick();
+                }
+            });
+
+        },0,1);
     }
 
     public enum ServerStatus{

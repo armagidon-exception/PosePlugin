@@ -10,12 +10,16 @@ public class SitPose extends PluginPose {
 
     public SitPose(Player player) {
         super(player);
-        this.driver = new SitDriver(player, ()->{
-            stop(true);
-        });
+        this.driver = new SitDriver(player, ()-> stop(true));
+        initTickModules();
     }
 
-    public void play(Player receiver,boolean log){
+    @Override
+    protected void initTickModules() {
+        addTickModule(driver::tick);
+    }
+
+    public void play(Player receiver, boolean log){
         super.play(receiver,log);
         driver.takeASeat();
     }
