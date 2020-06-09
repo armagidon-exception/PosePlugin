@@ -1,8 +1,10 @@
 package ru.armagidon.poseplugin.utils.nms;
 
 import net.minecraft.server.v1_15_R1.*;
-import org.bukkit.Material;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
@@ -75,7 +77,9 @@ public class FakePlayer implements Tickable
 
     //To single player
     public void spawnToPlayer(Player receiver) {
-        sendPacket(receiver, spawnFakeBedPacket(parent,bedPos, bedBlockAccess(EnumDirection.valueOf(face.name()))));
+        PacketPlayOutPlayerInfo add = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
+        sendPacket(receiver , add);
+        sendPacket(receiver, spawnFakeBedPacket(bedPos, bedBlockAccess(EnumDirection.valueOf(face.name()))));
         DataWatcher watcher = cloneDataWatcher(parent, fake);
         sendPacket(receiver, new PacketPlayOutNamedEntitySpawn(fake));
         fake.setInvisible(true);
@@ -111,10 +115,11 @@ public class FakePlayer implements Tickable
 
     //BroadCast
     public void broadCastSpawn() {
+        PacketPlayOutPlayerInfo add = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
 
         PacketPlayOutNamedEntitySpawn spawner = new PacketPlayOutNamedEntitySpawn(fake);
 
-        PacketPlayOutBlockChange fakeBed = spawnFakeBedPacket(parent, bedPos, bedBlockAccess(EnumDirection.valueOf(face.name())));
+        PacketPlayOutBlockChange fakeBed = spawnFakeBedPacket(bedPos, bedBlockAccess(EnumDirection.valueOf(face.name())));
 
         DataWatcher watcher = cloneDataWatcher(parent, fake);
 
@@ -133,17 +138,20 @@ public class FakePlayer implements Tickable
         f.entitySleep(bedPos);
         PacketPlayOutEntityMetadata layPacket = new PacketPlayOutEntityMetadata(f.getId(), f.getDataWatcher(), false);
 
+        PacketPlayOutEntityMetadata hidePacket = new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false);
+
         Bukkit.getOnlinePlayers().forEach(receiver -> {
             sendPacket(receiver, fakeBed);
+            if (!receiver.getUniqueId().equals(getParent().getUniqueId())) sendPacket(receiver, add);
             sendPacket(receiver, spawner);
             fake.setInvisible(true);
-            sendPacket(receiver, new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false));
+            sendPacket(receiver, hidePacket);
 
             sendPacket(receiver, layPacket);
 
             sendPacket(receiver, move(fake.getId()));
             fake.setInvisible(false);
-            sendPacket(receiver, new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false));
+            sendPacket(receiver, hidePacket);
         });
 
     }
@@ -207,7 +215,7 @@ public class FakePlayer implements Tickable
     }
 
     private void updateBed(){
-        PacketPlayOutBlockChange change = spawnFakeBedPacket(parent, bedPos, bedBlockAccess(EnumDirection.valueOf(face.name())));
+        PacketPlayOutBlockChange change = spawnFakeBedPacket(bedPos, bedBlockAccess(EnumDirection.valueOf(face.name())));
         Bukkit.getOnlinePlayers().forEach(receiver->sendPacket(receiver, change));
     }
 
@@ -231,10 +239,8 @@ public class FakePlayer implements Tickable
     private void updateEquipment(){
         for (EnumItemSlot slot:EnumItemSlot.values()){
             ItemStack eq = getEquipmentBySlot(parent.getEquipment(), slot);
-            if(eq!=null&&!eq.getType().equals(Material.AIR)) {
-                PacketPlayOutEntityEquipment eqPacket = new PacketPlayOutEntityEquipment(fake.getId(), slot, CraftItemStack.asNMSCopy(eq));
-                Bukkit.getOnlinePlayers().forEach(receiver -> sendPacket(receiver, eqPacket));
-            }
+            PacketPlayOutEntityEquipment eqPacket = new PacketPlayOutEntityEquipment(fake.getId(), slot, CraftItemStack.asNMSCopy(eq));
+            Bukkit.getOnlinePlayers().forEach(receiver -> sendPacket(receiver, eqPacket));
         }
 
     }
