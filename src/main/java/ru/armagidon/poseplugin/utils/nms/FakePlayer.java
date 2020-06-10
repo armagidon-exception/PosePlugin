@@ -13,12 +13,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.utils.misc.BlockCache;
+import ru.armagidon.poseplugin.utils.misc.ticking.TickModule;
 import ru.armagidon.poseplugin.utils.misc.ticking.Tickable;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static ru.armagidon.poseplugin.utils.nms.FakePlayerUtils.*;
 import static ru.armagidon.poseplugin.utils.nms.NMSUtils.sendPacket;
@@ -42,9 +44,9 @@ public class FakePlayer implements Tickable
     private final boolean headRotation;
     private final boolean updateOverlays;
 
-    static Map<Player, FakePlayer> FAKE_PLAYERS = new HashMap<>();
+    public static Map<Player, FakePlayer> FAKE_PLAYERS = new HashMap<>();
 
-    public FakePlayer(Player parent, boolean swingHand, boolean invulnerable, boolean headRotation, boolean updateOverlays) {
+    public FakePlayer(Player parent) {
         //Init npc
         this.parent = parent;
         this.fake = createNPC(parent);
@@ -59,10 +61,10 @@ public class FakePlayer implements Tickable
         this.face = BlockFace.valueOf(getDirection(getParent().getLocation().getYaw()).name());
 
         //Init config variables
-        this.swingHand = swingHand;
-        this.invulnerable = invulnerable;
-        this.headRotation = headRotation;
-        this.updateOverlays = updateOverlays;
+        this.swingHand = PosePlugin.getInstance().getConfig().getBoolean("lay.swing-animation");
+        this.invulnerable = PosePlugin.getInstance().getConfig().getBoolean("lay.player-invulnerable");
+        this.headRotation = PosePlugin.getInstance().getConfig().getBoolean("lay.headrotation");
+        this.updateOverlays = PosePlugin.getInstance().getConfig().getBoolean("lay.updateOverlays");
 
         FAKE_PLAYERS.put(parent, this);
         //Spawn hitbox
@@ -92,20 +94,9 @@ public class FakePlayer implements Tickable
 
     private void layPlayer(Player receiver, DataWatcher watcher){
         try {
-            EntityPlayer f = new EntityPlayer(fake.getMinecraftServer(), fake.getWorldServer(), fake.getProfile(), new PlayerInteractManager(fake.getWorldServer())) {
-                public void sendMessage(IChatBaseComponent ichatbasecomponent) {
-                }
-
-
-                public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {
-                }
-            };
-            f.e(fake.getId());
-            Field dW = Entity.class.getDeclaredField("datawatcher");
-            dW.setAccessible(true);
-            dW.set(f,watcher);
-            f.entitySleep(bedPos);
-            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(f.getId(), f.getDataWatcher(), false);
+            watcher.set(DataWatcherRegistry.m.a(13), Optional.of(bedPos));
+            watcher.set(DataWatcherRegistry.s.a(6),EntityPose.SLEEPING);
+            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
             sendPacket(receiver, metadata);
 
         } catch (Exception e){
@@ -115,6 +106,7 @@ public class FakePlayer implements Tickable
 
     //BroadCast
     public void broadCastSpawn() {
+
         PacketPlayOutPlayerInfo add = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
 
         PacketPlayOutNamedEntitySpawn spawner = new PacketPlayOutNamedEntitySpawn(fake);
@@ -123,20 +115,9 @@ public class FakePlayer implements Tickable
 
         DataWatcher watcher = cloneDataWatcher(parent, fake);
 
-        EntityPlayer f = new EntityPlayer(fake.getMinecraftServer(), fake.getWorldServer(), fake.getProfile(), new PlayerInteractManager(fake.getWorldServer())) {
-            public void sendMessage(IChatBaseComponent ichatbasecomponent) {
-            }
-
-
-            public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {
-            }
-        };
-        f.e(fake.getId());
-
-        NMSUtils.setField("datawatcher", f, watcher, Entity.class);
-
-        f.entitySleep(bedPos);
-        PacketPlayOutEntityMetadata layPacket = new PacketPlayOutEntityMetadata(f.getId(), f.getDataWatcher(), false);
+        watcher.set(DataWatcherRegistry.m.a(13), Optional.of(bedPos));
+        watcher.set(DataWatcherRegistry.s.a(6),EntityPose.SLEEPING);
+        PacketPlayOutEntityMetadata layPacket = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
 
         PacketPlayOutEntityMetadata hidePacket = new PacketPlayOutEntityMetadata(fake.getId(), fake.getDataWatcher(), false);
 
@@ -179,23 +160,6 @@ public class FakePlayer implements Tickable
         if(updateOverlays) updateOverlays();
         //Set position for npc
         fake.setPosition(parentLocation.getX(),parentLocation.getY(),parentLocation.getZ());
-        //Look
-        float sub;
-        switch (face){
-            case NORTH:
-                sub = 0;
-                break;
-            case SOUTH:
-                sub = 180;
-                break;
-            case WEST:
-                sub = -90;
-                break;
-            default:
-                sub = 90;
-                break;
-        }
-        if (headRotation) look(getParent().getLocation().getYaw() - sub);
         //Update hitbox
         if(getParent().getWorld().getPVP()&&!invulnerable) {
             if (hitbox != null) {
@@ -224,7 +188,7 @@ public class FakePlayer implements Tickable
         sendPacket(receiver,status);
     }
 
-    void swingHand(Player receiver, boolean mainHand) {
+    public void swingHand(Player receiver, boolean mainHand) {
         if(swingHand) {
             int animation = mainHand ? 0 : 3;
             PacketPlayOutAnimation ani = new PacketPlayOutAnimation(fake, animation);
@@ -245,10 +209,33 @@ public class FakePlayer implements Tickable
 
     }
 
+    public TickModule tickLook(){
+        if(headRotation){
+            float sub;
+            switch (face){
+                case NORTH:
+                    sub = 0;
+                    break;
+                case SOUTH:
+                    sub = 180;
+                    break;
+                case WEST:
+                    sub = -90;
+                    break;
+                default:
+                    sub = 90;
+                    break;
+            }
+
+            return ()-> look(parent.getLocation().getYaw()-sub);
+        } else{
+            return ()->{};
+        }
+    }
+
     private void look(float YAW) {
         short vel = 0;
         byte yaw = getFixedRotation(YAW);
-
         PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(),
                 vel, vel, vel, yaw, getFixedRotation(90), true);
 

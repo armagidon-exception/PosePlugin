@@ -15,11 +15,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventDispatcher;
+import ru.armagidon.poseplugin.utils.misc.Debugger;
 import ru.armagidon.poseplugin.utils.misc.EventListener;
 import ru.armagidon.poseplugin.utils.misc.PluginLogger;
 import ru.armagidon.poseplugin.utils.misc.UpdateChecker;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
 import ru.armagidon.poseplugin.utils.misc.messaging.Messages;
+import ru.armagidon.poseplugin.utils.misc.packetManagement.PacketReaderManager;
+import ru.armagidon.poseplugin.utils.misc.packetManagement.readers.SwingPacketReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,17 +43,27 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     private ServerStatus status;
 
+    private PacketReaderManager manager;
+
+    private Debugger debugger;
+
     @Override
     public void onEnable() {
         instance = this;
+        this.debugger = new Debugger();
+        debugger.setEnabled(false);
+
         status = ServerStatus.ENABLING;
         this.config = getConfig();
+        //Load locale files
         try {
             this.messages = new Messages(config.getString("locale", "en"));
         } catch (IllegalArgumentException e){
             Bukkit.getPluginManager().disablePlugin(this);
             getLogger().severe(e.getMessage());
         }
+
+        manager = new PacketReaderManager();
         //Init commands
         initCommands();
         //Register events
@@ -60,7 +73,16 @@ public final class PosePlugin extends JavaPlugin implements Listener
         saveDefaultConfig();
         //Check for updates
         checkForUpdates();
+        //Ticking
         tickTask();
+        initPacketReaders();
+        Bukkit.getOnlinePlayers().forEach(manager::inject);
+
+    }
+
+    private void initPacketReaders(){
+
+        manager.registerPacketReader(new SwingPacketReader());
     }
 
     @Override
@@ -97,7 +119,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
     public void onDisable() {
         status = ServerStatus.SHUTTING_DOWN;
         players.forEach((s,p)-> p.getPose().stop(false));
-        Bukkit.getOnlinePlayers().forEach(p-> Bukkit.getOnlinePlayers().forEach(a-> p.showPlayer(this,a)));
+        Bukkit.getOnlinePlayers().forEach(manager::eject);
     }
 
     private void initCommands(){
@@ -117,6 +139,10 @@ public final class PosePlugin extends JavaPlugin implements Listener
             swim.setExecutor(this);
             swim.setTabCompleter(c);
         }
+    }
+
+    public Debugger getDebugger() {
+        return debugger;
     }
 
     private boolean onGround(Player player){
@@ -168,6 +194,10 @@ public final class PosePlugin extends JavaPlugin implements Listener
             });
 
         },0,1);
+    }
+
+    public PacketReaderManager getPacketReaderManager() {
+        return manager;
     }
 
     public enum ServerStatus{

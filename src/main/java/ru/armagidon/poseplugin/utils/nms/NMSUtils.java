@@ -11,9 +11,6 @@ public class NMSUtils
     public NMSUtils(){
     }
 
-    public static PacketReader getSwingReader(Player player){
-        return new SwingPacketReader(player);
-    }
 
     public static void sendPacket(Player receiver, Object packet) {
         try {

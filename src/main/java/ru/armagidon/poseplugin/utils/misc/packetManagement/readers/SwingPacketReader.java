@@ -1,20 +1,23 @@
-package ru.armagidon.poseplugin.utils.nms;
+package ru.armagidon.poseplugin.utils.misc.packetManagement.readers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.utils.misc.packetManagement.PacketReader;
+import ru.armagidon.poseplugin.utils.nms.FakePlayer;
 
-public class SwingPacketReader extends PacketReader
+public final class SwingPacketReader extends PacketReader
 {
 
 
-    public SwingPacketReader(Player player) {
-        super(player, "SwingPacketReader");
+    public SwingPacketReader() {
+        super( "SwingPacketReader");
     }
 
-    protected void readPackets(Player sender, Object packet) throws Exception{
+    @Override
+    protected boolean readServerPackets(Player sender, Object packet) throws Exception {
         String packetname = packet.getClass().getSimpleName();
         if(packetname.equalsIgnoreCase("packetplayinarmanimation")){
             //Swing hand
@@ -29,7 +32,13 @@ public class SwingPacketReader extends PacketReader
                     }
                 }
             }
-
         }
+        return true;
+    }
+
+    @Override
+    protected boolean readClientPackets(Player sender, Object packet) {
+        //Swing reader doesn't read client packets
+        return true;
     }
 }

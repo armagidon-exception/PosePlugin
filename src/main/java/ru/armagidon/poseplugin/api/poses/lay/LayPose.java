@@ -37,8 +37,7 @@ public class LayPose extends PluginPose
     public LayPose(Player player) {
         super(player);
         this.driver = new SitDriver(player, ()->stop(true));
-        this.fake = new FakePlayer(player, getBoolean("headrotation"),
-                getBoolean("player-invulnerable"), getBoolean("swing-animation"), getBoolean("updateOverlays"));
+        this.fake = new FakePlayer(player);
         initTickModules();
     }
 
@@ -46,6 +45,7 @@ public class LayPose extends PluginPose
     protected void initTickModules() {
         //Tick invisibility
         addTickModule(() -> {
+            hideParent();
             if(!prevent_invisibility) {
                 if (spawned) {
                     if (getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
@@ -56,14 +56,14 @@ public class LayPose extends PluginPose
                     if (!getPlayer().hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                         fake.broadCastSpawn();
                         spawned = true;
-                        hideParent();
                     }
                 }
             }
         });
         addTickModule(driver::tick);
+        addTickModule(fake::tick);
         //Tick fake player
-        fakePlayerTickerTask = Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()-> addTickModule(fake::tick), 10);
+        fakePlayerTickerTask = Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()-> addTickModule(fake.tickLook()), 10);
     }
 
     @Override
@@ -122,6 +122,10 @@ public class LayPose extends PluginPose
         PacketPlayOutEntityEffect effect = new PacketPlayOutEntityEffect(player.getId(), new MobEffect(INVISIBILITY, Short.MAX_VALUE, 1, false, false));
         sendPacket(getPlayer(), effect);
         player.setInvisible(true);
+        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(player.getId(), player.getDataWatcher(), true);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            sendPacket(onlinePlayer, metadata);
+        }
     }
 
     private void showParent(){

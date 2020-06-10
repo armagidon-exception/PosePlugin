@@ -5,6 +5,8 @@ import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -25,16 +27,16 @@ class FakePlayerUtils
         spawnLoc.setY(2);
         if(location.getWorld()==null) return null;
         Slime s =  location.getWorld().spawn(spawnLoc,Slime.class,(slime)->{
-            slime.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
             slime.setGravity(false);
             slime.setAI(false);
             slime.setSize(1);
             slime.setCustomNameVisible(false);
             slime.setCustomName(parent.getUniqueId().toString());
-            slime.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(parent.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+            Objects.requireNonNull(slime.getAttribute(Attribute.GENERIC_MAX_HEALTH)).setBaseValue(Objects.requireNonNull(parent.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue());
             slime.setHealth(parent.getHealth());
+            slime.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
         });
-        Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->s.teleport(location.clone().add(0,0.3,0)),5);
+        Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->s.teleport(location.clone().add(0,0.3,0)),10);
         return s;
     }
 
@@ -69,7 +71,7 @@ class FakePlayerUtils
         return human.getDataWatcher();
     }
 
-    static PacketPlayOutBlockChange spawnFakeBedPacket(Player parent, BlockPosition location, IBlockAccess access){
+    static PacketPlayOutBlockChange spawnFakeBedPacket(BlockPosition location, IBlockAccess access){
         return new PacketPlayOutBlockChange(access, location);
     }
 
@@ -163,8 +165,7 @@ class FakePlayerUtils
 
     static EntityPlayer createNPC(Player parent) {
         EntityPlayer vanillaplayer = ((CraftPlayer) parent).getHandle();
-        World world = vanillaplayer.getWorld();
-        return new EntityPlayer(Objects.requireNonNull(world.getMinecraftServer()), vanillaplayer.getWorldServer(), cloneProfile(parent), new PlayerInteractManager(vanillaplayer.getWorldServer())) {
+        return new EntityPlayer(((CraftServer)Bukkit.getServer()).getServer(), vanillaplayer.getWorldServer(), cloneProfile(parent), new PlayerInteractManager(((CraftWorld)parent.getWorld()).getHandle()) {
 
 
             public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {
@@ -178,6 +179,6 @@ class FakePlayerUtils
             public boolean isCreative() {
                 return false;
             }
-        };
+        });
     }
 }
