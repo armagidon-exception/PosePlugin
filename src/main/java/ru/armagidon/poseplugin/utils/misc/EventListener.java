@@ -35,7 +35,7 @@ public class EventListener implements org.bukkit.event.Listener
         players.put(event.getPlayer().getName(),new PosePluginPlayer(event.getPlayer()));
         //Send notification about new update
         if(PosePlugin.checker !=null){
-            if(!PosePlugin.checker.uptodate&&event.getPlayer().isOp()){
+            if(!PosePlugin.checker.uptodate&&event.getPlayer().hasPermission("poseplugin.admin")){
                 PosePlugin.checker.sendNotification(event.getPlayer());
             }
         }

@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.utils.nms;
 
+import net.minecraft.server.v1_15_R1.Packet;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
@@ -12,7 +13,7 @@ public class NMSUtils
     }
 
 
-    public static void sendPacket(Player receiver, Object packet) {
+    public static void sendPacket(Player receiver, Packet<?> packet) {
         try {
             Object nmsPlayer = receiver.getClass().getMethod("getHandle").invoke(receiver);
             Object plrConnection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);

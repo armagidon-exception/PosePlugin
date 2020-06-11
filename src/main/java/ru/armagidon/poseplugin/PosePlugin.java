@@ -1,6 +1,7 @@
 package ru.armagidon.poseplugin;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -81,12 +82,19 @@ public final class PosePlugin extends JavaPlugin implements Listener
     }
 
     private void initPacketReaders(){
-
         manager.registerPacketReader(new SwingPacketReader());
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+    {
+        if(command.getName().equalsIgnoreCase("ppreload")){
+            Bukkit.getPluginManager().disablePlugin(this);
+            Bukkit.getPluginManager().getPlugin(getName()).reloadConfig();
+            Bukkit.getPluginManager().enablePlugin(this);
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8&l[&b&l&nPosePlugin&8&l]&a Plugin reloaded!"));
+            return true;
+        }
         if(sender instanceof Player) {
             PosePluginPlayer p = players.get(sender.getName());
             EnumPose pose;
@@ -127,6 +135,11 @@ public final class PosePlugin extends JavaPlugin implements Listener
         PluginCommand sit =getCommand("sit");
         PluginCommand lay =getCommand("lay");
         PluginCommand swim =getCommand("swim");
+        PluginCommand ppreload = getCommand("ppreload");
+        if(ppreload!=null){
+            ppreload.setExecutor(this);
+            ppreload.setTabCompleter(c);
+        }
         if(sit!=null) {
             sit.setExecutor(this);
             sit.setTabCompleter(c);

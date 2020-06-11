@@ -7,7 +7,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 
@@ -67,6 +66,14 @@ public class PersonalEventDispatcher implements Listener
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             player.callPersonalEvent(event);
         }
+    }
+
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onGameModeChange(PlayerGameModeChangeEvent event){
+        if(!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
+        PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
+        player.callPersonalEvent(event);
     }
 
 }

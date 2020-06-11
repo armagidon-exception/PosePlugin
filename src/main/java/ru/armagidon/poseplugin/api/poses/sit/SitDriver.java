@@ -21,10 +21,10 @@ public class SitDriver implements Listener, Tickable
     private ArmorStand seat;
     private final Player sitter;
 
-    public SitDriver(Player sitter, Runnable execute) {
+    public SitDriver(Player sitter, Runnable onDismount) {
         Bukkit.getPluginManager().registerEvents(this, PosePlugin.getInstance());
         this.sitter = sitter;
-        this.execute = execute;
+        this.execute = onDismount;
     }
 
     public void takeASeat() {

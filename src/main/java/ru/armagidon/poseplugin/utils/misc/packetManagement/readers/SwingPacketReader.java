@@ -1,6 +1,5 @@
 package ru.armagidon.poseplugin.utils.misc.packetManagement.readers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
@@ -27,9 +26,7 @@ public final class SwingPacketReader extends PacketReader
                     Object enumhandObject = packet.getClass().getDeclaredMethod("b").invoke(packet);
                     Enum enumHand = (Enum) enumhandObject;
                     boolean mainHand = enumHand.name().equalsIgnoreCase("main_hand");
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        FakePlayer.FAKE_PLAYERS.get(sender).swingHand(onlinePlayer, mainHand);
-                    }
+                    FakePlayer.FAKE_PLAYERS.get(sender).swingHand(mainHand);
                 }
             }
         }
