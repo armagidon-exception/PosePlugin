@@ -8,14 +8,13 @@ import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
-import ru.armagidon.poseplugin.api.poses.lay.LayPose;
 import ru.armagidon.poseplugin.api.poses.StandingPose;
+import ru.armagidon.poseplugin.api.poses.lay.LayPose;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.personalListener.PersonalListener;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
-import ru.armagidon.poseplugin.utils.misc.messaging.Messages;
 
 import java.lang.reflect.Method;
 
@@ -84,7 +83,7 @@ public class PosePluginPlayer
         try{
             PersonalListener listener = (PersonalListener) getPose();
             forEachMethods(listener, event);
-        }catch (ClassCastException e){ return;}
+        }catch (ClassCastException ignored){}
     }
 
     private void forEachMethods(PersonalListener listener, Event event){
@@ -94,8 +93,7 @@ public class PosePluginPlayer
                 if (!m.isAnnotationPresent(PersonalEventHandler.class)) continue;
                 try {
                     m.invoke(listener, event);
-                } catch (Exception e) {
-                }
+                } catch (Exception ignore) {}
             }
             superclass = superclass.getSuperclass();
         }

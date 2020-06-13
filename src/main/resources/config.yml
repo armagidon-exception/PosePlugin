@@ -9,5 +9,6 @@ lay:
   player-invulnerable: false
   swing-animation: true
   prevent-use-when-invisible: false
+  updateOverlays: true
 sit:
   stand-up-when-damaged: true

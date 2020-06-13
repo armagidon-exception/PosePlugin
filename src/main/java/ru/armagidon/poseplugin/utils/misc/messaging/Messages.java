@@ -6,21 +6,24 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.armagidon.poseplugin.PosePlugin;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.Function;
 
 public class Messages
 {
-    private final FileConfiguration locale;
+    private FileConfiguration localeConfig;
+    private File file;
     private Function<String, String> COLORIZE = (string)-> ChatColor.translateAlternateColorCodes('&',string);
-
+    private String localeName;
 
     public Messages(String locale) {
+        this.localeName = locale;
         File localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "locale");
         localeFolder.mkdirs();
-        File file = new File(localeFolder, locale+".yml");
+        file = new File(localeFolder, locale+".yml");
         if(!file.exists()){
             try{
                 save(locale, localeFolder);
@@ -28,7 +31,7 @@ public class Messages
                 throw new IllegalArgumentException("Locale file \""+locale+ "\" doesn't exists");
             }
         }
-        this.locale = YamlConfiguration.loadConfiguration(file);
+        this.localeConfig = YamlConfiguration.loadConfiguration(file);
     }
 
     public void send(Message message, CommandSender sender) {
@@ -44,6 +47,14 @@ public class Messages
     }
 
     public void send(String path, CommandSender sender) {
-        sender.sendMessage(COLORIZE.apply(locale.getString(path)));
+        sender.sendMessage(COLORIZE.apply(localeConfig.getString(path)));
+    }
+
+    public void reload() {
+        File localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "locale");
+        if (file == null) {
+            file = new File(localeFolder, "customConfig.yml");
+        }
+        localeConfig = YamlConfiguration.loadConfiguration(file);
     }
 }

@@ -9,7 +9,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.utils.misc.ticking.Tickable;
@@ -22,10 +21,10 @@ public class SitDriver implements Listener, Tickable
     private ArmorStand seat;
     private final Player sitter;
 
-    public SitDriver(Player sitter, Runnable execute) {
+    public SitDriver(Player sitter, Runnable onDismount) {
         Bukkit.getPluginManager().registerEvents(this, PosePlugin.getInstance());
         this.sitter = sitter;
-        this.execute = execute;
+        this.execute = onDismount;
     }
 
     public void takeASeat() {
@@ -45,9 +44,7 @@ public class SitDriver implements Listener, Tickable
         seat.remove();
         if(!PosePlugin.getInstance().getStatus().equals(PosePlugin.ServerStatus.SHUTTING_DOWN)) {
             Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), () ->
-                    sitter.teleport(seat.getLocation().clone().add(0, 0.2D, 0).setDirection(sitter.getLocation().getDirection())), 1);
-        } else {
-            sitter.setVelocity(new Vector(0,0.2,0));
+                    sitter.teleport(seat.getLocation().clone().add(0, 0.3D, 0).setDirection(sitter.getLocation().getDirection())), 1);
         }
     }
 

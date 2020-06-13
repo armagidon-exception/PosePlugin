@@ -2,7 +2,6 @@ package ru.armagidon.poseplugin.utils.misc;
 
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -10,13 +9,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.utils.nms.NMSUtils;
 
 import java.util.Map;
 //Listener of all necessary events
@@ -38,20 +35,19 @@ public class EventListener implements org.bukkit.event.Listener
         players.put(event.getPlayer().getName(),new PosePluginPlayer(event.getPlayer()));
         //Send notification about new update
         if(PosePlugin.checker !=null){
-            if(!PosePlugin.checker.uptodate&&event.getPlayer().isOp()){
+            if(!PosePlugin.checker.uptodate&&event.getPlayer().hasPermission("poseplugin.admin")){
                 PosePlugin.checker.sendNotification(event.getPlayer());
             }
         }
         //Play lay pose animation
         for (PosePluginPlayer pl : players.values()) {
             if(pl.getPoseType().equals(EnumPose.LYING)||pl.getPoseType().equals(EnumPose.SWIMMING)){
-                Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->{
-                    pl.getPose().play(event.getPlayer(),false);
-                },1L);
+                Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()->
+                        pl.getPose().play(event.getPlayer(),false),1L);
             }
         }
-        //Inject damage packet listener to player's channel pipeline
-        NMSUtils.getSwingReader(event.getPlayer()).inject();
+        //Inject all packet reader into player's pipeline
+        PosePlugin.getInstance().getPacketReaderManager().inject(event.getPlayer());
     }
 
     @EventHandler
@@ -60,8 +56,8 @@ public class EventListener implements org.bukkit.event.Listener
         players.get(event.getPlayer().getName()).getPose().stop(false);
         //Remove player from playerlist
         players.remove(event.getPlayer().getName());
-        //Eject damage packet reader out of player's channel pipeline
-        NMSUtils.getSwingReader(event.getPlayer()).eject();
+        //Eject all packet reader out of player's pipeline
+        PosePlugin.getInstance().getPacketReaderManager().eject(event.getPlayer());
     }
 
     @EventHandler
