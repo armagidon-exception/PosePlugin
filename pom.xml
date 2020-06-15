@@ -17,7 +17,6 @@
     </properties>
 
     <build>
-        <directory>D:\Users\Armagidon\Desktop\всё\Тест Сервера\Тест сервер 1.15.2\plugins</directory>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
