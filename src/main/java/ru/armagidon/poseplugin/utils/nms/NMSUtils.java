@@ -9,9 +9,6 @@ import java.lang.reflect.Field;
 
 public class NMSUtils
 {
-    public NMSUtils(){
-    }
-
 
     public static void sendPacket(Player receiver, Packet<?> packet) {
         try {
@@ -35,6 +32,10 @@ public class NMSUtils
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public static void setInvisible(Player player, boolean invisible){
+        FakePlayer.asNMSCopy(player).setInvisible(invisible);
     }
 
 }
