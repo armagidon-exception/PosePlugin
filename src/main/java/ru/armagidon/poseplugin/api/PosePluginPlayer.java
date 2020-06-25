@@ -6,12 +6,12 @@ import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
+import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
+import ru.armagidon.poseplugin.api.personalListener.PersonalListener;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
 import ru.armagidon.poseplugin.api.poses.StandingPose;
 import ru.armagidon.poseplugin.api.poses.lay.LayPose;
-import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
-import ru.armagidon.poseplugin.api.poses.personalListener.PersonalListener;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
@@ -58,7 +58,7 @@ public class PosePluginPlayer
                 break;
             }
             case SWIMMING:
-                newpose = new SwimPose(player);
+                newpose = SwimPose.newInstance(player);
                 break;
             case SITTING:
                 newpose = new SitPose(player);
