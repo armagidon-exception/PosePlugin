@@ -2,11 +2,11 @@ package ru.armagidon.poseplugin.utils.misc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.NumberConversions;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public final class VectorUtils
     public static Block getDirBlock(Location plocation){
         Block cur = getBlock(plocation);
         BlockFace face = yawToFace(plocation.getYaw());
-        if(face==null) return null;
+        if(face==null) return cur;
         return cur.getRelative(face);
     }
 
@@ -53,33 +53,9 @@ public final class VectorUtils
         return location.getWorld().getBlockAt(x,y,z);
     }
 
-    public static boolean hasIntersection(Vector p1, Vector p2, Vector min, Vector max) {
-        final double epsilon = 0.0001f;
-
-        Vector d = p2.clone().subtract(p1).multiply(0.5);
-        Vector e = max.clone().subtract(min).multiply(0.5);
-        Vector c = p1.clone().add(d).subtract(min.add(max).multiply(0.5));
-        Vector ad = absoluteVector(d);
-
-        if (Math.abs(c.getX()) > e.getX() + ad.getX())
-            return false;
-        if (Math.abs(c.getY()) > e.getY() + ad.getY())
-            return false;
-        if (Math.abs(c.getZ()) > e.getZ() + ad.getZ())
-            return false;
-
-        if (Math.abs(d.getY() * c.getZ() - d.getZ() * c.getY()) > e.getY() * ad.getZ() + e.getZ() * ad.getY() + epsilon)
-            return false;
-        if (Math.abs(d.getZ() * c.getX() - d.getX() * c.getZ()) > e.getZ() * ad.getX() + e.getX() * ad.getZ() + epsilon)
-            return false;
-        if (Math.abs(d.getX() * c.getY() - d.getY() * c.getX()) > e.getX() * ad.getY() + e.getY() * ad.getX() + epsilon)
-            return false;
-
-        return true;
-    }
-
-    private static Vector absoluteVector(Vector v){
-        return new Vector(Math.abs(v.getX()),Math.abs(v.getY()),Math.abs(v.getZ()));
+    public static boolean onGround(Player player){
+        Location location = player.getLocation();
+        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR)&&player.isOnGround();
     }
 
 }
