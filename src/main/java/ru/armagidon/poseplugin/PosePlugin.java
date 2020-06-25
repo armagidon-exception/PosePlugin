@@ -2,20 +2,18 @@ package ru.armagidon.poseplugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
+import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.utils.misc.Debugger;
 import ru.armagidon.poseplugin.utils.misc.EventListener;
 import ru.armagidon.poseplugin.utils.misc.PluginLogger;
@@ -29,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import static ru.armagidon.poseplugin.utils.misc.VectorUtils.onGround;
 
 public final class PosePlugin extends JavaPlugin implements Listener
 {
@@ -52,7 +52,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
     public void onEnable() {
         instance = this;
         this.debugger = new Debugger();
-        debugger.setEnabled(false);
+        //debugger.setEnabled(false);
 
         status = ServerStatus.ENABLING;
         this.config = getConfig();
@@ -158,11 +158,6 @@ public final class PosePlugin extends JavaPlugin implements Listener
         return debugger;
     }
 
-    private boolean onGround(Player player){
-        Location location = player.getLocation();
-        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR)&&player.isOnGround();
-    }
-
     public boolean containsPlayer(Player player){
         return players.containsKey(player.getName())&&players.get(player.getName())!=null;
     }
@@ -204,8 +199,22 @@ public final class PosePlugin extends JavaPlugin implements Listener
                 if(!player.getPoseType().equals(EnumPose.STANDING)) {
                     player.getPose().tick();
                 }
+                player.getPlayer().getNearbyEntities(5,5,5).stream().filter(entity -> entity.getType().equals(EntityType.ARMOR_STAND)).forEach(armorstand->{
+                    if(armorstand.hasMetadata("pp_seat")){
+                        String name = armorstand.getMetadata("pp_seat").get(0).asString();
+                        Player p = Bukkit.getPlayerExact(name);
+                        if (p == null || !p.isOnline()) {
+                            armorstand.remove();
+                        } else {
+                            PosePluginPlayer pl = getPosePluginPlayer(p.getName());
+                            if(!(pl.getPoseType().equals(EnumPose.SITTING)||pl.getPoseType().equals(EnumPose.LYING))){
+                                armorstand.remove();
+                            }
+                        }
+                    }
+                });
+                //Name: pp_seat: Nickname
             });
-
         },0,1);
     }
 

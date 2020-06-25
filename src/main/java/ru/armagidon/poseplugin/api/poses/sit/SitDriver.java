@@ -9,9 +9,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.PosePlugin;
-import ru.armagidon.poseplugin.utils.misc.ticking.Tickable;
+import ru.armagidon.poseplugin.api.ticking.Tickable;
 
 import java.lang.reflect.Field;
 
@@ -36,6 +37,7 @@ public class SitDriver implements Listener, Tickable
             armorStand.setVisible(false);
             armorStand.setCollidable(false);
             armorStand.addPassenger(sitter);
+            armorStand.setMetadata("pp_seat", new FixedMetadataValue(PosePlugin.getInstance(), sitter.getName()));
         }));
     }
 
