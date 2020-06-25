@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.personalListener;
+package ru.armagidon.poseplugin.api.personalListener;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

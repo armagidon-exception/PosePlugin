@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.personalListener;
+package ru.armagidon.poseplugin.api.personalListener;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,6 +9,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.*;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
+import ru.armagidon.poseplugin.api.poses.EnumPose;
 
 public class PersonalEventDispatcher implements Listener
 {
@@ -74,6 +75,17 @@ public class PersonalEventDispatcher implements Listener
         if(!PosePlugin.getInstance().containsPlayer(event.getPlayer())) return;
         PosePluginPlayer player = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
         player.callPersonalEvent(event);
+    }
+
+    @EventHandler
+    public void teleport(PlayerTeleportEvent event){
+        //If player's not in player list, ignore him
+        if(!containsPlayer(event.getPlayer())) return;
+        PosePluginPlayer p  = PosePlugin.getInstance().getPosePluginPlayer(event.getPlayer().getName());
+        //If animation isn't standing, stop animation
+        if (!p.getPoseType().equals(EnumPose.STANDING)) {
+            p.callPersonalEvent(event);
+        }
     }
 
 }
