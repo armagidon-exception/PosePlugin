@@ -22,6 +22,7 @@ public class FlyModule implements SwimModule {
         Bukkit.getServer().getPluginManager().registerEvents(this, PosePlugin.getInstance());
         this.fakePlayer.setPose(Pose.SWIMMING);
         this.fakePlayer.setCollidable(false);
+        this.fakePlayer.setInvulnerable(true);
     }
 
     @Override
