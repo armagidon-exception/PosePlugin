@@ -15,15 +15,12 @@ import java.util.function.Function;
 public class Messages
 {
     private FileConfiguration localeConfig;
-    private File file;
     private Function<String, String> COLORIZE = (string)-> ChatColor.translateAlternateColorCodes('&',string);
-    private String localeName;
 
     public Messages(String locale) {
-        this.localeName = locale;
         File localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "locale");
         localeFolder.mkdirs();
-        file = new File(localeFolder, locale+".yml");
+        File file = new File(localeFolder, locale + ".yml");
         if(!file.exists()){
             try{
                 save(locale, localeFolder);
@@ -48,13 +45,5 @@ public class Messages
 
     public void send(String path, CommandSender sender) {
         sender.sendMessage(COLORIZE.apply(localeConfig.getString(path)));
-    }
-
-    public void reload() {
-        File localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "locale");
-        if (file == null) {
-            file = new File(localeFolder, "customConfig.yml");
-        }
-        localeConfig = YamlConfiguration.loadConfiguration(file);
     }
 }
