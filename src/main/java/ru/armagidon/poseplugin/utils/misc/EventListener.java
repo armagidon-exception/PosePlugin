@@ -7,7 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
@@ -58,21 +57,6 @@ public class EventListener implements org.bukkit.event.Listener
         players.remove(event.getPlayer().getName());
         //Eject all packet reader out of player's pipeline
         PosePlugin.getInstance().getPacketReaderManager().eject(event.getPlayer());
-    }
-
-    @EventHandler
-    public void teleport(PlayerTeleportEvent event){
-        //If player's not in player list, ignore him
-        if(!containsPlayer(event.getPlayer())) return;
-        PosePluginPlayer p  = players.get(event.getPlayer().getName());
-        //If animation isn't standing, stop animation
-        if (!p.getPoseType().equals(EnumPose.STANDING)) {
-            //if animation was swimming and teleport cause was unknown, ignore it.
-            if(p.getPoseType().equals(EnumPose.SWIMMING)&&event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN)) return;
-            if(p.getPoseType().equals(EnumPose.LYING)&&event.getCause().equals(PlayerTeleportEvent.TeleportCause.UNKNOWN)) return;
-            //Call StopAnimationEvent
-            PluginPose.callStopEvent(p.getPoseType(), p, true, StopAnimationEvent.StopCause.TELEPORT);
-        }
     }
 
     private boolean containsPlayer(Player player) {

@@ -2,6 +2,7 @@ package ru.armagidon.poseplugin.api.poses;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,19 +14,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
-import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
-import ru.armagidon.poseplugin.api.poses.personalListener.PersonalListener;
+import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
+import ru.armagidon.poseplugin.api.personalListener.PersonalListener;
+import ru.armagidon.poseplugin.api.ticking.TickModule;
+import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
 import ru.armagidon.poseplugin.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
-import ru.armagidon.poseplugin.utils.misc.ticking.TickModule;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class PluginPose implements IPluginPose, Listener, PersonalListener
+public abstract class PluginPose implements IPluginPose, Listener, PersonalListener, TickModuleManager
 {
     private final Player player;
     private Block under;
@@ -92,13 +95,25 @@ public abstract class PluginPose implements IPluginPose, Listener, PersonalListe
         }
     }
 
+    @SuppressWarnings("unused")
+    @PersonalEventHandler
+    public final void onTeleport(PlayerTeleportEvent event){
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if(to!=null&&to.distanceSquared(from)>1){
+            callStopEvent(getPose(), getPosePluginPlayer(),true, StopAnimationEvent.StopCause.TELEPORT);
+        }
+    }
+
     public abstract String getSectionName();
 
     protected final boolean getBoolean(String path){
         return cfg.getBoolean(getSectionName()+"."+path);
     }
 
-    protected final void addTickModule(TickModule module){
+    protected final int getInt(String path) {return cfg.getInt(getSectionName()+"."+path);}
+
+    public final void addTickModule(TickModule module){
         if(module!=null){
             tickModules.add(module);
         } else {
@@ -106,7 +121,12 @@ public abstract class PluginPose implements IPluginPose, Listener, PersonalListe
         }
     }
 
-    private void removeTickModule(TickModule module){
+    public boolean containsTickModule(TickModule m){
+        if(m==null) return false;
+        return tickModules.contains(m);
+    }
+
+    public void removeTickModule(TickModule module){
         if(module!=null&&tickModules.contains(module)){
             tickModules.remove(module);
         } else {
