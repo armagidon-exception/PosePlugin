@@ -55,9 +55,10 @@ public class UpdateChecker extends BukkitRunnable
         msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,"https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose.76990/"));
         p.spigot().sendMessage(msg);
         p.sendMessage(ChatColor.translateAlternateColorCodes('&',"                   &f&l{[&3POSEPLUGIN&f&l]}"));
-        if(Bukkit.getPlayer("Armagidon_MC")!=null&&Bukkit.getPlayer("Armagidon_MC").isOnline()){
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&bDEVELOPER IS ONLINE ON THIS SERVER > &aArmagidon_MC"));
-        }
+
+        PosePlugin.getInstance().getDescription().getAuthors().stream().map(Bukkit::getPlayer).filter(pl->pl!=null&&pl.isOnline()).forEach(pl->{
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&bDEVELOPER IS ONLINE ON THIS SERVER > &a"+pl.getName()));
+        });
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
     }
 }
