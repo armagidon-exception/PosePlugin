@@ -5,10 +5,10 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Pose;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -18,9 +18,9 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import ru.armagidon.poseplugin.PosePlugin;
+import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.api.poses.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.sit.SitDriver;
 import ru.armagidon.poseplugin.utils.misc.messaging.Message;
 import ru.armagidon.poseplugin.utils.nms.FakePlayer;
@@ -38,9 +38,17 @@ public class LayPose extends PluginPose {
 
     public LayPose(Player target) {
         super(target);
-        this.fakePlayer = new FakePlayer(target);
+        this.fakePlayer = new FakePlayer(target, Pose.SLEEPING);
         this.fakePlayer.setInvulnerable(getBoolean("player-invulnerable"));
         this.preventInvisible = getBoolean("prevent-use-when-invisible");
+        fakePlayer.setInvulnerable(getBoolean("player-invulnerable"));
+        fakePlayer.setHeadRotationEnabled(getBoolean("head-rotation"));
+        fakePlayer.setSwingAnimationEnabled(getBoolean("swing-animation"));
+        fakePlayer.setUpdateEquipmentEnabled(getBoolean("update-equipment"));
+        fakePlayer.setUpdateOverlaysEnabled(getBoolean("update-overlays"));
+        fakePlayer.setViewDistance(getInt("view-distance"));
+
+
         this.driver = new SitDriver(target, ()-> stop(true));
         initTickModules();
     }
@@ -69,10 +77,6 @@ public class LayPose extends PluginPose {
         });
         addTickModule(driver::tick);
         addTickModule(fakePlayer::tick);
-        if(getBoolean("updateOverlays"))
-            addTickModule(fakePlayer::updateOverlays);
-        if(getBoolean("headrotation"))
-            Bukkit.getScheduler().runTaskLater(PosePlugin.getInstance(), ()-> addTickModule(fakePlayer.tickLook()),10);
     }
 
     @Override
@@ -166,24 +170,19 @@ public class LayPose extends PluginPose {
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event){
         if(event.getDamager().getType().equals(EntityType.PLAYER)) {
-            fakePlayer.damageByPlayer(event);
+            fakePlayer.getHitBox().damageByPlayer(event);
         }
-    }
-
-    @EventHandler
-    public void onBurnDamage(EntityDamageEvent event){
-        fakePlayer.onBurnDamage(event);
     }
 
     @SuppressWarnings("unused")
     @EventHandler
     public void onBurn(EntityCombustEvent event){
-        fakePlayer.onBurn(event);
+        fakePlayer.getHitBox().onBurn(event);
     }
 
     @EventHandler
     public void onProjectile(ProjectileHitEvent event){
-        fakePlayer.hitWithSpectralArrow(event);
+        fakePlayer.getHitBox().hitWithSpectralArrow(event);
     }
 
     private void hideParent(){
