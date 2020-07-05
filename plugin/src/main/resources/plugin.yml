@@ -1,5 +1,5 @@
 name: PosePlugin
-version: ${project.version}
+version: pre-3 1.7.3
 main: ru.armagidon.poseplugin.PosePlugin
 api-version: 1.15
 authors: [Armagidon_MC]

@@ -1,0 +1,14 @@
+in-air: "§c你無法在空中執行此動作"
+stand-up: "§a你站起來了"
+animation-disabled: "§c此動作已被關閉"
+swim:
+  play: "§b你進入了自由式:D"
+  damage: "&c因為你受到傷害，所以你站起來了"
+lay:
+  play: "§b你趟下了"
+  damage: "&c因為你受到傷害，所以你站起來了"
+  prevent-use-when-invisible: "&c你無法在隱身藥水的加持下趟下"
+  prevent-use-invisibility-when-use: "&c你躺下時無法使用隱身藥水"
+sit:
+  play: "§b你坐下了"
+  damage: "&c因為你受到傷害，所以你站起來了"

@@ -8,10 +8,9 @@ lay:
   view-distance: 20 #Measures in blocks
   stand-up-when-damaged: true
   head-rotation: true
-  player-invulnerable: false
   swing-animation: true
   update-equipment: true
-  prevent-use-when-invisible: false
+  prevent-use-when-invisible: true
   update-overlays: true
 sit:
   stand-up-when-damaged: true
