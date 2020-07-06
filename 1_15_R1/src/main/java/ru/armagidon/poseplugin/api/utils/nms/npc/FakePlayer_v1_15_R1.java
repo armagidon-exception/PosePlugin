@@ -1,18 +1,24 @@
 package ru.armagidon.poseplugin.api.utils.nms.npc;
 
 import com.mojang.authlib.GameProfile;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
+import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -24,30 +30,39 @@ import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.sendPacket;
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer_v1_15_R1.FakePlayerStaff.*;
 
-public class FakePlayer_v1_15_R1 implements FakePlayer
+public class FakePlayer_v1_15_R1 implements FakePlayer, Listener
 {
+
+    /*Scheme
+      on startup - initiate - load some data, executes once
+      broadcast spawm
+      on end - remove npc
+      erase all data - destroy
+      */
+
+
 
     /**Main data*/
     private final Player parent;
     private final EntityPlayer fake;
 
     /**Flags**/
-    private boolean invisible;
-    private boolean headRotationEnabled;
-    private boolean updateOverlaysEnabled;
-    private boolean updateEquipmentEnabled;
-    private boolean swingAnimationEnabled;
+    private @Getter boolean invisible;
+    private @Getter @Setter boolean headRotationEnabled;
+    private @Getter @Setter boolean updateOverlaysEnabled;
+    private @Getter @Setter boolean updateEquipmentEnabled;
+    private @Getter @Setter boolean swingAnimationEnabled;
 
     /**Data**/
     private final DataWatcher watcher;
     private byte pOverlays;
     private final BlockCache cache;
-    private Pose pose;
+    private final Pose pose;
 
     /**Tracking**/
     //All players that tracks this npc
     private final Set<Player> trackers = ConcurrentHashMap.newKeySet();
-    private int viewDistance = 20;
+    private @Getter @Setter int viewDistance = 20;
 
     /**Packets*/
     private final PacketPlayOutBlockChange fakeBedPacket;
@@ -77,72 +92,79 @@ public class FakePlayer_v1_15_R1 implements FakePlayer
         this.spawner = new PacketPlayOutNamedEntitySpawn(fake);
 
         this.watcher = cloneDataWatcher(parent, fake.getProfile());
-
+        setMetadata(watcher);
         this.updateMetadata = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
 
+    }
 
+    @Override
+    public void initiate() {
+        Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
+        FAKE_PLAYERS.put(parent,this);
+        PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
+
+        trackers.addAll(VectorUtils.getNear(getViewDistance(), parent));
+
+    }
+
+    @Override
+    public void destroy() {
+        trackers.clear();
+        PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
+        HandlerList.unregisterAll(this);
+        FAKE_PLAYERS.remove(this);
     }
 
     /**Main methods*/
-
-    public void initiate(){
-        //Set skin overlays
-        setPose(watcher);
-        FAKE_PLAYERS.put(parent,this);
-        PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
-    }
-
-    public void destroy(){
-        FAKE_PLAYERS.remove(this);
-        PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
-    }
-
     public void broadCastSpawn(){
-
         Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p-> p.getWorld().equals(parent.getWorld()))
                 .filter(p-> p.getLocation().distanceSquared(parent.getLocation())<=Math.pow(viewDistance,2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
-        Bukkit.getOnlinePlayers().forEach(receiver-> sendPacket(receiver, addNPC));
+        Bukkit.getOnlinePlayers().forEach(receiver-> NMSUtils.sendPacket(receiver, addNPC));
         trackers.forEach(this::spawnToPlayer);
-
     }
 
     public void removeToPlayer(Player player){
         PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fake.getId());
-        sendPacket(player, destroy);
+        NMSUtils.sendPacket(player, destroy);
         cache.restore(player);
     }
 
     public void remove(){
-        trackers.forEach(this::removeToPlayer);
+        PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fake.getId());
+        Bukkit.getOnlinePlayers().forEach(online->{
+            NMSUtils.sendPacket(online, destroy);
+            cache.restore(online);
+        });
     }
 
     public void spawnToPlayer(Player receiver){
-        sendPacket(receiver, spawner);
-        sendPacket(receiver, fakeBedPacket);
-        sendPacket(receiver, updateMetadata);
-        sendPacket(receiver, movePacket);
+        NMSUtils.sendPacket(receiver, spawner);
+        NMSUtils.sendPacket(receiver, fakeBedPacket);
+        NMSUtils.sendPacket(receiver, updateMetadata);
+        NMSUtils.sendPacket(receiver, movePacket);
     }
 
-    private void setPose(DataWatcher watcher){
+    private void setMetadata(DataWatcher watcher){
         byte overlays = ((EntityPlayer)asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
         pOverlays = overlays;
         watcher.set(DataWatcherRegistry.s.a(6),EntityPose.values()[pose.ordinal()]);
         watcher.set(DataWatcherRegistry.a.a(16), overlays);
         if(pose.ordinal()==EntityPose.SLEEPING.ordinal())
             watcher.set(DataWatcherRegistry.m.a(13), Optional.of(bedPos));
+
     }
 
     /** Tickers **/
     @Override
     public void tick() {
-        Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p-> p.getWorld().equals(parent.getWorld())).filter(p-> p.getLocation().distanceSquared(parent.getLocation())<=Math.pow(viewDistance,2)).collect(Collectors.toSet());
+        Set<Player> detectedPlayers = VectorUtils.getNear(getViewDistance(), parent);
 
         for (Player detectedPlayer : detectedPlayers) {
-             if(!this.trackers.contains(detectedPlayer)){
-                 trackers.add(detectedPlayer);
-                 spawnToPlayer(detectedPlayer);
-             }
+            if(!this.trackers.contains(detectedPlayer)){
+                trackers.add(detectedPlayer);
+                spawnToPlayer(detectedPlayer);
+            }
         }
         for (Player tracker : this.trackers) {
             if(!detectedPlayers.contains(tracker)){
@@ -153,65 +175,53 @@ public class FakePlayer_v1_15_R1 implements FakePlayer
 
         if(isHeadRotationEnabled()) tickLook();
         if(isUpdateOverlaysEnabled()) updateOverlays();
+        if(isUpdateEquipmentEnabled()) updateEquipment();
 
-        trackers.forEach(p->sendPacket(p,fakeBedPacket));
+        trackers.forEach(p-> NMSUtils.sendPacket(p,fakeBedPacket));
     }
 
-    private void updateOverlays(){
-        byte overlays = ((EntityPlayer)asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
+    private void updateOverlays() {
+        byte overlays = ((EntityPlayer) NMSUtils.asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
         if(overlays!=pOverlays){
             pOverlays = overlays;
             watcher.set(DataWatcherRegistry.a.a(16),pOverlays);
             PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
-            trackers.forEach(p-> sendPacket(p, packet));
+            trackers.forEach(p-> NMSUtils.sendPacket(p, packet));
         }
     }
 
-    private void tickLook(){
+    private void tickLook() {
         PacketPlayOutEntityHeadRotation rotation = new PacketPlayOutEntityHeadRotation(fake, getFixedRotation(parent.getLocation().getYaw()));
-        PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook lookPacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short)0,(short)0, getFixedRotation(parent.getLocation().getYaw()),(byte)0, true);
-        trackers.forEach(p->{
-            sendPacket(p, lookPacket);
-            sendPacket(p, rotation);
+        PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook lookPacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0, (short) 0, (short) 0, getFixedRotation(parent.getLocation().getYaw()), (byte) 0, true);
+        trackers.forEach(p -> {
+            NMSUtils.sendPacket(p, lookPacket);
+            NMSUtils.sendPacket(p, rotation);
         });
     }
 
-/*    public TickModule move(){
-        return ()-> {
-            PacketPlayOutEntityHeadRotation rotation = new PacketPlayOutEntityHeadRotation(fake, getFixedRotation(parent.getLocation().getYaw()));
-            PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook moveLook = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short)0, (short)0, (short)0, getFixedRotation(0), getFixedRotation(0), true);
-            PacketPlayOutEntityTeleport teleport = new PacketPlayOutEntityTeleport(fake);
-            try {
-                Field xF = teleport.getClass().getDeclaredField("b");
-                xF.setAccessible(true);
-                xF.set(teleport, parent.getLocation().getX());
-                Field yF = teleport.getClass().getDeclaredField("c");
-                yF.setAccessible(true);
-                yF.set(teleport, parent.getLocation().getY());
-                Field zF = teleport.getClass().getDeclaredField("d");
-                zF.setAccessible(true);
-                zF.set(teleport, parent.getLocation().getZ());
-                Field yawF = teleport.getClass().getDeclaredField("e");
-                yawF.setAccessible(true);
-                yawF.set(teleport, getFixedRotation(parent.getLocation().getYaw()));
-                Field pitchF = teleport.getClass().getDeclaredField("f");
-                pitchF.setAccessible(true);
-                pitchF.set(teleport, getFixedRotation(parent.getLocation().getPitch()));
-            } catch (IllegalAccessException | NoSuchFieldException e) {
-                e.printStackTrace();
-            }
-            Bukkit.getOnlinePlayers().forEach(p -> {
-                sendPacket(p, moveLook);
-                sendPacket(p,teleport);
-                sendPacket(p, rotation);
-            });
-        };
-    }*/
+    public void updateEquipment(){
+        for (EnumItemSlot slot : EnumItemSlot.values()) {
+            PacketPlayOutEntityEquipment eq = new PacketPlayOutEntityEquipment(fake.getId(),slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(parent.getEquipment(), slot)));
+            trackers.forEach(r->sendPacket(r,eq));
+        }
+    }
+
+    public void swingHand(boolean mainHand) {
+        if(isSwingAnimationEnabled()) {
+            PacketPlayOutAnimation animation = new PacketPlayOutAnimation(fake, mainHand ? 0 : 3);
+            trackers.forEach(p -> NMSUtils.sendPacket(p, animation));
+        }
+    }
+
+    public void animation(byte id){
+        PacketPlayOutEntityStatus status = new PacketPlayOutEntityStatus(fake, id);
+        trackers.forEach(p-> NMSUtils.sendPacket(p,status));
+    }
 
     //Meta info
     public void setInvisible(boolean invisible){
         if(this.invisible!=invisible) {
-            byte value = ((EntityPlayer)asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(0));
+            byte value = ((EntityPlayer) NMSUtils.asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(0));
             if (invisible) {
                 value = (byte) (value | 0x20);
             } else {
@@ -219,65 +229,9 @@ public class FakePlayer_v1_15_R1 implements FakePlayer
             }
             watcher.set(DataWatcherRegistry.a.a(0), value);
             PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
-            Bukkit.getOnlinePlayers().forEach(p -> sendPacket(p, metadata));
+            Bukkit.getOnlinePlayers().forEach(p -> NMSUtils.sendPacket(p, metadata));
             this.invisible = invisible;
         }
-    }
-
-    public boolean isInvisible() {
-        return invisible;
-    }
-
-    public void swingHand(boolean mainHand) {
-        if(isSwingAnimationEnabled()) {
-            PacketPlayOutAnimation animation = new PacketPlayOutAnimation(fake, mainHand ? 0 : 3);
-            trackers.forEach(p -> sendPacket(p, animation));
-        }
-    }
-
-    public void animation(byte id){
-        PacketPlayOutEntityStatus status = new PacketPlayOutEntityStatus(fake, id);
-        trackers.forEach(p->sendPacket(p,status));
-    }
-
-    public boolean isHeadRotationEnabled() {
-        return headRotationEnabled;
-    }
-
-    public void setHeadRotationEnabled(boolean headRotationEnabled) {
-        this.headRotationEnabled = headRotationEnabled;
-    }
-
-    public boolean isUpdateOverlaysEnabled() {
-        return updateOverlaysEnabled;
-    }
-
-    public void setUpdateOverlaysEnabled(boolean updateOverlaysEnabled) {
-        this.updateOverlaysEnabled = updateOverlaysEnabled;
-    }
-
-    public boolean isUpdateEquipmentEnabled() {
-        return updateEquipmentEnabled;
-    }
-
-    public void setUpdateEquipmentEnabled(boolean updateEquipmentEnabled) {
-        this.updateEquipmentEnabled = updateEquipmentEnabled;
-    }
-
-    public boolean isSwingAnimationEnabled() {
-        return swingAnimationEnabled;
-    }
-
-    public void setSwingAnimationEnabled(boolean swingAnimationEnabled) {
-        this.swingAnimationEnabled = swingAnimationEnabled;
-    }
-
-    public int getViewDistance() {
-        return viewDistance;
-    }
-
-    public void setViewDistance(int viewDistance) {
-        this.viewDistance = viewDistance;
     }
 
     static class FakePlayerStaff{
@@ -286,8 +240,8 @@ public class FakePlayer_v1_15_R1 implements FakePlayer
             return (byte) MathHelper.d(var1 * 256.0F / 360.0F);
         }
 
-        static ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot){
-            ItemStack eq;
+        static org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot){
+            org.bukkit.inventory.ItemStack eq;
             switch (slot){
                 case HEAD:
                     eq = e.getHelmet();
@@ -373,14 +327,15 @@ public class FakePlayer_v1_15_R1 implements FakePlayer
             return a;
         }
 
-        static EntityPlayer createNPC(Player parent){
+        static EntityPlayer createNPC(Player parent) {
             CraftWorld world = (CraftWorld) parent.getWorld();
             CraftServer server = (CraftServer) Bukkit.getServer();
-            EntityPlayer parentVanilla = (EntityPlayer) asNMSCopy(parent);
+            EntityPlayer parentVanilla= (EntityPlayer) NMSUtils.asNMSCopy(parent);
             GameProfile profile = new GameProfile(parent.getUniqueId(), parent.getName());
             profile.getProperties().putAll(parentVanilla.getProfile().getProperties());
 
             return new EntityPlayer(server.getServer(), world.getHandle(), profile, new PlayerInteractManager(world.getHandle())){
+
                 @Override
                 public void sendMessage(IChatBaseComponent ichatbasecomponent) {}
 
@@ -398,7 +353,10 @@ public class FakePlayer_v1_15_R1 implements FakePlayer
                     return false;
                 }
             };
+        }
 
+        static BlockPosition toBlockPosition(Location location){
+            return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         }
     }
 }
