@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.poses.swim;
 
 import lombok.SneakyThrows;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
@@ -44,19 +43,19 @@ public class SwimPose extends PluginPose {
 
     private void tick(){
         if(!_static) {
-            Bukkit.getOnlinePlayers().stream().filter(PosePluginAPI.getAPI().getPlayerMap()::containsPlayer)
-                    .map(p -> PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(p.getName())).filter(p -> p.getPoseType().equals(EnumPose.SWIMMING)).forEach(p -> {
-                if (isInWater(p.getHandle())) {
-                    if (impl.getMode().equals(SwimPose.SwimMode.SWIMMING)) return;
-                    setMode(new WaterSwimModule(p.getHandle()));
-                } else {
-                    if (impl.getMode().equals(SwimPose.SwimMode.MOVING)) return;
-                    setMode(new NonStaticSwimPose(p.getHandle()));
+            if (isInWater(getPosePluginPlayer().getHandle())) {
+                if (!impl.getMode().equals(SwimPose.SwimMode.SWIMMING)) {
+                    setMode(new WaterSwimModule(getPosePluginPlayer().getHandle()));
                 }
-            });
+            } else {
+                if (!impl.getMode().equals(SwimPose.SwimMode.MOVING)) {
+                    setMode(new NonStaticSwimPose(getPosePluginPlayer().getHandle()));
+                }
+            }
         } else {
-            if(impl.getMode().equals(SwimMode.STATIC)) return;
-            setMode(new StaticSwimPose(getPlayer()));
+            if(!impl.getMode().equals(SwimMode.STATIC)) {
+                setMode(new StaticSwimPose(getPlayer()));
+            }
         }
         impl.action();
     }

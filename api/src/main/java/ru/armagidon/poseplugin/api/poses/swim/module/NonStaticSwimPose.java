@@ -16,10 +16,8 @@ import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 
-import java.lang.reflect.InvocationTargetException;
-
-import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.*;
-import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.getNmsClass;
+import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.createPosePacket;
+import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.sendPacket;
 
 public class NonStaticSwimPose implements SwimModule
 {
@@ -35,19 +33,13 @@ public class NonStaticSwimPose implements SwimModule
     private final Player target;
     private BlockCache cache;
     private boolean under;
-    private Object packet;
+    private final Object packet;
 
 
     public NonStaticSwimPose(Player target) {
         this.target = target;
-        try {
-            NMSUtils.setPlayerPose(target, Pose.SWIMMING);
-            Object dataWatcher = getNmsClass("Entity").getDeclaredMethod("getDataWatcher").invoke(asNMSCopy(target));
-            packet = createPacketInstance("PacketPlayOutEntityMetadata", new Class[]{int.class, getNmsClass("DataWatcher"), boolean.class}, target.getEntityId(), dataWatcher, false);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
+        NMSUtils.setPlayerPose(target, Pose.SWIMMING);
+        packet = createPosePacket(target, false);
 
         Block above = VectorUtils.getBlock(target.getLocation()).getRelative(BlockFace.UP);
 
@@ -93,8 +85,7 @@ public class NonStaticSwimPose implements SwimModule
                 target.setGliding(false);
                 under = false;
             }
-            if(packet!=null)
-                Bukkit.getOnlinePlayers().forEach(p->sendPacket(p,packet));
+            Bukkit.getOnlinePlayers().forEach(p->sendPacket(p,packet));
             cache = new BlockCache(above.getType(), above.getBlockData(), above.getLocation());
             target.sendBlockChange(above.getLocation(), Bukkit.createBlockData(Material.BARRIER));
         }
@@ -105,6 +96,8 @@ public class NonStaticSwimPose implements SwimModule
         if(!under&&cache!=null) cache.restore(target);
         HandlerList.unregisterAll(this);
         NMSUtils.setPlayerPose(target, Pose.SNEAKING);
+        Object sneakPacket = createPosePacket(target,false);
+        Bukkit.getOnlinePlayers().forEach(receiver->sendPacket(receiver, sneakPacket));
         if(under) target.setGliding(false);
     }
 

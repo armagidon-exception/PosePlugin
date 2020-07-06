@@ -1,15 +1,12 @@
 package ru.armagidon.poseplugin.api.utils.nms;
 
 
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.*;
 
@@ -36,18 +33,10 @@ public class NMSUtils
     }
 
     @SneakyThrows
-    public static Object sendModifiedPacket(Player source){
-            Object dataWatcher = getNmsClass("Entity").getDeclaredMethod("getDataWatcher").invoke(source);
+    public static Object createPosePacket(Player source, boolean dirty){
+        Object dataWatcher = getNmsClass("Entity").getDeclaredMethod("getDataWatcher").invoke(asNMSCopy(source));
 
-            Object packet = createPacketInstance("PacketPlayOutEntityMetadata", new Class[]{int.class, getNmsClass("DataWatcher"), boolean.class}, source.getEntityId(), dataWatcher, false);
-
-            Field itemsF = packet.getClass().getDeclaredField("b");
-            itemsF.setAccessible(true);
-
-            Object poseItem = getNmsClass("DataWatcher.Item").getConstructor();
-
-            List<Object> items = Lists.newArrayList();
-            return null;
+        return createPacketInstance("PacketPlayOutEntityMetadata", new Class[]{int.class, getNmsClass("DataWatcher"), boolean.class}, source.getEntityId(), dataWatcher, dirty);
     }
 
     @SneakyThrows
