@@ -6,8 +6,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
+import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.plugin.messaging.Message;
 
@@ -32,7 +34,7 @@ public class PluginCommands implements CommandExecutor
                 }
             } else return true;
             if(p.getPoseType().equals(pose)){
-                p.getPose().stop();
+                PluginPose.callStopEvent(p.getPoseType(), p, StopAnimationEvent.StopCause.STOPPED);
                 return true;
             }
             if(!VectorUtils.onGround(p.getHandle())){

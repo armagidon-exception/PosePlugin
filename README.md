@@ -1,28 +1,40 @@
-@@ -1,27 +0,0 @@
 # PosePlugin
+##PosePluginAPI
+It's a main class of API. Through 
+```PosePluginAPI.getAPI()```
+You can get all API utils.
+
+###PosePluginPlayerMap
+aka *P3Map* used to get *PosePluginPlayer*
+use ```PosePluginAPI.getAPI().getPlayerMap()``` to get PlayerMap
+###PosePluginPlayer
 PosePluginPlayer is class to interact with player's poses.
 If you want to change pose you should use:
 ```
 PosePluginPlayer#changePose(EnumPose);
 ```
+To get it you need to use:
+```P3Map#getPosePluginPlayer(String)```
+Put name of the player as argument
+###EnumPose
 EnumPose is enum which contains all available poses.
-## Events
+### Events
 When you use changePose method, PoseChangeEvent fires.
-Using it you can set which pose will be sat, cancel event, enable/disable logging.
-
+Using it you can set which pose will be sat, cancel event
+```
+@EventHandler
+public void onEvent(PoseChangeEvent event){
+	//TODO pose change handling
+}
+```
 When animation stops, StopAnimationEvent fires.
-Using it you can cancel event, or enable/disable logging.
-
-## Config
-You can also use plugin's config using:
+Using it you can cancel event
 ```
-ConfigurationManager.addSetting(String path, Object value);
+@EventHandler
+public void onEvent(StopAnimationEvent event){
+	//TODO animation stop handling
+}
 ```
-And get values from it using:
-```
-Object get(String path);
-
-String getString(String path);
-
-boolean getBoolean(String path);
-```
+##API mode
+If you don't need a plugin function but just API, you can just disable it
+```HandlerList.unregisterAll(PosePlugin.getInstance().getListener())```

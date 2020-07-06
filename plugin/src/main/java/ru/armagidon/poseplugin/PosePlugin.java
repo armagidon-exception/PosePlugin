@@ -31,6 +31,8 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     private final Debugger debugger;
 
+    private PluginEventListener listener;
+
     public PosePlugin() {
         instance = this;
         this.debugger = new Debugger();
@@ -46,7 +48,8 @@ public final class PosePlugin extends JavaPlugin implements Listener
     @Override
     public void onEnable() {
         PosePluginAPI.getAPI().init(this);
-        getServer().getPluginManager().registerEvents(new PluginEventListener(),this);
+        listener = new PluginEventListener();
+        getServer().getPluginManager().registerEvents(listener,this);
         //Init commands
         initCommands();
         //Save config
@@ -113,4 +116,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
         }
     }
 
+    public PluginEventListener getListener() {
+        return listener;
+    }
 }

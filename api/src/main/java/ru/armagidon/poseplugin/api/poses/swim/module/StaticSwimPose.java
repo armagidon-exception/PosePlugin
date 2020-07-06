@@ -2,7 +2,6 @@ package ru.armagidon.poseplugin.api.poses.swim.module;
 
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -25,7 +24,7 @@ public class StaticSwimPose implements SwimModule
 
     private final Player target;
     private BlockCache cache;
-    private Object metadata;
+    private final Object metadata;
 
     @SneakyThrows
     public StaticSwimPose(Player target) {
@@ -74,7 +73,6 @@ public class StaticSwimPose implements SwimModule
         if(!event.getPlayer().equals(target)) return;
         if (event.getTo() != null) {
             if (event.getTo().getX() != event.getFrom().getX() || event.getTo().getZ() != event.getFrom().getZ()) {
-                Location center = VectorUtils.getBlock(target.getLocation()).getLocation().add(0.5, 0, 0.5);
                 event.setCancelled(true);
             }
         }
