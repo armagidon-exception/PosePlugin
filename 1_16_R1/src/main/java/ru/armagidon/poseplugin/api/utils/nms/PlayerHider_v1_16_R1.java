@@ -25,7 +25,7 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
     private final Map<Player, PacketPlayOutEntityMetadata> hiddenPlayers;
     private final Map<Player, PacketPlayOutEntityEquipment> equipmentPackets;
 
-    PlayerHider_v1_16_R1() {
+    private PlayerHider_v1_16_R1() {
         this.hiddenPlayers = Maps.newHashMap();
         Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
         PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
@@ -34,6 +34,7 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
 
     @Override
     public void hide(Player player) {
+        if(hiddenPlayers.containsKey(player)) return;
         EntityPlayer vanilla = (EntityPlayer) NMSUtils.asNMSCopy(player);
         hiddenPlayers.put(player, new PacketPlayOutEntityMetadata(vanilla.getId(),vanilla.getDataWatcher(), false));
 
@@ -48,6 +49,7 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
 
     @Override
     public void show(Player player) {
+        if(!hiddenPlayers.containsKey(player)) return;
         NMSUtils.setInvisible(player, false);
         List<Pair<EnumItemSlot, ItemStack>> slots=
                 Arrays.stream(EnumItemSlot.values()).map(slot->Pair.of(slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(player.getEquipment(), slot)))).collect(Collectors.toList());
