@@ -100,7 +100,7 @@ public abstract class PluginPose implements IPluginPose,Listener, PersonalListen
 
     @PersonalEventHandler
     public final void onDeath(PlayerDeathEvent event){
-        callStopEvent(getPose(), getPosePluginPlayer(), StopAnimationEvent.StopCause.DEAHTH);
+        callStopEvent(getPose(), getPosePluginPlayer(), StopAnimationEvent.StopCause.DEATH);
     }
 
     private static class StandingPose implements IPluginPose

@@ -64,6 +64,6 @@ public class StopAnimationEvent extends Event implements Cancellable
 
         DAMAGE, /**Called when animation has been stopped because of damage*/
 
-        DEAHTH /**Called when animation has been stopped because of player's death*/
+        DEATH /**Called when animation has been stopped because of player's death*/
     }
 }
