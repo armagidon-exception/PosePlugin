@@ -61,7 +61,7 @@ public abstract class PluginPose implements IPluginPose,Listener, PersonalListen
     public static boolean callStopEvent(EnumPose pose, PosePluginPlayer player, StopAnimationEvent.StopCause cause){
         StopAnimationEvent stopevent = new StopAnimationEvent(pose, player, cause);
         Bukkit.getPluginManager().callEvent(stopevent);
-        if(stopevent.isCancelled()) return false;
+        if(stopevent.isCancelled()&&!cause.equals(StopAnimationEvent.StopCause.QUIT)) return false;
         player.getPose().stop();
         return true;
     }
