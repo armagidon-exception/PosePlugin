@@ -45,4 +45,17 @@ public class TickModuleManager {
         }
     }
 
+    public final void later(Tickable module, int delay){
+        Runnable task = () -> {
+            try {
+                module.tick();
+            } catch (Exception e) {
+                removeTickModule(module);
+                PosePluginAPI.getAPI().getLogger().severe("Error occurred while ticking: " + e.getMessage());
+                e.printStackTrace();
+            }
+        };
+        tickers.put(module, Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), task, delay));
+    }
+
 }
