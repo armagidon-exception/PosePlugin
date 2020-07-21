@@ -9,7 +9,6 @@ import ru.armagidon.poseplugin.PosePlugin;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.function.Function;
 
 public class Messages
@@ -40,7 +39,7 @@ public class Messages
         File en = new File(localeFolder, locale+".yml");
         if(!en.exists()){
                 Files.copy(getClass().getResourceAsStream("/locale/" +locale+".yml"),
-                        Paths.get(en.getPath()));
+                        en.toPath());
         }
     }
 
