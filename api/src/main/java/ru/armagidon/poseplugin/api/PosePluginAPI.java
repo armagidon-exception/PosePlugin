@@ -51,11 +51,9 @@ public class PosePluginAPI
         try {
             this.nmsFactory = new NMSFactory();
             this.playerHider = nmsFactory.createPlayerHider();
-            Class.forName("ru.armagidon.equimentupdateevent.EqUpdateListener").getConstructor().newInstance();
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             setEnabled(false);
             plugin.getLogger().severe("Failed to enabled plugin! This version is not supported!");
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
         }
         //Foreach online players
