@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 
 public class SitDriver implements Listener, Tickable
 {
+
     private final Consumer<EntityDismountEvent> execute;
     private ArmorStand seat;
     private final Player sitter;
@@ -43,10 +44,11 @@ public class SitDriver implements Listener, Tickable
 
     public void standUp() {
         HandlerList.unregisterAll(this);
-        if(PosePluginAPI.getAPI().getStatus().equals(PosePluginAPI.ServerStatus.SHUTTING_DOWN)) seat.eject();
+        if(PosePluginAPI.getAPI().getPlugin().isEnabled()) seat.eject();
         seat.remove();
-        if(!PosePluginAPI.getAPI().getStatus().equals(PosePluginAPI.ServerStatus.SHUTTING_DOWN)) {
-            Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), () ->
+        sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection()));
+        if(!PosePluginAPI.getAPI().getPlugin().isEnabled()) {
+            Bukkit.getScheduler().runTaskLaterAsynchronously(PosePluginAPI.getAPI().getPlugin(), () ->
                     sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection())), 1);
         }
         PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
