@@ -46,6 +46,7 @@ public class LayPose extends PluginPose {
         fakePlayer.initiate();
         driver.takeASeat();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
+        PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
     }
 
     @Override
@@ -64,6 +65,7 @@ public class LayPose extends PluginPose {
         fakePlayer.destroy();
         driver.standUp();
         PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
+        PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
     }
 
     @Override

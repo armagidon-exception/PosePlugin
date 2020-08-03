@@ -1,8 +1,11 @@
 package ru.armagidon.poseplugin.api;
 
+import lombok.Getter;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
@@ -11,40 +14,37 @@ import ru.armagidon.poseplugin.api.utils.misc.event.EventListener;
 import ru.armagidon.poseplugin.api.utils.nms.NMSFactory;
 import ru.armagidon.poseplugin.api.utils.nms.PlayerHider;
 import ru.armagidon.poseplugin.api.utils.packetManagement.PacketReaderManager;
-import ru.armagidon.poseplugin.api.utils.packetManagement.readers.EqReader;
 import ru.armagidon.poseplugin.api.utils.packetManagement.readers.SwingPacketReader;
+import ru.armagidon.poseplugin.api.utils.scoreboard.NameTagHider;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@SuppressWarnings("DanglingJavadoc")
 public class PosePluginAPI
 {
     private static final PosePluginAPI api = new PosePluginAPI();
 
-    private final PacketReaderManager manager;
+    private @Getter final PacketReaderManager packetReaderManager;
     private NMSFactory nmsFactory;
-    private PlayerHider playerHider;
-    private final P3Map playerMap;
-    private final TickModuleManager tickManager;
+    private @Getter PlayerHider playerHider;
+    private @Getter final P3Map playerMap;
+    private @Getter final TickModuleManager tickManager;
+    private @Getter final NameTagHider nameTagHider;
 
     private PluginLogger logger;
 
-    private ServerStatus status;
-
     private PosePluginAPI() {
-        this.manager = new PacketReaderManager();
+        this.packetReaderManager = new PacketReaderManager();
         this.playerMap = new P3Map();
         this.tickManager = new TickModuleManager();
+        this.nameTagHider = new NameTagHider();
     }
 
     /**PoopCode starts*/
     private Plugin plugin;
 
     public void init(Plugin plugin){
-        status = ServerStatus.STARTING;
         this.plugin = plugin;
-        /**PoopCode ends(i hope)*/
+        /*PoopCode ends(i hope)*/
         //Init logger
         this.logger = new PluginLogger(plugin);
         //Init nms-factory and player-hider
@@ -61,7 +61,7 @@ public class PosePluginAPI
         registerPacketListeners();
 
         Bukkit.getOnlinePlayers().forEach(player->{
-            manager.inject(player);
+            packetReaderManager.inject(player);
             playerMap.addPlayer(player);
         });
         //Register main events
@@ -71,9 +71,8 @@ public class PosePluginAPI
     }
 
     public void shutdown(){
-        status = ServerStatus.SHUTTING_DOWN;
         getPlayerMap().forEach(p -> p.getPose().stop());
-        Bukkit.getOnlinePlayers().forEach(manager::eject);
+        Bukkit.getOnlinePlayers().forEach(packetReaderManager::eject);
     }
 
     public static PosePluginAPI getAPI() {
@@ -84,18 +83,6 @@ public class PosePluginAPI
         return nmsFactory;
     }
 
-    public PlayerHider getPlayerHider() {
-        return playerHider;
-    }
-
-    public P3Map getPlayerMap() {
-        return playerMap;
-    }
-
-    public PacketReaderManager getPacketReaderManager() {
-        return manager;
-    }
-
     public PluginLogger getLogger(){
         return logger;
     }
@@ -104,36 +91,19 @@ public class PosePluginAPI
         return plugin;
     }
 
-    public TickModuleManager getTickManager() {
-        return tickManager;
-    }
-
     private void registerPacketListeners(){
-        manager.registerPacketReader(new SwingPacketReader());
-        manager.registerPacketReader(new EqReader());
+        getPacketReaderManager().registerPacketReader(new SwingPacketReader());
+       // getPacketReaderManager().registerPacketReader(new EqReader());
     }
 
+    @SneakyThrows
     public static void setEnabled(boolean enabled){
-        try {
-            Method m = getAPI().getPlugin().getClass().getDeclaredMethod("setEnabled", boolean.class);
-            m.setAccessible(true);
-            m.invoke(getAPI().getPlugin(), enabled);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {}
-    }
-
-    public ServerStatus getStatus() {
-        return status;
+        Method m = JavaPlugin.class.getDeclaredMethod("setEnabled", boolean.class);
+        m.setAccessible(true);
+        m.invoke(getAPI().getPlugin(), enabled);
     }
 
     public void registerListener(Listener listener){
         Bukkit.getPluginManager().registerEvents(listener, getPlugin());
     }
-
-    public enum ServerStatus{
-        STARTING,
-        SHUTTING_DOWN
-    }
-
-
-
 }
