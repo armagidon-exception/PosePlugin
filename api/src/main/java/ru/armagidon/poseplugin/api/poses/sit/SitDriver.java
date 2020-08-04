@@ -47,8 +47,8 @@ public class SitDriver implements Listener, Tickable
         if(PosePluginAPI.getAPI().getPlugin().isEnabled()) seat.eject();
         seat.remove();
         sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection()));
-        if(!PosePluginAPI.getAPI().getPlugin().isEnabled()) {
-            Bukkit.getScheduler().runTaskLaterAsynchronously(PosePluginAPI.getAPI().getPlugin(), () ->
+        if(PosePluginAPI.getAPI().getPlugin().isEnabled()) {
+            Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), () ->
                     sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection())), 1);
         }
         PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
