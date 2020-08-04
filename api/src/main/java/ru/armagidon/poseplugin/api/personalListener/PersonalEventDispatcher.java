@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
@@ -31,12 +32,6 @@ public class PersonalEventDispatcher implements Listener
 
     private boolean playerAbsent(Player player) {
         return !PosePluginAPI.getAPI().getPlayerMap().containsPlayer(player);
-    }
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
-    public void onInteract(PlayerInteractEvent event) {
-        if (playerAbsent(event.getPlayer())) return;
-        PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        p.callPersonalEvent(event);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -89,6 +84,13 @@ public class PersonalEventDispatcher implements Listener
         //If player's not in player list, ignore him
         if(playerAbsent(event.getEntity())) return;
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
+        p.callPersonalEvent(event);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBlockBreak(BlockBreakEvent event){
+        if(playerAbsent(event.getPlayer())) return;
+        PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         p.callPersonalEvent(event);
     }
 

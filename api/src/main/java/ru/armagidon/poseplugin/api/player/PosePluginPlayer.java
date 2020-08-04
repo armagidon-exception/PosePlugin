@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.api.player;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -15,10 +16,14 @@ import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 //SitPlugin player
 public class PosePluginPlayer
 {
+    private final Set<PersonalListener> listeners;
+
     private final Player player;
 
     private IPluginPose pose;
@@ -26,6 +31,8 @@ public class PosePluginPlayer
     public PosePluginPlayer(Player player) {
         this.player = player;
         this.pose = PluginPose.standing;
+        this.listeners = new HashSet<>();
+        registerPersonalListener((PersonalListener) getPose());
     }
 
     public Player getHandle(){
@@ -38,8 +45,8 @@ public class PosePluginPlayer
         return player;
     }
 
-    public void setPose(IPluginPose newpose) {
-        this.pose = newpose;
+    public void setPose(IPluginPose newPose) {
+        this.pose = newPose;
     }
 
     public void changePose(EnumPose pose){
@@ -48,23 +55,23 @@ public class PosePluginPlayer
         if(event.isCancelled()) return;
         if(player.isSleeping()) player.wakeup(true);
         this.pose.stop();
-        IPluginPose newpose;
+        IPluginPose newPose;
         switch (event.getAfter()){
             case LYING: {
-                newpose = new LayPose(player);
+                newPose = new LayPose(player);
                 break;
             }
             case SWIMMING:
-                newpose = new SwimPose(player);
+                newPose = new SwimPose(player);
                 break;
             case SITTING:
-                newpose = new SitPose(player);
+                newPose = new SitPose(player);
                 break;
             default:
-                newpose = PluginPose.standing;
+                newPose = PluginPose.standing;
                 break;
         }
-        setPose(newpose);
+        setPose(newPose);
         Bukkit.getPluginManager().callEvent(new PostPoseChangeEvent(this, event.getAfter()));
         this.pose.initiate();
         this.pose.play(null);
@@ -80,9 +87,18 @@ public class PosePluginPlayer
 
     public void callPersonalEvent(Event event){
         try{
-            PersonalListener listener = (PersonalListener) getPose();
-            forEachMethods(listener, event);
+            listeners.forEach(listener -> forEachMethods(listener, event));
         }catch (ClassCastException ignored){}
+    }
+
+    public void registerPersonalListener(PersonalListener listener){
+        Validate.notNull(listener, "Listener cannot be null");
+        listeners.add(listener);
+    }
+
+    public void unregisterPersonalListener(PersonalListener listener){
+        Validate.notNull(listener, "Listener cannot be null");
+        listeners.remove(listener);
     }
 
     private void forEachMethods(PersonalListener listener, Event event){
