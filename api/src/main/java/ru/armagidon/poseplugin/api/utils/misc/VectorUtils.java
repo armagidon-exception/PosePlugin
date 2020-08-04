@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.util.NumberConversions;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -41,13 +40,21 @@ public final class VectorUtils
     public static Block getBlock(Location location){
         int x = location.getBlockX();
         int z = location.getBlockZ();
-        int y = NumberConversions.ceil(location.getY());
+        int y = round(location.getY());
         return Objects.requireNonNull(location.getWorld()).getBlockAt(x,y,z);
     }
 
     public static boolean onGround(Player player){
         Location location = player.getLocation();
         return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR)&&player.isOnGround();
+    }
+
+    public static int round(double source){
+        final float rounder = 0.5F;
+        final int stripped_value = (int) source;
+        final int incremented_stripped_value = stripped_value+1;
+
+        return source+rounder>=incremented_stripped_value?incremented_stripped_value:stripped_value;
     }
 
 }
