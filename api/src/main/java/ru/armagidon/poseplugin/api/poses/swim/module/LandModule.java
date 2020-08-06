@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.api.poses.swim.module;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -11,6 +12,7 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.block.data.type.TrapDoor;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Pose;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
@@ -24,20 +26,29 @@ import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class LandModule extends SwimModule {
 
+    //Some data
     private final AtomicReference<Boolean> _static;
     private final BlockCache cache;
     private boolean under;
+
+    //Packets
+    private final Object swimPacket;
 
     public LandModule(PosePluginPlayer target, AtomicReference<Boolean> _static) {
         super(target);
         Block above = getAbove(target.getHandle().getLocation()).getBlock();
         this.cache = new BlockCache(above.getBlockData(), above.getLocation());
         this._static = _static;
+        NMSUtils.setPlayerPose(target.getHandle(), Pose.SWIMMING);
+        this.swimPacket = NMSUtils.createPosePacket(target.getHandle(), false);
     }
 
     @Override
@@ -49,6 +60,9 @@ public class LandModule extends SwimModule {
 
     @Override
     public void stop() {
+        NMSUtils.setPlayerPose(getTarget().getHandle(), Pose.SNEAKING);
+        Object resetPacket = NMSUtils.createPosePacket(getTarget().getHandle(), true);
+        getReceivers().forEach(p->NMSUtils.sendPacket(p, resetPacket));
         cache.restore(getTarget().getHandle());
         HandlerList.unregisterAll(this);
         PosePluginAPI.getAPI().getPersonalHandlerList().unsubscribe(getTarget(), this);
@@ -56,6 +70,7 @@ public class LandModule extends SwimModule {
 
     @Override
     public void tick() {
+        getReceivers().forEach(p->NMSUtils.sendPacket(p, swimPacket));
         Block above = getAbove(getTarget().getHandle().getLocation()).getBlock();
         if(!above.getType().isSolid()||IsUnSolidBlock(above.getBlockData()))
             getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
@@ -148,5 +163,9 @@ public class LandModule extends SwimModule {
     @Override
     public SwimPose.SwimMode getMode() {
         return SwimPose.SwimMode.CRAWLING;
+    }
+
+    public Set<Player> getReceivers(){
+        return Bukkit.getOnlinePlayers().stream().filter(p->!p.getUniqueId().equals(getTarget().getHandle().getUniqueId())).collect(Collectors.toSet());
     }
 }
