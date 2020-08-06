@@ -18,16 +18,16 @@ public class PersonalEventDispatcher implements Listener
     public void onMove(PlayerMoveEvent event){
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        player.callPersonalEvent(event);
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onDamage(EntityDamageEvent e){
-        if(!(e.getEntity() instanceof Player)) return;
-        Player p = (Player) e.getEntity();
+    public void onDamage(EntityDamageEvent event){
+        if(!(event.getEntity() instanceof Player)) return;
+        Player p = (Player) event.getEntity();
         if(playerAbsent(p)) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(p.getName());
-        player.callPersonalEvent(e);
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     private boolean playerAbsent(Player player) {
@@ -37,22 +37,22 @@ public class PersonalEventDispatcher implements Listener
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
         if (playerAbsent(event.getPlayer())) return;
-        PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        p.callPersonalEvent(event);
+        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void gameMode(PlayerGameModeChangeEvent event) {
         if (playerAbsent(event.getPlayer())) return;
-        PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        p.callPersonalEvent(event);
+        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     @EventHandler
     public void onConsume(PlayerItemConsumeEvent event){
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        player.callPersonalEvent(event);
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -60,7 +60,7 @@ public class PersonalEventDispatcher implements Listener
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            player.callPersonalEvent(event);
+            PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
         }
     }
     
@@ -68,30 +68,30 @@ public class PersonalEventDispatcher implements Listener
     public void onGameModeChange(PlayerGameModeChangeEvent event){
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        player.callPersonalEvent(event);
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onSneak(PlayerToggleSneakEvent event){
         //If player's not in player list, ignore him
         if(playerAbsent(event.getPlayer())) return;
-        PosePluginPlayer p =PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        p.callPersonalEvent(event);
+        PosePluginPlayer player =PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void death(PlayerDeathEvent event){
         //If player's not in player list, ignore him
         if(playerAbsent(event.getEntity())) return;
-        PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
-        p.callPersonalEvent(event);
+        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onBlockBreak(BlockBreakEvent event){
         if(playerAbsent(event.getPlayer())) return;
-        PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        p.callPersonalEvent(event);
+        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
 }

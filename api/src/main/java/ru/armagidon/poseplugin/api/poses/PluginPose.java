@@ -44,10 +44,12 @@ public abstract class PluginPose implements IPluginPose,Listener, PersonalListen
 
     @Override
     public void initiate() {
+        PosePluginAPI.getAPI().getPersonalHandlerList().subscribe(getPosePluginPlayer(), this);
         Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
     }
 
     public void stop(){
+        PosePluginAPI.getAPI().getPersonalHandlerList().unsubscribe(getPosePluginPlayer(), this);
         HandlerList.unregisterAll(this);
         getPosePluginPlayer().setPose(PluginPose.standing);
     }

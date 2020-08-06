@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
+import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
 import ru.armagidon.poseplugin.api.utils.misc.PluginLogger;
@@ -29,6 +30,7 @@ public class PosePluginAPI
     private @Getter final P3Map playerMap;
     private @Getter final TickModuleManager tickManager;
     private @Getter final NameTagHider nameTagHider;
+    private @Getter final PersonalHandlerList personalHandlerList;
 
     private PluginLogger logger;
 
@@ -37,6 +39,7 @@ public class PosePluginAPI
         this.playerMap = new P3Map();
         this.tickManager = new TickModuleManager();
         this.nameTagHider = new NameTagHider();
+        this.personalHandlerList = new PersonalHandlerList();
     }
 
     /**PoopCode starts*/
@@ -93,7 +96,6 @@ public class PosePluginAPI
 
     private void registerPacketListeners(){
         getPacketReaderManager().registerPacketReader(new SwingPacketReader());
-       // getPacketReaderManager().registerPacketReader(new EqReader());
     }
 
     @SneakyThrows
