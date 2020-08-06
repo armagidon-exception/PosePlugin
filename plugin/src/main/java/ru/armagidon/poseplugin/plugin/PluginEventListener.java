@@ -95,7 +95,7 @@ public class PluginEventListener implements Listener
                 }
                 break;
             }
-            case DEAHTH:
+            case DEATH:
                 return;
             default:
                 PosePlugin.getInstance().message().send(Message.STAND_UP, e.getPlayer().getHandle());
