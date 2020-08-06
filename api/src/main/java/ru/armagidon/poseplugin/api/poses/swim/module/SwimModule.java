@@ -1,13 +1,26 @@
 package ru.armagidon.poseplugin.api.poses.swim.module;
 
+import lombok.Getter;
 import org.bukkit.event.Listener;
+import ru.armagidon.poseplugin.api.PosePluginAPI;
+import ru.armagidon.poseplugin.api.personalListener.PersonalListener;
+import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
+import ru.armagidon.poseplugin.api.ticking.Tickable;
 
-public interface SwimModule extends Listener
-{
-    void action();
+public abstract class SwimModule implements Tickable, Listener, PersonalListener {
 
-    void stop();
+    private @Getter final PosePluginPlayer target;
 
-    SwimPose.SwimMode getMode();
+    public SwimModule(PosePluginPlayer target) {
+        this.target = target;
+        PosePluginAPI.getAPI().registerListener(this);
+        PosePluginAPI.getAPI().getPersonalHandlerList().subscribe(target, this);
+    }
+
+    public abstract void play();
+
+    public abstract void stop();
+
+    public abstract SwimPose.SwimMode getMode();
 }
