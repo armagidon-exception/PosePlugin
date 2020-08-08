@@ -35,6 +35,7 @@ public class SitPose extends PluginPose {
 
     @Override
     public void initiate() {
+        super.initiate();
         getProperties().register();
     }
 }

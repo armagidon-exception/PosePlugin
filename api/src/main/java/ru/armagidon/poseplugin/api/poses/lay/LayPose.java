@@ -43,6 +43,7 @@ public class LayPose extends PluginPose {
     }
     @Override
     public void initiate() {
+        super.initiate();
         fakePlayer.initiate();
         driver.takeASeat();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());

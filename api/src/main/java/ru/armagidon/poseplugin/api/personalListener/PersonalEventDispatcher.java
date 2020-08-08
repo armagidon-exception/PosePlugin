@@ -94,4 +94,11 @@ public class PersonalEventDispatcher implements Listener
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public final void onTeleport(PlayerTeleportEvent event){
+        if(playerAbsent(event.getPlayer())) return;
+        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
+    }
+
 }

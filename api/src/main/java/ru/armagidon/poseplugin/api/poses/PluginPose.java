@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -70,7 +71,7 @@ public abstract class PluginPose implements IPluginPose,Listener, PersonalListen
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public final void onBlockBreak(BlockBreakEvent event) {
-        Block under = VectorUtils.getBlock(getPlayer().getLocation());
+        Block under = VectorUtils.getBlockOnLoc(getPlayer().getLocation()).getRelative(BlockFace.DOWN);
         if (event.getBlock().equals(under)) {
             callStopEvent(getPose(), getPosePluginPlayer(), StopAnimationEvent.StopCause.BLOCK_UPDATE);
         }
