@@ -16,7 +16,7 @@ public class ItemUtil_v1_16_R1 extends ItemUtil
     }
 
     @Override
-    public <T> void addTag(String name, T value) {
+    public <T> ItemUtil addTag(String name, T value) {
 
         net.minecraft.server.v1_16_R1.ItemStack stack = CraftItemStack.asNMSCopy(getSource());
 
@@ -32,6 +32,7 @@ public class ItemUtil_v1_16_R1 extends ItemUtil
         stack.setTag(compound);
 
         setSource(CraftItemStack.asBukkitCopy(stack));
+        return this;
     }
 
     @Override

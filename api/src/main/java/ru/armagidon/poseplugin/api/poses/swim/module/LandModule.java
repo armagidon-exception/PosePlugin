@@ -38,6 +38,7 @@ public class LandModule extends SwimModule {
     private final AtomicReference<Boolean> _static;
     private final BlockCache cache;
     private boolean under;
+    private Location previous;
 
     //Packets
     private final Object swimPacket;
@@ -72,9 +73,12 @@ public class LandModule extends SwimModule {
     public void tick() {
         getReceivers().forEach(p->NMSUtils.sendPacket(p, swimPacket));
         Block above = getAbove(getTarget().getHandle().getLocation()).getBlock();
-        if(!above.getType().isSolid()||IsUnSolidBlock(above.getBlockData()))
-            getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
-        else cache.restore(getTarget().getHandle());
+        if(previous!=null&&compareLocations(previous, getTarget().getHandle().getLocation())) {
+            if (!above.getType().isSolid() || IsUnSolidBlock(above.getBlockData()))
+                getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
+            else cache.restore(getTarget().getHandle());
+        }
+
         if(canGoUnderBlock(getTarget().getHandle())){
             under = true;
             getTarget().getHandle().setGliding(true);
@@ -109,6 +113,7 @@ public class LandModule extends SwimModule {
                 if (!above.getType().isSolid() || IsUnSolidBlock(above.getBlockData()))
                     getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
             }
+            previous=event.getTo();
         } else {
             if(event.getFrom().getX()!=event.getTo().getX()||event.getFrom().getY()!=event.getTo().getY()||event.getFrom().getZ()!=event.getTo().getZ())
                 event.setCancelled(true);
@@ -131,8 +136,8 @@ public class LandModule extends SwimModule {
     }
 
     public boolean compareLocations(Location first, Location second){
-        Location f = VectorUtils.getBlock(first).getLocation();
-        Location s = VectorUtils.getBlock(second).getLocation();
+        Location f = VectorUtils.getRoundedBlock(first).getLocation();
+        Location s = VectorUtils.getRoundedBlock(second).getLocation();
         return (f.getX()==s.getX()&&f.getY()==s.getY()&&f.getX()==s.getZ());
     }
 

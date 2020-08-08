@@ -1,0 +1,7 @@
+1. Hide name tags - fixing
+3. Bug stuck in blocks after plugin disabling - tested
+4. Swim fix - tested
+5. New config system - tested
+6. New poses - tested
+7. Fix headrotation - tested
+7. Handle damage - tested
