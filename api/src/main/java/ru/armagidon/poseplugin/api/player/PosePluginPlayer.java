@@ -8,8 +8,10 @@ import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.lay.LayPose;
+import ru.armagidon.poseplugin.api.poses.point.PointPose;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
+import ru.armagidon.poseplugin.api.poses.wave.WavePose;
 
 //SitPlugin player
 public class PosePluginPlayer
@@ -55,6 +57,12 @@ public class PosePluginPlayer
                 break;
             case SITTING:
                 newPose = new SitPose(player);
+                break;
+            case WAVING:
+                newPose = new WavePose(player);
+                break;
+            case POINTING:
+                newPose = new PointPose(player);
                 break;
             default:
                 newPose = PluginPose.standing;

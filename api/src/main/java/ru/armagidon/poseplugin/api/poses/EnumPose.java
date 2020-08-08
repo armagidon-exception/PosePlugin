@@ -6,8 +6,9 @@ public enum EnumPose
     STANDING("stand"),
     SITTING("sit"),
     LYING("lay"),
-    SWIMMING("swim");
-
+    SWIMMING("swim"),
+    WAVING("wave"),
+    POINTING("point");
     private final String name;
 
     EnumPose(String name) {
