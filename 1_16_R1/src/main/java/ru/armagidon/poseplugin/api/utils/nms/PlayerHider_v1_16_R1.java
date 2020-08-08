@@ -13,53 +13,69 @@ import org.bukkit.inventory.EntityEquipment;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.sendPacket;
-
 public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
 
-    private final Map<Player, PacketPlayOutEntityMetadata> hiddenPlayers;
-    private final Map<Player, PacketPlayOutEntityEquipment> equipmentPackets;
+    private final Map<Player, Packet<?>[]> hiddenPlayers;
 
     private PlayerHider_v1_16_R1() {
         this.hiddenPlayers = Maps.newHashMap();
         Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
         PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
-        equipmentPackets = new HashMap<>();
     }
 
     @Override
     public void hide(Player player) {
-        if(hiddenPlayers.containsKey(player)) return;
+        if(hiddenPlayers.containsKey(player)) {
+            return;
+        }
+
+        Packet<?>[] packets = new Packet[2];
+
         EntityPlayer vanilla = (EntityPlayer) NMSUtils.asNMSCopy(player);
-        hiddenPlayers.put(player, new PacketPlayOutEntityMetadata(vanilla.getId(),vanilla.getDataWatcher(), false));
+        vanilla.setInvisible(true);
+        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(vanilla.getId(),vanilla.getDataWatcher(), false);
+
+        packets[0] = metadata;
 
         final ItemStack air = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(Material.AIR));
         List<Pair<EnumItemSlot, ItemStack>> slots = Lists.newArrayList();
         for (EnumItemSlot slot : EnumItemSlot.values()) {
             slots.add(Pair.of(slot, air));
         }
-        equipmentPackets.put(player, new PacketPlayOutEntityEquipment(player.getEntityId(), slots));
+        PacketPlayOutEntityEquipment eq = new PacketPlayOutEntityEquipment(player.getEntityId(), slots);
 
+        packets[1] = eq;
+
+        Bukkit.getOnlinePlayers().forEach(online->{
+            NMSUtils.sendPacket(online, metadata);
+            if(!online.getUniqueId().equals(player.getUniqueId())){
+                NMSUtils.sendPacket(online, eq);
+            }
+        });
+        hiddenPlayers.put(player, packets);
     }
 
     @Override
     public void show(Player player) {
-        if(!hiddenPlayers.containsKey(player)) return;
-        NMSUtils.setInvisible(player, false);
-        List<Pair<EnumItemSlot, ItemStack>> slots=
-                Arrays.stream(EnumItemSlot.values()).map(slot->Pair.of(slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(player.getEquipment(), slot)))).collect(Collectors.toList());
-        PacketPlayOutEntityEquipment eq = new PacketPlayOutEntityEquipment(player.getEntityId(), slots);
-        Bukkit.getOnlinePlayers().forEach(p->{
-            NMSUtils.sendPacket(p, hiddenPlayers.get(player));
-            if(!p.getUniqueId().equals(player.getUniqueId())){
-                sendPacket(p,eq);
+        if(!hiddenPlayers.containsKey(player)){
+            return;
+        }
+        EntityPlayer en = (EntityPlayer) NMSUtils.asNMSCopy(player);
+
+
+        PacketPlayOutEntityEquipment eq = resetEquipment(en.getId(), player.getEquipment());
+        PacketPlayOutEntityMetadata metadata = resetInvisible(en);
+
+        Bukkit.getOnlinePlayers().forEach(online->{
+            NMSUtils.sendPacket(online, metadata);
+            if(!online.getUniqueId().equals(player.getUniqueId())){
+                NMSUtils.sendPacket(online, eq);
             }
-        } );
+        });
         hiddenPlayers.remove(player);
     }
 
@@ -70,13 +86,11 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
 
     @Override
     public void tick() {
-        hiddenPlayers.forEach((hidden,ppoem)-> {
-            PacketPlayOutEntityEquipment eq = equipmentPackets.get(hidden);
-            NMSUtils.setInvisible(hidden, true);
-            Bukkit.getOnlinePlayers().forEach(p-> {
-                NMSUtils.sendPacket(p, ppoem);
-                if(!p.getUniqueId().equals(hidden.getUniqueId())){
-                    NMSUtils.sendPacket(p, eq);
+        hiddenPlayers.forEach((hidden,packets)-> {
+            Bukkit.getOnlinePlayers().forEach(online->{
+                NMSUtils.sendPacket(online, packets[0]);
+                if(!online.getUniqueId().equals(hidden.getUniqueId())){
+                    NMSUtils.sendPacket(online, packets[1]);
                 }
             });
         });
@@ -103,5 +117,16 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
                 eq = e.getItemInMainHand();
         }
         return eq;
+    }
+
+    private PacketPlayOutEntityEquipment resetEquipment(int id, EntityEquipment equipment){
+        List<Pair<EnumItemSlot, ItemStack>> slots=
+                Arrays.stream(EnumItemSlot.values()).map(slot->Pair.of(slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(equipment, slot)))).collect(Collectors.toList());
+        return new PacketPlayOutEntityEquipment(id, slots);
+    }
+
+    private PacketPlayOutEntityMetadata resetInvisible(EntityPlayer en){
+        en.setInvisible(false);
+        return new PacketPlayOutEntityMetadata(en.getId(), en.getDataWatcher(), false);
     }
 }
