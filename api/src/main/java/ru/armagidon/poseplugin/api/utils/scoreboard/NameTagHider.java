@@ -12,9 +12,11 @@ public class NameTagHider
 {
     private Scoreboard scoreboard;
     private final Map<Player, Team> teamMap;
+    private final Map<Player, Team> cached;
 
 
     public NameTagHider() {
+        this.cached = new HashMap<>();
         this.teamMap = new HashMap<>();
         if(Bukkit.getScoreboardManager()!=null) {
             scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
@@ -23,7 +25,17 @@ public class NameTagHider
 
     public void hideTag(Player player){
         String NAME = player.getName();
-        Team team = scoreboard.registerNewTeam(NAME);
+
+        if(scoreboard.getEntryTeam(NAME)!=null){
+            cached.put(player, scoreboard.getEntryTeam(NAME));
+        }
+
+        Team team;
+        if(scoreboard.getTeam(NAME)==null) {
+            team = scoreboard.registerNewTeam(NAME);
+        } else {
+            team = scoreboard.getTeam(NAME);
+        }
         team.setCanSeeFriendlyInvisibles(false);
         team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
         team.addEntry(NAME);
@@ -31,10 +43,15 @@ public class NameTagHider
     }
 
     public void showTag(Player player){
-        Team team = teamMap.remove(player);
-        if(team!=null) {
-            team.removeEntry(player.getName());
-            team.unregister();
+        if(teamMap.containsKey(player)) {
+            Team team = teamMap.remove(player);
+            if (team != null) {
+                team.removeEntry(player.getName());
+                team.unregister();
+            }
+            if (cached.containsKey(player)) {
+                cached.get(player).addEntry(player.getName());
+            }
         }
     }
 }
