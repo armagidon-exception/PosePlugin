@@ -1,6 +1,7 @@
 package ru.armagidon.poseplugin.api.utils.nms.npc;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 
 import java.util.HashMap;
@@ -50,4 +51,20 @@ public interface FakePlayer extends Tickable
     int getViewDistance();
 
     void setViewDistance(int viewDistance);
+
+    boolean isHandActive();
+
+    boolean isMainHandActive();
+
+    boolean isOffHandActive();
+
+    void setHandActive(boolean main);
+
+    void disableHands();
+
+    void setItemInMainHand(ItemStack hand);
+
+    void setItemInOffHand(ItemStack hand);
+
+    void updateNPC();
 }

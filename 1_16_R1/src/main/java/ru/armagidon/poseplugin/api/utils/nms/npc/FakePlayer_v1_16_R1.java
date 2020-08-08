@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.utils.nms.npc;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.datafixers.util.Pair;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.server.v1_16_R1.*;
@@ -10,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.event.HandlerList;
@@ -22,12 +20,12 @@ import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.sendPacket;
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer_v1_16_R1.FakePlayerStaff.*;
 
 public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
@@ -35,16 +33,14 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
 
     /*Scheme
       on startup - initiate - load some data, executes once
-      broadcast spawm
+      broadcast spawn
       on end - remove npc
       erase all data - destroy
       */
 
-
-
     /**Main data*/
-    private final Player parent;
-    private final EntityPlayer fake;
+    private @Getter final Player parent;
+    private @Getter final EntityPlayer fake;
 
     /**Flags**/
     private @Getter boolean invisible;
@@ -52,61 +48,83 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
     private @Getter @Setter boolean updateOverlaysEnabled;
     private @Getter @Setter boolean updateEquipmentEnabled;
     private @Getter @Setter boolean swingAnimationEnabled;
+    private @Getter @Setter boolean mainHandActive;
+    private @Getter @Setter boolean offHandActive;
 
     /**Data**/
-    private final DataWatcher watcher;
-    private byte pOverlays;
+    private final @Getter DataWatcher watcher;
     private final BlockCache cache;
     private final Pose pose;
+    private final Location bedLoc;
+    private final FakePlayerUpdater npcUpdater;
+    private final CustomEquipmentInterface customEquipmentInterface;
+    private final @Getter MetadataAccessor metadataAccessor;
 
     /**Tracking**/
     //All players that tracks this npc
-    private final Set<Player> trackers = ConcurrentHashMap.newKeySet();
+    private @Getter final Set<Player> trackers = ConcurrentHashMap.newKeySet();
     private @Getter @Setter int viewDistance = 20;
 
     /**Packets*/
     private final PacketPlayOutBlockChange fakeBedPacket;
     private final PacketPlayOutPlayerInfo addNPC;
     private final PacketPlayOutNamedEntitySpawn spawner;
-    private final PacketPlayOutEntityMetadata updateMetadata;
     private final PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook movePacket;
-    private final BlockPosition bedPos;
 
     FakePlayer_v1_16_R1(Player parent, Pose pose) {
         this.pose = pose;
         this.parent = parent;
-        this.fake = createNPC(parent);
-        Location bedLoc = parent.getLocation().clone().toVector().setY(0).toLocation(parent.getWorld());
-        this.cache = new BlockCache(bedLoc.getBlock().getType(), bedLoc.getBlock().getBlockData(), bedLoc);
-        this.bedPos = new BlockPosition(bedLoc.getBlockX(), bedLoc.getBlockY(), bedLoc.getBlockZ());
 
+        //Create EntityPlayer instance
+        this.fake = createNPC(parent);
+
+        //Get Location of fake bed
+        this.bedLoc = parent.getLocation().clone().toVector().setY(0).toLocation(parent.getWorld());
+        //Cache original type of block
+        this.cache = new BlockCache(bedLoc.getBlock().getBlockData(), bedLoc);
+
+        //Create single instances of packet for optimisation purposes. So server won't need to create tons of copies of the same packet.
+
+        //Create instance of move packet to pop up npc a little
         this.movePacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short)2,(short)0,(byte)0,(byte)0, true);
 
         EnumDirection direction = getDirection(parent.getLocation().clone().getYaw());
 
-        this.fakeBedPacket = new PacketPlayOutBlockChange(fakeBed(direction), bedPos);
+        //Create packet instance of fake bed(could've used sendBlockChange but im crazy and it will recreate copies of the same packet)
+        this.fakeBedPacket = new PacketPlayOutBlockChange(fakeBed(direction), toBlockPosition(bedLoc));
+        //Create packet instance of NPC 's data
         this.addNPC = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
 
+        //Set location of NPC
         Location parentLocation = parent.getLocation().clone();
         fake.setPositionRotation(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(), parentLocation.getYaw(), parentLocation.getPitch());
+        //Create instance of npc
         this.spawner = new PacketPlayOutNamedEntitySpawn(fake);
 
+        //Create data watcher to modify entity metadata
         this.watcher = cloneDataWatcher(parent, fake.getProfile());
-        setMetadata(watcher);
-        this.updateMetadata = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
+        //Create instance of the packet with this data
+        this.metadataAccessor = new MetadataAccessorImpl(this);
+        //Set metadata
+        setMetadata();
+        this.npcUpdater = new FakePlayerUpdaterImpl(this);
+
+        this.customEquipmentInterface = new CustomEquipmentInterfaceImpl(this);
 
     }
 
+    //Initiate method. Uses to initiate entity spawn. Use before spawn.
     @Override
     public void initiate() {
-        Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
+        //Add this NPC to NPC Registry
         FAKE_PLAYERS.put(parent,this);
+        //Register this NPC object as ticker.
         PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
-
+        //Add all players nearby to trackers list
         trackers.addAll(VectorUtils.getNear(getViewDistance(), parent));
-
     }
 
+    //Destroy method. Uses to fully delete NPC from server
     @Override
     public void destroy() {
         trackers.clear();
@@ -115,6 +133,7 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
         FAKE_PLAYERS.remove(this);
     }
 
+    //Spawn methods
     /**Main methods*/
     public void broadCastSpawn(){
         Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p-> p.getWorld().equals(parent.getWorld()))
@@ -124,6 +143,20 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
         trackers.forEach(this::spawnToPlayer);
     }
 
+    public void spawnToPlayer(Player receiver){
+        NMSUtils.sendPacket(receiver, spawner);
+        NMSUtils.sendPacket(receiver, fakeBedPacket);
+        customEquipmentInterface.showEquipment(receiver);
+        metadataAccessor.showPlayer(receiver);
+        NMSUtils.sendPacket(receiver, movePacket);
+        if(isHeadRotationEnabled()) {
+            setHeadRotationEnabled(false);
+            PosePluginAPI.getAPI().getTickManager().later(() ->
+                    setHeadRotationEnabled(true), 10);
+        }
+    }
+
+    //Remove methods
     public void removeToPlayer(Player player){
         PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fake.getId());
         NMSUtils.sendPacket(player, destroy);
@@ -132,78 +165,71 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
 
     public void remove(){
         PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fake.getId());
-        Bukkit.getOnlinePlayers().forEach(online->{
+        trackers.forEach(online->{
             NMSUtils.sendPacket(online, destroy);
             cache.restore(online);
         });
     }
 
-    public void spawnToPlayer(Player receiver){
-        NMSUtils.sendPacket(receiver, spawner);
-        NMSUtils.sendPacket(receiver, fakeBedPacket);
-        NMSUtils.sendPacket(receiver, updateMetadata);
-        NMSUtils.sendPacket(receiver, movePacket);
-    }
-
-    private void setMetadata(DataWatcher watcher){
+    private void setMetadata(){
+        //Save current overlay bit mask
         byte overlays = ((EntityPlayer)asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
-        pOverlays = overlays;
-        watcher.set(DataWatcherRegistry.s.a(6),EntityPose.values()[pose.ordinal()]);
-        watcher.set(DataWatcherRegistry.a.a(16), overlays);
-        if(pose.ordinal()==EntityPose.SLEEPING.ordinal())
-            watcher.set(DataWatcherRegistry.m.a(13), Optional.of(bedPos));
+        //Set pose to the NPC
+        metadataAccessor.setPose(pose);
+        //Set current overlays to the NPC
+        metadataAccessor.setOverlays(overlays);
+        //Set BedLocation to NPC if its pose is SLEEPING
+        if(metadataAccessor.getPose().equals(Pose.SLEEPING))
+            metadataAccessor.setBedPosition(bedLoc);
+        metadataAccessor.merge(true);
 
     }
 
     /** Tickers **/
     @Override
     public void tick() {
+        //Get players nearby
         Set<Player> detectedPlayers = VectorUtils.getNear(getViewDistance(), parent);
 
+        //Check if some of them aren't trackers
         for (Player detectedPlayer : detectedPlayers) {
             if(!this.trackers.contains(detectedPlayer)){
-                trackers.add(detectedPlayer);
                 spawnToPlayer(detectedPlayer);
+                trackers.add(detectedPlayer);
             }
         }
+        //Check if some of trackers aren't in view distance
         for (Player tracker : this.trackers) {
             if(!detectedPlayers.contains(tracker)){
-                trackers.remove(tracker);
                 removeToPlayer(tracker);
+                trackers.remove(tracker);
             }
         }
 
-        if(isHeadRotationEnabled()) tickLook();
-        if(isUpdateOverlaysEnabled()) updateOverlays();
         if(isUpdateEquipmentEnabled()) updateEquipment();
+        if(isUpdateOverlaysEnabled()) updateOverlays();
+        if(isHeadRotationEnabled()) updateHeadRotation();
 
-        trackers.forEach(p-> NMSUtils.sendPacket(p,fakeBedPacket));
-    }
-
-    private void updateOverlays() {
-        byte overlays = ((EntityPlayer) NMSUtils.asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
-        if(overlays!=pOverlays){
-            pOverlays = overlays;
-            watcher.set(DataWatcherRegistry.a.a(16),pOverlays);
-            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
-            trackers.forEach(p-> NMSUtils.sendPacket(p, packet));
-        }
-    }
-
-    private void tickLook() {
-        PacketPlayOutEntityHeadRotation rotation = new PacketPlayOutEntityHeadRotation(fake, getFixedRotation(parent.getLocation().getYaw()));
-        PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook lookPacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0, (short) 0, (short) 0, getFixedRotation(parent.getLocation().getYaw()), (byte) 0, true);
-        trackers.forEach(p -> {
-            NMSUtils.sendPacket(p, lookPacket);
-            NMSUtils.sendPacket(p, rotation);
+        trackers.forEach(tracker->{
+            //Send fake bed
+            NMSUtils.sendPacket(tracker,fakeBedPacket);
         });
     }
 
-    public void updateEquipment(){
-        List<Pair<EnumItemSlot, ItemStack>> slots=
-            Arrays.stream(EnumItemSlot.values()).map(slot->Pair.of(slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(parent.getEquipment(), slot)))).collect(Collectors.toList());
-        PacketPlayOutEntityEquipment eq = new PacketPlayOutEntityEquipment(fake.getId(), slots);
-        trackers.forEach(r->sendPacket(r,eq));
+    private void updateOverlays() {
+       npcUpdater.updateOverlays();
+    }
+
+    private void updateHeadRotation() {
+        npcUpdater.updateHeadRotation();
+    }
+
+    private void updateEquipment(){
+        npcUpdater.updateEquipment();
+    }
+
+    public void updateNPC(){
+        broadCastSpawn();
     }
 
     public void swingHand(boolean mainHand) {
@@ -220,24 +246,56 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
 
     //Meta info
     public void setInvisible(boolean invisible){
-        if(this.invisible!=invisible) {
-            byte value = ((EntityPlayer) NMSUtils.asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(0));
-            if (invisible) {
-                value = (byte) (value | 0x20);
-            } else {
-                value = (byte) (value & ~(0x20));
-            }
-            watcher.set(DataWatcherRegistry.a.a(0), value);
-            PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(fake.getId(), watcher, false);
-            Bukkit.getOnlinePlayers().forEach(p -> NMSUtils.sendPacket(p, metadata));
-            this.invisible = invisible;
-        }
+        metadataAccessor.setInvisible(invisible);
+        metadataAccessor.merge(true);
+        updateNPC();
     }
 
-    static class FakePlayerStaff{
+    @Override
+    public boolean isHandActive() {
+        return metadataAccessor.isHandActive();
+    }
+
+    @Override
+    public void setHandActive(boolean main) {
+        metadataAccessor.setActiveHand(main);
+        metadataAccessor.merge(true);
+        if(main){
+            setMainHandActive(true);
+            setOffHandActive(false);
+        } else {
+            setOffHandActive(true);
+            setMainHandActive(false);
+        }
+        updateNPC();
+    }
+
+    @Override
+    public void disableHands() {
+        metadataAccessor.disableHand();
+        metadataAccessor.merge(true);
+        updateNPC();
+    }
+
+    @Override
+    public void setItemInMainHand(org.bukkit.inventory.ItemStack hand) {
+        customEquipmentInterface.setItemInMainHand(hand);
+    }
+
+    @Override
+    public void setItemInOffHand(org.bukkit.inventory.ItemStack hand) {
+        customEquipmentInterface.setItemInOffHand(hand);
+    }
+
+    static class FakePlayerStaff {
 
         static byte getFixedRotation(float var1){
             return (byte) MathHelper.d(var1 * 256.0F / 360.0F);
+        }
+
+        static boolean isKthBitSet(int n, int k)
+        {
+            return  ((n & (1 << (k - 1))) == 1);
         }
 
         static org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot){
@@ -299,10 +357,10 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
             };
         }
 
-        static float transform(float rawyaw){
-            rawyaw = rawyaw < 0.0F ? 360.0F + rawyaw : rawyaw;
-            rawyaw = rawyaw % 360.0F;
-            return rawyaw;
+        static float transform(float rawYaw){
+            rawYaw = rawYaw < 0.0F ? 360.0F + rawYaw : rawYaw;
+            rawYaw = rawYaw % 360.0F;
+            return rawYaw;
         }
 
         static EnumDirection getDirection(float f) {
@@ -340,7 +398,7 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
                 public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {}
 
                 @Override
-                public void sendMessage(IChatBaseComponent[] ichatbasecomponent) {}
+                public void sendMessage(IChatBaseComponent[] iChatBaseComponents) {}
 
                 @Override
                 protected void collideNearby() {}
@@ -357,6 +415,16 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
 
         static BlockPosition toBlockPosition(Location location){
             return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        }
+
+        static byte setBit(byte input, int k, boolean flag){
+            byte output;
+            if(flag){
+                output = (byte) (input|(1<<k));
+            } else {
+                output = (byte) (input&~(1<<k));
+            }
+            return output;
         }
     }
 }
