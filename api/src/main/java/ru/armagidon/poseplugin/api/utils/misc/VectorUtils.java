@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.util.NumberConversions;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 public final class VectorUtils
 {
     public static Block getDirBlock(Location plocation){
-        Block cur = getBlock(plocation);
+        Block cur = getBlockOnLoc(plocation);
         BlockFace face = yawToFace(plocation.getYaw());
         if(face==null) return cur;
         return cur.getRelative(face);
@@ -37,11 +38,18 @@ public final class VectorUtils
         return Bukkit.getOnlinePlayers().stream().filter((other) -> soruce.getWorld().equals(other.getWorld())).filter((other) -> soruce.getLocation().distanceSquared(other.getLocation()) <= radius).collect(Collectors.toSet());
     }
 
-    public static Block getBlock(Location location){
+    public static Block getRoundedBlock(Location location){
         int x = location.getBlockX();
         int z = location.getBlockZ();
         int y = round(location.getY());
         return Objects.requireNonNull(location.getWorld()).getBlockAt(x,y,z);
+    }
+
+    public static Block getBlockOnLoc(Location location){
+        int x = (int) location.getX();
+        int y = NumberConversions.ceil(location.getY());
+        int z = (int) location.getZ();
+        return location.getWorld().getBlockAt(x,y,z);
     }
 
     public static boolean onGround(Player player){
