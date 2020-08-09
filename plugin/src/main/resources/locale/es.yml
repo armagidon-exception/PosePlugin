@@ -1,14 +1,21 @@
-in-air: "§c¡No puedes usar este comando en el aire!"
-stand-up: "§aTe levantaste."
-animation-disabled: "§cDannya animación desactivada."
+in-air: No puedes hacer esto en el aire
+stand-up: hemos aguantado
+animation-disabled: Esta animación está deshabilitada
 swim:
-  play: "§6Te acostaste boca abajo."
-  damage: "§c¡De repente te levantaste porque alguien te atacó!"
+  play: Estas nadando
+  damage: De repente te levantaste porque te lastimaste
 lay:
-  play: "§6Te acostaste de espaldas."
-  damage: "§c¡De repente te levantaste porque alguien te atacó!"
-  prevent-use-when-invisible: "&cNo puedes poner la pose acostada en invisibilidad"
-  prevent-use-invisibility-when-use: "&cNo puedes usar la poción de invisibilidad mientras usas pose de postura"
+  play: Te has acostado
+  damage: De repente te levantaste porque te lastimaste
+  prevent-use-when-invisible: No puedes poner la pose de mentira en invisibilidad
+  prevent-use-invisibility-when-use: No puedes usar la poción de invisibilidad mientras
+    usas la postura laica
 sit:
-  play: "§6Te sentaste."
-  damage: "§c¡De repente te levantaste porque alguien te atacó!"
+  play: Te has sentado
+  damage: De repente te levantaste porque te lastimaste
+wave:
+  play: Empezaste a agitar tu mano
+  damage: De repente te levantaste porque te lastimaste
+point:
+  play: Empezaste a señalar con el dedo
+  damage: De repente te levantaste porque te lastimaste

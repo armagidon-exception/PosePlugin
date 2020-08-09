@@ -1,14 +1,21 @@
-in-air: "§cNemůžete použít tento příkaz ve vzduchu!"
-stand-up: "§aVstal jste."
-animation-disabled: "§cTato animace je zakázána."
+in-air: To nemůžete udělat na vzduchu
+stand-up: Vstal jsi
+animation-disabled: Tato animace je zakázána
 swim:
-  play: "§6Lehl jste si na břicho."
-  damage: "§cNajednou jste vstali, protože vás někdo napadl!"
+  play: Plaveš
+  damage: Najednou jsi vstal, protože jsi se poškodil
 lay:
-  play: "§6Lehl jste si na záda."
-  damage: "§cNajednou jste vstali, protože vás někdo napadl!"
-  prevent-use-when-invisible: "&cNemůžete položit lhaní pozice do neviditelnosti"
-  prevent-use-invisibility-when-use: "&cPři použití laické pózy nemůžete použít lektvar neviditelnosti"
+  play: Odložil jsi
+  damage: Najednou jsi vstal, protože jsi se poškodil
+  prevent-use-when-invisible: Nemůžete položit lhaní pozice do neviditelnosti
+  prevent-use-invisibility-when-use: Při použití laické pózy nemůžete použít lektvar
+    neviditelnosti
 sit:
-  play: "§6Sedli jste si."
-  damage: "§cNajednou jste vstali, protože vás někdo napadl!"
+  play: Posadil ses
+  damage: Najednou jsi vstal, protože jsi se poškodil
+wave:
+  play: Začali jste mávat rukou
+  damage: Najednou jsi vstal, protože jsi se poškodil
+point:
+  play: Začali jste ukazovat prstem
+  damage: Najednou jsi vstal, protože jsi se poškodil

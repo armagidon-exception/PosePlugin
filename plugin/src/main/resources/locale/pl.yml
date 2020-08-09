@@ -1,14 +1,21 @@
-in-air: "§cNie możesz użyć tego polecenia w powietrzu!"
-stand-up: "§aWstałeś."
-animation-disabled: "§cTa animacja jest wyłączona."
+in-air: Nie możesz tego zrobić w powietrzu
+stand-up: Wstałeś
+animation-disabled: Ta animacja jest wyłączona
 swim:
-  play: "§6Położyłeś się na brzuchu."
-  damage: "§cNagle wstałeś, bo ktoś cię zaatakował!"
+  play: Pływasz
+  damage: Nagle wstałeś, ponieważ zostałeś uszkodzony
 lay:
-  play: "§6Położyłeś się na plecach."
-  damage: "§cNagle wstałeś, bo ktoś cię zaatakował!"
-  prevent-use-when-invisible: "&cNie możesz ustawić leżącej pozycji w niewidzialności"
-  prevent-use-invisibility-when-use: "&cNie możesz używać mikstury niewidzialności podczas korzystania z pozycji leżącej"
+  play: Położyłeś się
+  damage: Nagle wstałeś, ponieważ zostałeś uszkodzony
+  prevent-use-when-invisible: Nie możesz ustawić leżącej pozy w niewidzialności
+  prevent-use-invisibility-when-use: Nie możesz używać mikstury niewidzialności podczas
+    używania pozycji leżącej
 sit:
-  play: "§6Usiadłeś."
-  damage: "§cNagle wstałeś, bo ktoś cię zaatakował!"
+  play: Usiadłeś
+  damage: Nagle wstałeś, ponieważ zostałeś uszkodzony
+wave:
+  play: Zacząłeś machać ręką
+  damage: Nagle wstałeś, ponieważ zostałeś uszkodzony
+point:
+  play: Zacząłeś wskazywać palcem
+  damage: Nagle wstałeś, ponieważ zostałeś uszkodzony

@@ -1,14 +1,21 @@
-in-air: "§cSie können diesen Befehl nicht in der Luft verwenden!"
-stand-up: "§aSie stehen auf."
-animation-disabled: "§cDiese Animation ist deaktiviert."
+in-air: Das kann man nicht in der Luft machen
+stand-up: Du bist aufgestanden
+animation-disabled: Diese Animation ist deaktiviert
 swim:
-  play: "§bSie legen sich auf den Bauch."
-  damage: "&cDu bist plötzlich aufgestanden, weil dich jemand angegriffen hat!"
+  play: Du schwimmst
+  damage: Sie standen plötzlich auf, weil Sie beschädigt wurden
 lay:
-  play: "§bSie liegen auf dem Rücken."
-  damage: "&cDu bist plötzlich aufgestanden, weil dich jemand angegriffen hat!"
-  prevent-use-when-invisible: "&cSie können die Lügenpose nicht unsichtbar machen"
-  prevent-use-invisibility-when-use: "&cSie können keinen Unsichtbarkeitstrank verwenden, während Sie die Laienhaltung verwenden"
+  play: Du hast dich hingelegt
+  damage: Sie standen plötzlich auf, weil Sie beschädigt wurden
+  prevent-use-when-invisible: Sie können die Lügenpose nicht unsichtbar machen
+  prevent-use-invisibility-when-use: Sie können keinen Unsichtbarkeitstrank verwenden,
+    während Sie die Laienhaltung verwenden
 sit:
-  play: "§bSie setzen sich."
-  damage: "&cDu bist plötzlich aufgestanden, weil dich jemand angegriffen hat!"
+  play: Du hast dich gesetzt
+  damage: Sie standen plötzlich auf, weil Sie beschädigt wurden
+wave:
+  play: Du hast angefangen, mit der Hand zu winken
+  damage: Sie standen plötzlich auf, weil Sie beschädigt wurden
+point:
+  play: Du hast angefangen mit deinem Finger zu zeigen
+  damage: Sie standen plötzlich auf, weil Sie beschädigt wurden

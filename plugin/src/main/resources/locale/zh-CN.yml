@@ -1,0 +1,20 @@
+in-air: 你无法做到这一点
+stand-up: 你站起来
+animation-disabled: 该动画已禁用
+swim:
+  play: 你在游泳
+  damage: 你突然站起来，因为你受伤了
+lay:
+  play: 你放下了
+  damage: 你突然站起来，因为你受伤了
+  prevent-use-when-invisible: 你不能在看不见的地方摆姿势
+  prevent-use-invisibility-when-use: 躺卧姿势时不能使用隐形药水
+sit:
+  play: 你坐下了
+  damage: 你突然站起来，因为你受伤了
+wave:
+  play: 你开始挥手
+  damage: 你突然站起来，因为你受伤了
+point:
+  play: 你开始用手指指着
+  damage: 你突然站起来，因为你受伤了

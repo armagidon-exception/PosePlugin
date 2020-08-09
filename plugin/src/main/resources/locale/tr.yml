@@ -1,14 +1,20 @@
-in-air: "§cBunu havada yapamazsın"
-stand-up: "§aAyağa kalktın"
-animation-disabled: "§cBu animasyon devre dışı."
+in-air: Bunu havada yapamazsın
+stand-up: Ayağa kalktın
+animation-disabled: Bu animasyon devre dışı bırakıldı
 swim:
-  play: "§bYüzüyorsun"
-  damage: "&cBirdenbire ayağa kalktın çünkü hasar gördün."
+  play: Yüzüyorsun
+  damage: Aniden ayağa kalktın çünkü hasar gördün
 lay:
-  play: "§bSen yatırdın"
-  damage: "&cBirdenbire ayağa kalktın çünkü hasar gördün."
-  prevent-use-when-invisible: "&cGörünmezken bunu yapamazsın"
-  prevent-use-invisibility-when-use: "&cGörünmezlik iksirini yalan söylerken kullanabilirsiniz."
+  play: Sen koydun
+  damage: Aniden ayağa kalktın çünkü hasar gördün
+  prevent-use-when-invisible: Görünmezlik içinde yalan pozu kuramazsın
+  prevent-use-invisibility-when-use: Lay pozunu kullanırken görünmezlik iksirini kullanamazsınız
 sit:
-  play: "§bOturdun"
-  damage: "&cBirdenbire ayağa kalktın çünkü hasar gördün."
+  play: Oturdun
+  damage: Aniden ayağa kalktın çünkü hasar gördün
+wave:
+  play: Elini sallamaya başladın
+  damage: Aniden ayağa kalktın çünkü hasar gördün
+point:
+  play: Parmağınla işaret etmeye başladın
+  damage: Aniden ayağa kalktın çünkü hasar gördün

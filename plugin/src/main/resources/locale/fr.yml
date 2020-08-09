@@ -1,14 +1,21 @@
-in-air: "§cVous ne pouvez pas utiliser cette commande en l'air!"
-stand-up: "§aVous êtes debout."
-animation-disabled: "§cCette animation est désactivée."
+in-air: Tu ne peux pas faire ça dans les airs
+stand-up: Tu t'es levé et -
+animation-disabled: Cette animation est désactivée
 swim:
-  play: "§6Vous êtes couché sur le ventre."
-  damage: "§cVous vous êtes soudainement levé parce que quelqu'un vous a attaqué!"
+  play: Vous nagez
+  damage: Vous vous êtes soudainement levé, parce que vous avez été endommagé
 lay:
-  play: "§6Vous êtes allongé sur le dos."
-  damage: "§cVous vous êtes soudainement levé parce que quelqu'un vous a attaqué!"
-  prevent-use-when-invisible: "&cVous ne pouvez pas définir la pose de mensonge dans l'invisibilité"
-  prevent-use-invisibility-when-use: "&cVous ne pouvez pas utiliser la potion d'invisibilité lorsque vous utilisez la pose laïque"
+  play: Tu t&#39;es couché
+  damage: Vous vous êtes soudainement levé, parce que vous avez été endommagé
+  prevent-use-when-invisible: Vous ne pouvez pas définir la pose couchée dans l&#39;invisibilité
+  prevent-use-invisibility-when-use: Vous ne pouvez pas utiliser de potion d&#39;invisibilité
+    en utilisant la pose laïque
 sit:
-  play: "§6Vous vous êtes assis."
-  damage: "§cVous vous êtes soudainement levé parce que quelqu'un vous a attaqué!"
+  play: Tu t&#39;es assis
+  damage: Vous vous êtes soudainement levé, parce que vous avez été endommagé
+wave:
+  play: Tu as commencé à agiter la main
+  damage: Vous vous êtes soudainement levé, parce que vous avez été endommagé
+point:
+  play: Tu as commencé à pointer du doigt
+  damage: Vous vous êtes soudainement levé, parce que vous avez été endommagé

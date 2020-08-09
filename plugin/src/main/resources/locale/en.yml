@@ -12,3 +12,9 @@ lay:
 sit:
   play: "§bYou've sat down"
   damage: "&cYou suddenly stood up, because you got damaged"
+wave:
+  play: "§bYou started to wave your hand"
+  damage: "&cYou suddenly stood up, because you got damaged"
+point:
+  play: "§bYou started to point with your finger"
+  damage: "&cYou suddenly stood up, because you got damaged"
