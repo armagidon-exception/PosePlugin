@@ -104,12 +104,12 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
         //Create data watcher to modify entity metadata
         this.watcher = cloneDataWatcher(parent, fake.getProfile());
         //Create instance of the packet with this data
-        this.metadataAccessor = new MetadataAccessorImpl(this);
+        this.metadataAccessor = new MetadataAccessorImpl_v1_16_R1(this);
         //Set metadata
         setMetadata();
-        this.npcUpdater = new FakePlayerUpdaterImpl(this);
+        this.npcUpdater = new FakePlayerUpdaterImpl_v1_16_R1(this);
 
-        this.customEquipmentInterface = new CustomEquipmentInterfaceImpl(this);
+        this.customEquipmentInterface = new CustomEquipmentInterfaceImpl_v1_16_R1(this);
 
     }
 

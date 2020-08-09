@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CustomEquipmentInterfaceImpl implements CustomEquipmentInterface
+public class CustomEquipmentInterfaceImpl_v1_16_R1 implements CustomEquipmentInterface
 {
     private final FakePlayer_v1_16_R1 npc;
     private PacketPlayOutEntityEquipment customEquipmentPacket;
     private final Map<EnumItemSlot, ItemStack> customEquipment;
 
-    public CustomEquipmentInterfaceImpl(FakePlayer_v1_16_R1 npc) {
+    public CustomEquipmentInterfaceImpl_v1_16_R1(FakePlayer_v1_16_R1 npc) {
         this.npc = npc;
         this.customEquipment = new HashMap<>();
     }

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer_v1_16_R1.FakePlayerStaff.*;
 
-public class MetadataAccessorImpl implements MetadataAccessor
+public class MetadataAccessorImpl_v1_16_R1 implements MetadataAccessor
 {
 
     private final FakePlayer_v1_16_R1 npc;
@@ -18,7 +18,7 @@ public class MetadataAccessorImpl implements MetadataAccessor
     private boolean invisible;
     private final DataWatcher watcher;
 
-    public MetadataAccessorImpl(FakePlayer_v1_16_R1 npc) {
+    public MetadataAccessorImpl_v1_16_R1(FakePlayer_v1_16_R1 npc) {
         this.npc = npc;
         this.watcher = npc.getWatcher();
     }

@@ -14,13 +14,13 @@ import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.sendPacket;
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer_v1_16_R1.FakePlayerStaff.getEquipmentBySlot;
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer_v1_16_R1.FakePlayerStaff.getFixedRotation;
 
-public class FakePlayerUpdaterImpl implements FakePlayerUpdater {
+public class FakePlayerUpdaterImpl_v1_16_R1 implements FakePlayerUpdater {
 
     private final FakePlayer_v1_16_R1 npc;
 
     private byte pOverlays;
 
-    public FakePlayerUpdaterImpl(FakePlayer_v1_16_R1 npc) {
+    public FakePlayerUpdaterImpl_v1_16_R1(FakePlayer_v1_16_R1 npc) {
         this.npc = npc;
         this.pOverlays = ((EntityPlayer)asNMSCopy(npc.getParent())).getDataWatcher().get(DataWatcherRegistry.a.a(16));
     }
