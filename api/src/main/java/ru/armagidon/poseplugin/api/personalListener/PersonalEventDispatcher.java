@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.api.personalListener;
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -96,6 +97,13 @@ public class PersonalEventDispatcher implements Listener
 
     @EventHandler(priority = EventPriority.LOWEST)
     public final void onTeleport(PlayerTeleportEvent event){
+        if(playerAbsent(event.getPlayer())) return;
+        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
+        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
+    }
+
+    @EventHandler
+    public final void onArmorChange(PlayerArmorChangeEvent event){
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
