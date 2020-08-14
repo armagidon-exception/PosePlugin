@@ -1,6 +1,6 @@
 package ru.armagidon.poseplugin.api.utils.nms.npc;
 
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
@@ -8,20 +8,17 @@ import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 
 import java.util.Optional;
 
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer_v1_16_R1.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer_v1_15_R1.FakePlayerStaff.*;
 
-public class MetadataAccessorImpl_v1_16_R1 implements MetadataAccessor
+public class MetadataAccessorImpl_v1_15_R1 implements MetadataAccessor
 {
 
-    private final FakePlayer_v1_16_R1 npc;
+    private final FakePlayer_v1_15_R1 npc;
     private PacketPlayOutEntityMetadata metadata;
-    private boolean invisible;
     private final DataWatcher watcher;
+    private DataWatcherSerializer<Byte> BYTE = DataWatcherRegistry.a;
 
-    //Constants
-    private final DataWatcherSerializer<Byte> BYTE = DataWatcherRegistry.a;
-
-    public MetadataAccessorImpl_v1_16_R1(FakePlayer_v1_16_R1 npc) {
+    public MetadataAccessorImpl_v1_15_R1(FakePlayer_v1_15_R1 npc) {
         this.npc = npc;
         this.watcher = npc.getWatcher();
     }
@@ -46,11 +43,8 @@ public class MetadataAccessorImpl_v1_16_R1 implements MetadataAccessor
 
     @Override
     public void setInvisible(boolean flag) {
-        if(this.invisible!=flag) {
-            byte value = ((EntityPlayer) NMSUtils.asNMSCopy(npc.getParent())).getDataWatcher().get(BYTE.a(0));
-            npc.getWatcher().set(BYTE.a(0), setBit(value, 5,flag));
-            this.invisible = flag;
-        }
+        byte value = npc.getWatcher().get(DataWatcherRegistry.a.a(0));
+        watcher.set(DataWatcherRegistry.a.a(0), setBit(value, 5,flag));
     }
 
     @Override
@@ -60,12 +54,13 @@ public class MetadataAccessorImpl_v1_16_R1 implements MetadataAccessor
 
     @Override
     public void setActiveHand(boolean main) {
-        setMainHand(main);
-        byte data = npc.getWatcher().get(BYTE.a(7));
+        byte data = npc.getWatcher().get(DataWatcherRegistry.a.a(7));
         if(!isHandActive()){
             data = setBit(data, 0,true);
         }
-        npc.getWatcher().set(BYTE.a(7),setBit(data,1,false));
+        boolean active = isKthBitSet(npc.getWatcher().get(DataWatcherRegistry.a.a(7)),2);
+        if(active==main) return;
+        npc.getWatcher().set(DataWatcherRegistry.a.a(7),setBit(data,1,!main));
     }
 
     @Override
@@ -82,7 +77,7 @@ public class MetadataAccessorImpl_v1_16_R1 implements MetadataAccessor
 
     @Override
     public boolean isInvisible() {
-        return invisible;
+        return isKthBitSet(watcher.get(DataWatcherRegistry.a.a(0)),5);
     }
 
     @Override

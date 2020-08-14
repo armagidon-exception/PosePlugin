@@ -1,5 +1,6 @@
 locale: en
 check-for-updates: true
+x-mode: false
 swim:
   static: false
   stand-up-when-damaged: true

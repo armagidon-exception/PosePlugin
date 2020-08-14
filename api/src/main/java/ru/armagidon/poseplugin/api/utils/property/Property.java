@@ -21,6 +21,7 @@ public class Property<T>
     }
 
     public void setValue(T value) {
+        if(value==this.value) return;
         this.value = value;
         update.accept(value);
     }

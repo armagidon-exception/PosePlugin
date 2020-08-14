@@ -1,10 +1,12 @@
 package ru.armagidon.poseplugin.plugin.messaging;
 
+import lombok.SneakyThrows;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.armagidon.poseplugin.PosePlugin;
+import ru.armagidon.poseplugin.config.ConfigConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,11 +16,12 @@ import java.util.function.Function;
 public class Messages
 {
     private FileConfiguration localeConfig;
+    private File localeFolder;
     private Function<String, String> COLORIZE = (string)-> ChatColor.translateAlternateColorCodes('&',string);
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public Messages(String locale) {
-        File localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "/locale");
+        localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "/locale");
         localeFolder.mkdirs();
         File file = new File(localeFolder, locale + ".yml");
         if(!file.exists()){
@@ -45,5 +48,11 @@ public class Messages
 
     public void send(String path, CommandSender sender) {
         sender.sendMessage(COLORIZE.apply(localeConfig.getString(path)));
+    }
+
+    @SneakyThrows
+    public void reload(){
+        localeConfig = YamlConfiguration.loadConfiguration(new File(localeFolder, ConfigConstants.locale()+".yml"));
+        save(ConfigConstants.locale(), localeFolder);
     }
 }

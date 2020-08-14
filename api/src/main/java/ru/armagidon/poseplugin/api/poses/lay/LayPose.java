@@ -41,6 +41,7 @@ public class LayPose extends PluginPose {
 
         getProperties().register();
     }
+
     @Override
     public void initiate() {
         super.initiate();
@@ -48,15 +49,13 @@ public class LayPose extends PluginPose {
         driver.takeASeat();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
+        PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
     }
 
     @Override
     public void play(Player receiver) {
-        if(receiver==null) {
-            fakePlayer.broadCastSpawn();
-        } else {
-            fakePlayer.spawnToPlayer(receiver);
-        }
+        if(receiver==null) fakePlayer.broadCastSpawn();
+        else fakePlayer.spawnToPlayer(receiver);
     }
 
     @Override
@@ -67,6 +66,7 @@ public class LayPose extends PluginPose {
         driver.standUp();
         PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
+        PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());
     }
 
     @Override

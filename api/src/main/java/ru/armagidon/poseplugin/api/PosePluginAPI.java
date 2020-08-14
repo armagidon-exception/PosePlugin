@@ -10,7 +10,8 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
-import ru.armagidon.poseplugin.api.utils.misc.PluginLogger;
+import ru.armagidon.poseplugin.api.utils.armor.ArmorHider;
+import ru.armagidon.poseplugin.api.utils.misc.Debugger;
 import ru.armagidon.poseplugin.api.utils.misc.event.EventListener;
 import ru.armagidon.poseplugin.api.utils.nms.NMSFactory;
 import ru.armagidon.poseplugin.api.utils.nms.PlayerHider;
@@ -19,6 +20,7 @@ import ru.armagidon.poseplugin.api.utils.packetManagement.readers.SwingPacketRea
 import ru.armagidon.poseplugin.api.utils.scoreboard.NameTagHider;
 
 import java.lang.reflect.Method;
+import java.util.logging.Logger;
 
 public class PosePluginAPI
 {
@@ -31,8 +33,8 @@ public class PosePluginAPI
     private @Getter final TickModuleManager tickManager;
     private @Getter final NameTagHider nameTagHider;
     private @Getter final PersonalHandlerList personalHandlerList;
-
-    private PluginLogger logger;
+    private @Getter final Debugger debugger;
+    private @Getter ArmorHider armorHider;
 
     private PosePluginAPI() {
         this.packetReaderManager = new PacketReaderManager();
@@ -40,16 +42,16 @@ public class PosePluginAPI
         this.tickManager = new TickModuleManager();
         this.nameTagHider = new NameTagHider();
         this.personalHandlerList = new PersonalHandlerList();
+        this.debugger = new Debugger();
     }
 
     /**PoopCode starts*/
-    private Plugin plugin;
+    private @Getter Plugin plugin;
 
     public void init(Plugin plugin){
         this.plugin = plugin;
         /*PoopCode ends(i hope)*/
-        //Init logger
-        this.logger = new PluginLogger(plugin);
+        this.armorHider = new ArmorHider();
         //Init nms-factory and player-hider
         try {
             this.nmsFactory = new NMSFactory();
@@ -86,12 +88,8 @@ public class PosePluginAPI
         return nmsFactory;
     }
 
-    public PluginLogger getLogger(){
-        return logger;
-    }
-
-    public Plugin getPlugin(){
-        return plugin;
+    public Logger getLogger(){
+        return getPlugin().getLogger();
     }
 
     private void registerPacketListeners(){

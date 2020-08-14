@@ -28,4 +28,8 @@ public interface MetadataAccessor
     void merge(boolean append);
 
     boolean isHandActive();
+
+    void setMainHand(boolean main);
+
+    boolean whichHandIsMain();
 }

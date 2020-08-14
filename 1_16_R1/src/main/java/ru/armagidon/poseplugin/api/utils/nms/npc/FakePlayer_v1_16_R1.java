@@ -57,7 +57,7 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
     private final Pose pose;
     private final Location bedLoc;
     private final FakePlayerUpdater npcUpdater;
-    private final CustomEquipmentInterface customEquipmentInterface;
+    private final @Getter CustomEquipmentInterface customEquipmentInterface;
     private final @Getter MetadataAccessor metadataAccessor;
 
     /**Tracking**/
@@ -232,6 +232,11 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
         broadCastSpawn();
     }
 
+    @Override
+    public void setPosition(double x, double y, double z) {
+        fake.setPosition(x, y, z);
+    }
+
     public void swingHand(boolean mainHand) {
         if(isSwingAnimationEnabled()) {
             PacketPlayOutAnimation animation = new PacketPlayOutAnimation(fake, mainHand ? 0 : 3);
@@ -275,16 +280,6 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
         metadataAccessor.disableHand();
         metadataAccessor.merge(true);
         updateNPC();
-    }
-
-    @Override
-    public void setItemInMainHand(org.bukkit.inventory.ItemStack hand) {
-        customEquipmentInterface.setItemInMainHand(hand);
-    }
-
-    @Override
-    public void setItemInOffHand(org.bukkit.inventory.ItemStack hand) {
-        customEquipmentInterface.setItemInOffHand(hand);
     }
 
     static class FakePlayerStaff {

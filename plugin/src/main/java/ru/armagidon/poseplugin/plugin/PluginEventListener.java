@@ -69,13 +69,18 @@ public class PluginEventListener implements Listener
         IPluginPose pose = event.getPlayer().getPose();
         PropertyMap properties = pose.getProperties();
         switch (event.getPose()){
-            case LYING:
+            case LYING: {
                 properties.getProperty("head-rotation", Boolean.class).setValue(config.getBoolean("head-rotation"));
                 properties.getProperty("swing-animation", Boolean.class).setValue(config.getBoolean("swing-animation"));
                 properties.getProperty("update-equipment", Boolean.class).setValue(config.getBoolean("update-equipment"));
                 properties.getProperty("update-overlays", Boolean.class).setValue(config.getBoolean("update-overlays"));
-                properties.getProperty("view-distance",Integer.class).setValue(config.getInt("view-distance"));
+                properties.getProperty("view-distance", Integer.class).setValue(config.getInt("view-distance"));
+                boolean preventInvisible = config.getBoolean("lay.prevent-use-when-invisible");
+                if(!preventInvisible&&event.getPlayer().getHandle().hasPotionEffect(PotionEffectType.INVISIBILITY)){
+                    properties.getProperty("invisible",Boolean.class).setValue(true);
+                }
                 break;
+            }
             case SWIMMING:
                 if(PosePlugin.getInstance().getConfig().getBoolean(sec+".static")){
                     properties.getProperty("static", Boolean.class).setValue(true);
@@ -172,8 +177,11 @@ public class PluginEventListener implements Listener
         boolean preventInvisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
         if(!preventInvisible){
             if(event.getAction().equals(EntityPotionEffectEvent.Action.ADDED)){
-                p.getPose().getProperties().getProperty("invisible",Boolean.class).setValue(true);
+                if(event.getNewEffect()!=null&&event.getNewEffect().getType().equals(PotionEffectType.INVISIBILITY)) {
+                    p.getPose().getProperties().getProperty("invisible", Boolean.class).setValue(true);
+                }
             } else if(event.getAction().equals(EntityPotionEffectEvent.Action.REMOVED)||event.getAction().equals(EntityPotionEffectEvent.Action.CLEARED)){
+                if(event.getOldEffect()!=null&&event.getOldEffect().getType().equals(PotionEffectType.INVISIBILITY))
                 p.getPose().getProperties().getProperty("invisible",Boolean.class).setValue(false);
             }
         }

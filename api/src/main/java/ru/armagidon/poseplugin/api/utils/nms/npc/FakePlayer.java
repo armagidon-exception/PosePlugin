@@ -1,11 +1,11 @@
 package ru.armagidon.poseplugin.api.utils.nms.npc;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public interface FakePlayer extends Tickable
 {
@@ -58,13 +58,17 @@ public interface FakePlayer extends Tickable
 
     boolean isOffHandActive();
 
-    void setHandActive(boolean main);
+    void setHandActive(boolean right);
 
     void disableHands();
 
-    void setItemInMainHand(ItemStack hand);
-
-    void setItemInOffHand(ItemStack hand);
-
     void updateNPC();
+
+    CustomEquipmentInterface getCustomEquipmentInterface();
+
+    MetadataAccessor getMetadataAccessor();
+
+    Set<Player> getTrackers();
+
+    void setPosition(double x, double y, double z);
 }

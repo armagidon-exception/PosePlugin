@@ -27,6 +27,7 @@ public class ConfigManager
     @SneakyThrows
     private void fixConfig() {
         YamlConfiguration defaults = new YamlConfiguration();
+        //Add defaults for config
         {
             defaults.set("locale", "en");
             defaults.set("check-for-updates", true);
@@ -39,11 +40,11 @@ public class ConfigManager
             }
             {
                 ConfigurationSection sit = defaults.createSection("sit");
-                sit.set("stand-up-when-damage", true);
+                sit.set("stand-up-when-damaged", true);
             }
             {
                 ConfigurationSection lay = defaults.createSection("lay");
-                lay.set("stand-up-when-damage", true);
+                lay.set("stand-up-when-damaged", true);
                 lay.set("view-distance", 20);
                 lay.set("head-rotation", true);
                 lay.set("swing-animation", true);
@@ -55,10 +56,12 @@ public class ConfigManager
                 {
                     ConfigurationSection wave = defaults.createSection("wave");
                     wave.set("enabled", true);
+                    wave.set("stand-up-when-damaged", true);
                 }
                 {
                     ConfigurationSection point = defaults.createSection("point");
                     point.set("enabled", true);
+                    point.set("stand-up-when-damaged", true);
                 }
             }
         }
@@ -75,8 +78,8 @@ public class ConfigManager
         });
         if(integer.get()!=0) {
             config.options().copyDefaults(true);
-            config.save(configFile);
         }
+        config.save(configFile);
     }
 
     public FileConfiguration getConfig() {

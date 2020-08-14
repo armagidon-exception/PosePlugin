@@ -10,6 +10,7 @@ import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
 
         EntityPlayer vanilla = (EntityPlayer) NMSUtils.asNMSCopy(player);
         vanilla.setInvisible(true);
-        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(vanilla.getId(),vanilla.getDataWatcher(), false);
+        PacketPlayOutEntityMetadata metadata = new PacketPlayOutEntityMetadata(vanilla.getId(),vanilla.getDataWatcher(), true);
 
         packets[0] = metadata;
 
@@ -86,14 +87,14 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
 
     @Override
     public void tick() {
-        hiddenPlayers.forEach((hidden,packets)-> {
-            Bukkit.getOnlinePlayers().forEach(online->{
+        hiddenPlayers.forEach((hidden,packets)-> Bukkit.getOnlinePlayers().forEach(online->{
+            if(!hidden.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                 NMSUtils.sendPacket(online, packets[0]);
-                if(!online.getUniqueId().equals(hidden.getUniqueId())){
-                    NMSUtils.sendPacket(online, packets[1]);
-                }
-            });
-        });
+            }
+            if(!online.getUniqueId().equals(hidden.getUniqueId())){
+                NMSUtils.sendPacket(online, packets[1]);
+            }
+        }));
     }
     private org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot){
         org.bukkit.inventory.ItemStack eq;
@@ -126,7 +127,7 @@ public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
     }
 
     private PacketPlayOutEntityMetadata resetInvisible(EntityPlayer en){
-        en.setInvisible(false);
-        return new PacketPlayOutEntityMetadata(en.getId(), en.getDataWatcher(), false);
+        en.setInvisible(en.hasEffect(MobEffects.INVISIBILITY));
+        return new PacketPlayOutEntityMetadata(en.getId(), en.getDataWatcher(), true);
     }
 }

@@ -5,7 +5,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 
 public class Debugger
 {
-    public boolean enabled = false;
+    private boolean enabled = false;
 
     public void debug(String msg) {
         if (enabled) PosePluginAPI.getAPI().getLogger().info(msg);

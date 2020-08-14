@@ -36,6 +36,17 @@ public class ItemUtil_v1_16_R1 extends ItemUtil
     }
 
     @Override
+    public ItemUtil removeTag(String tag) {
+        net.minecraft.server.v1_16_R1.ItemStack stack = CraftItemStack.asNMSCopy(getSource());
+        if(stack.getTag()!=null) {
+            if(stack.getTag().hasKey(tag))
+                stack.getTag().remove(tag);
+        }
+        setSource(CraftItemStack.asBukkitCopy(stack));
+        return this;
+    }
+
+    @Override
     public boolean contains(String name) {
         net.minecraft.server.v1_16_R1.ItemStack stack = CraftItemStack.asNMSCopy(getSource());
         return stack.getTag()!=null&&stack.getTag().hasKey(name);

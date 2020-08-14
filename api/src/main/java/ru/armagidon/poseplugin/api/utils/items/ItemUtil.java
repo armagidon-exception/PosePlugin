@@ -10,7 +10,10 @@ public abstract class ItemUtil {
     public ItemUtil(ItemStack source) {
         this.source = source;
     }
-    public abstract  <T> ItemUtil addTag(String name, T value);
+
+    public abstract <T> ItemUtil addTag(String name, T value);
+
+    public abstract ItemUtil removeTag(String tag);
 
     public abstract boolean contains(String name);
 

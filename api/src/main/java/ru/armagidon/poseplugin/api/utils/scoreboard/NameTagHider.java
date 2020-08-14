@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class NameTagHider
 {
-    private Scoreboard scoreboard;
+    private final Scoreboard scoreboard;
     private final Map<Player, Team> teamMap;
     private final Map<Player, Team> cached;
 
@@ -18,28 +18,35 @@ public class NameTagHider
     public NameTagHider() {
         this.cached = new HashMap<>();
         this.teamMap = new HashMap<>();
-        if(Bukkit.getScoreboardManager()!=null) {
-            scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        }
+        Bukkit.getScoreboardManager();
+        scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
     }
 
     public void hideTag(Player player){
         String NAME = player.getName();
 
+        Team.OptionStatus option = Team.OptionStatus.FOR_OWN_TEAM;
         if(scoreboard.getEntryTeam(NAME)!=null){
             cached.put(player, scoreboard.getEntryTeam(NAME));
+            Team.OptionStatus o = scoreboard.getEntryTeam(NAME).getOption(Team.Option.NAME_TAG_VISIBILITY);
+            if(o.equals(Team.OptionStatus.NEVER)||o.equals(Team.OptionStatus.FOR_OTHER_TEAMS)){
+                option = o;
+            }
         }
 
-        Team team;
-        if(scoreboard.getTeam(NAME)==null) {
+        Team team = scoreboard.getTeam(NAME);
+        if(team==null) {
             team = scoreboard.registerNewTeam(NAME);
-        } else {
-            team = scoreboard.getTeam(NAME);
         }
         team.setCanSeeFriendlyInvisibles(false);
-        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.FOR_OWN_TEAM);
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, option);
+        team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
         team.addEntry(NAME);
         teamMap.put(player, team);
+        if(player.getScoreboard() != Bukkit.getScoreboardManager().getMainScoreboard()){
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        }
+
     }
 
     public void showTag(Player player){
