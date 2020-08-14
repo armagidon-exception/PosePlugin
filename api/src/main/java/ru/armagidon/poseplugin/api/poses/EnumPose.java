@@ -8,7 +8,8 @@ public enum EnumPose
     LYING("lay"),
     SWIMMING("swim"),
     WAVING("wave"),
-    POINTING("point");
+    POINTING("point"),
+    REAPING("reap");
     private final String name;
 
     EnumPose(String name) {

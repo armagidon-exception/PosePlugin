@@ -9,6 +9,7 @@ import ru.armagidon.poseplugin.api.poses.IPluginPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.lay.LayPose;
 import ru.armagidon.poseplugin.api.poses.point.PointPose;
+import ru.armagidon.poseplugin.api.poses.reap.ReapPose;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.api.poses.wave.WavePose;
@@ -63,6 +64,9 @@ public class PosePluginPlayer
                 break;
             case POINTING:
                 newPose = new PointPose(player);
+                break;
+            case REAPING:
+                newPose = new ReapPose(player);
                 break;
             default:
                 newPose = PluginPose.standing;

@@ -63,6 +63,11 @@ public class ConfigManager
                     point.set("enabled", true);
                     point.set("stand-up-when-damaged", true);
                 }
+                {
+                    ConfigurationSection reap = defaults.createSection("reap");
+                    reap.set("enabled",true);
+                    reap.set("stand-up-when-damaged",true);
+                }
             }
         }
         AtomicInteger integer = new AtomicInteger(0);

@@ -12,6 +12,7 @@ import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.point.PointPose;
+import ru.armagidon.poseplugin.api.poses.reap.ReapPose;
 import ru.armagidon.poseplugin.api.poses.wave.WavePose;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.property.Property;
@@ -32,10 +33,19 @@ public class PluginCommands
         EnumPose pose;
         if(c.getName().equalsIgnoreCase("wave")){
             pose = EnumPose.WAVING;
-        } else {
+        } else if(c.getName().equalsIgnoreCase("point")){
             pose = EnumPose.POINTING;
+        } else {
+            pose = EnumPose.REAPING;
         }
-        Class clazz = pose.equals(EnumPose.WAVING)? WavePose.WaveMode.class: PointPose.PointMode.class;
+        Class clazz;
+        if(pose.equals(EnumPose.WAVING)){
+            clazz= WavePose.WaveMode.class;
+        } else if(pose.equals(EnumPose.POINTING)){
+            clazz = PointPose.PointMode.class;
+        } else {
+            clazz = ReapPose.ReapMode.class;
+        }
         return checkMode(p, pose, sub, clazz);
     };
     private final CommandExecutor executor = (sender, command, lbl, args)->{
@@ -77,6 +87,7 @@ public class PluginCommands
     private final PosePluginCommand ppreload;
     private final PosePluginCommand wave;
     private final PosePluginCommand point;
+    private final PosePluginCommand reap;
 
     public PluginCommands() {
         point = new PosePluginCommand("point",exExecutor);
@@ -90,6 +101,7 @@ public class PluginCommands
         lay = new PosePluginCommand("lay",executor);
         swim = new PosePluginCommand("swim",executor);
         sit = new PosePluginCommand("sit",executor);
+        reap = new PosePluginCommand("reap",exExecutor);
     }
 
     public void initCommands(){
@@ -101,6 +113,7 @@ public class PluginCommands
             map.register("ppreload","poseplugin",ppreload);
             if(ConfigConstants.isWaveEnabled()) map.register("wave","poseplugin",wave);
             if(ConfigConstants.isPointEnabled()) map.register("point","poseplugin",point);
+            if(ConfigConstants.isReapEnabled()) map.register("reap","poseplugin",reap);
         } catch (NoSuchMethodError error){
             PosePlugin.getInstance().getLogger().severe("To use commands use Paper or its forks");
         }
@@ -109,7 +122,7 @@ public class PluginCommands
     public void unregisterAll(){
         CommandMap map = Bukkit.getCommandMap();
 
-        Arrays.asList("sit","swim","lay","wave","point","ppreload").forEach(cmd->{
+        Arrays.asList("sit","swim","lay","wave","point","ppreload","reap").forEach(cmd->{
             map.getKnownCommands().remove("poseplugin:"+cmd);
             map.getKnownCommands().remove(cmd);
         });
@@ -133,9 +146,9 @@ public class PluginCommands
         }
         Property<T> property = player.getPose().getProperties().getProperty("mode",clazz);
         Enum<T> m = Enum.valueOf(clazz, mode.toUpperCase());
-            if (!property.getValue().equals(m)) {
-                property.setValue((T) m);
-            }
+        if (!property.getValue().equals(m)) {
+            property.setValue((T) m);
+        }
         return true;
     }
 

@@ -27,4 +27,8 @@ public class ConfigConstants
     public static String locale(){
         return PosePlugin.getInstance().getConfig().getString("locale","en");
     }
+
+    public static boolean isReapEnabled() {
+        return PosePlugin.getInstance().getConfig().getBoolean("reap.enabled");
+    }
 }
