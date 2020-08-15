@@ -10,4 +10,6 @@ public interface IPluginPose
     void play(Player receiver);
     void stop();
     EnumPose getPose();
+    boolean isAPIModeActivated();
+    void setAPIMode(boolean mode);
 }

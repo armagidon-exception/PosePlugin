@@ -11,6 +11,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
@@ -23,8 +24,10 @@ import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
+import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.utils.property.PropertyMap;
-import ru.armagidon.poseplugin.plugin.messaging.Message;
+import ru.armagidon.poseplugin.configuration.ConfigConstants;
+import ru.armagidon.poseplugin.configuration.messaging.Message;
 
 public class PluginEventListener implements Listener
 {
@@ -44,6 +47,7 @@ public class PluginEventListener implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void preventInvisibility(PoseChangeEvent event){
         if(event.isCancelled()) return;
+        if(event.getPlayer().getPose().isAPIModeActivated()) return;
         if(event.getAfter().equals(EnumPose.LYING)){
             Player player = event.getPlayer().getHandle();
             boolean prevent_invisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
@@ -57,6 +61,7 @@ public class PluginEventListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR)
     public void onAnimationStart(PoseChangeEvent event){
         if(event.isCancelled()) return;
+        if(event.getPlayer().getPose().isAPIModeActivated()) return;
         String sec = getSection(event.getAfter());
         PosePlugin.getInstance().message().send(sec+".play",event.getPlayer().getHandle());
     }
@@ -68,6 +73,7 @@ public class PluginEventListener implements Listener
         if(config==null) return;
         IPluginPose pose = event.getPlayer().getPose();
         PropertyMap properties = pose.getProperties();
+        if(event.getPlayer().getPose().isAPIModeActivated()) return;
         switch (event.getPose()){
             case LYING: {
                 properties.getProperty("head-rotation", Boolean.class).setValue(config.getBoolean("head-rotation"));
@@ -91,6 +97,7 @@ public class PluginEventListener implements Listener
     @EventHandler(priority = EventPriority.MONITOR)
     public void onStop(StopAnimationEvent e){
         PosePluginPlayer p = e.getPlayer();
+        if(p.getPose().isAPIModeActivated()) return;
         switch (e.getCause()){
             case DAMAGE:{
                 String sec = getSection(p.getPoseType());
@@ -116,6 +123,7 @@ public class PluginEventListener implements Listener
         if(e.getAction().equals(Action.RIGHT_CLICK_AIR)||e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             boolean preventInvisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
             if (!p.getPoseType().equals(EnumPose.LYING)) return;
+            if(p.getPose().isAPIModeActivated()) return;
             if (preventInvisible) {
                 if (e.getItem() == null) return;
                 ItemStack hand = e.getItem();
@@ -145,6 +153,7 @@ public class PluginEventListener implements Listener
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(e.getPlayer().getName());
         boolean preventInvisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
         if(!p.getPoseType().equals(EnumPose.LYING)) return;
+        if(p.getPose().isAPIModeActivated()) return;
         if (preventInvisible) {
             ItemStack hand = e.getItem();
             switch (hand.getType()) {
@@ -158,8 +167,8 @@ public class PluginEventListener implements Listener
                             PosePlugin.getInstance().message().send(Message.LAY_PREVENT_USE_POTION, e.getPlayer());
                         }
                     }
+                    break;
                 }
-                break;
                 default:
                     break;
             }
@@ -175,18 +184,54 @@ public class PluginEventListener implements Listener
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(player.getName());
         if(!p.getPoseType().equals(EnumPose.LYING)) return;
         boolean preventInvisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
+        PropertyMap properties = p.getPose().getProperties();
+        if(p.getPose().isAPIModeActivated()) return;
         if(!preventInvisible){
             if(event.getAction().equals(EntityPotionEffectEvent.Action.ADDED)){
                 if(event.getNewEffect()!=null&&event.getNewEffect().getType().equals(PotionEffectType.INVISIBILITY)) {
-                    p.getPose().getProperties().getProperty("invisible", Boolean.class).setValue(true);
+                    properties.getProperty("invisible", Boolean.class).setValue(true);
                 }
             } else if(event.getAction().equals(EntityPotionEffectEvent.Action.REMOVED)||event.getAction().equals(EntityPotionEffectEvent.Action.CLEARED)){
                 if(event.getOldEffect()!=null&&event.getOldEffect().getType().equals(PotionEffectType.INVISIBILITY))
-                p.getPose().getProperties().getProperty("invisible",Boolean.class).setValue(false);
+                properties.getProperty("invisible",Boolean.class).setValue(false);
             }
         }
     }
 
+    @EventHandler
+    public void onSneak(PlayerToggleSneakEvent event){
+        //Call stop event
+        if(!PosePluginAPI.getAPI().getPlayerMap().containsPlayer(event.getPlayer())) return;
+        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
+        if(player.getPose().isAPIModeActivated()) return;
+        switch (player.getPoseType()){
+            case SWIMMING:{
+                if (event.getPlayer().isOnGround()) {
+                    PluginPose.callStopEvent(player.getPoseType(), player, StopAnimationEvent.StopCause.STOPPED);
+                }
+                break;
+            }
+            case WAVING:{
+                if(ConfigConstants.isWaveShiftEnabled()){
+                    PluginPose.callStopEvent(player.getPoseType(), player, StopAnimationEvent.StopCause.STOPPED);
+                }
+                break;
+            }
+            case POINTING:{
+                if(ConfigConstants.isPointShiftEnabled()){
+                    PluginPose.callStopEvent(player.getPoseType(), player, StopAnimationEvent.StopCause.STOPPED);
+                }
+                break;
+            }
+            case HANDSHAKING:{
+                if(ConfigConstants.isHandShakeShiftEnabled()){
+                    PluginPose.callStopEvent(player.getPoseType(), player, StopAnimationEvent.StopCause.STOPPED);
+                }
+                break;
+            }
+        }
+
+    }
     private String getSection(EnumPose pose){
         return pose.getName();
     }

@@ -9,7 +9,7 @@ import ru.armagidon.poseplugin.api.poses.IPluginPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.lay.LayPose;
 import ru.armagidon.poseplugin.api.poses.point.PointPose;
-import ru.armagidon.poseplugin.api.poses.reap.ReapPose;
+import ru.armagidon.poseplugin.api.poses.reap.HandShakePose;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.api.poses.wave.WavePose;
@@ -41,7 +41,8 @@ public class PosePluginPlayer
         this.pose = newPose;
     }
 
-    public void changePose(EnumPose pose){
+    public void changePose(EnumPose pose, boolean apiMode){
+        if(apiMode) this.pose.setAPIMode(true);
         PoseChangeEvent event = new PoseChangeEvent(this.pose.getPose(), pose, this);
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled()) return;
@@ -49,10 +50,9 @@ public class PosePluginPlayer
         this.pose.stop();
         IPluginPose newPose;
         switch (event.getAfter()) {
-            case LYING: {
+            case LYING:
                 newPose = new LayPose(player);
                 break;
-            }
             case SWIMMING:
                 newPose = new SwimPose(player);
                 break;
@@ -65,17 +65,22 @@ public class PosePluginPlayer
             case POINTING:
                 newPose = new PointPose(player);
                 break;
-            case REAPING:
-                newPose = new ReapPose(player);
+            case HANDSHAKING:
+                newPose = new HandShakePose(player);
                 break;
             default:
                 newPose = PluginPose.standing;
                 break;
         }
+        newPose.setAPIMode(apiMode);
         setPose(newPose);
         Bukkit.getPluginManager().callEvent(new PostPoseChangeEvent(this, event.getAfter()));
         this.pose.initiate();
         this.pose.play(null);
+    }
+
+    public void changePose(EnumPose pose){
+        changePose(pose, false);
     }
 
     public IPluginPose getPose() {

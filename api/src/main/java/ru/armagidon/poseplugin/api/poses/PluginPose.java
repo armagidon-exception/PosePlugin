@@ -27,12 +27,14 @@ public abstract class PluginPose implements IPluginPose,Listener, PersonalListen
 {
     private final Player player;
     private final PropertyMap propertyMap;
+    private boolean apiMode;
 
     public static IPluginPose standing = new StandingPose();
 
     public PluginPose(Player target) {
         this.player = target;
         this.propertyMap = new PropertyMap();
+        this.apiMode = false;
     }
 
     public Player getPlayer() {
@@ -96,9 +98,19 @@ public abstract class PluginPose implements IPluginPose,Listener, PersonalListen
     public final void onTeleport(PlayerTeleportEvent event){
         Location from = event.getFrom();
         Location to = event.getTo();
-        if(to!=null&&to.distanceSquared(from)>1){
+        if(to.distanceSquared(from) > 1){
             callStopEvent(getPose(), getPosePluginPlayer(),StopAnimationEvent.StopCause.TELEPORT);
         }
+    }
+
+    @Override
+    public boolean isAPIModeActivated() {
+        return apiMode;
+    }
+
+    @Override
+    public void setAPIMode(boolean mode) {
+        this.apiMode = mode;
     }
 
     @PersonalEventHandler
@@ -130,6 +142,16 @@ public abstract class PluginPose implements IPluginPose,Listener, PersonalListen
         @Override
         public EnumPose getPose() {
             return EnumPose.STANDING;
+        }
+
+        @Override
+        public boolean isAPIModeActivated() {
+            return false;
+        }
+
+        @Override
+        public void setAPIMode(boolean mode) {
+            throw new UnsupportedOperationException("Cannot set api mode for standing pose");
         }
     }
 }
