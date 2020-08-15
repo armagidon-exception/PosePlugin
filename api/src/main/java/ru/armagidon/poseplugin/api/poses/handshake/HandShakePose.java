@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.reap;
+package ru.armagidon.poseplugin.api.poses.handshake;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.Location;
@@ -16,20 +16,20 @@ import ru.armagidon.poseplugin.api.utils.items.ItemUtil;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
-public class ReapPose extends PluginPose
+public class HandShakePose extends PluginPose
 {
     private final FakePlayer npc;
-    private ReapMode mode;
+    private HandShakeMode mode;
     private final Location to;
 
-    public ReapPose(Player target) {
+    public HandShakePose(Player target) {
         super(target);
         this.npc = PosePluginAPI.getAPI().getNMSFactory().createFakePlayer(target, Pose.STANDING);
 
-        getProperties().registerProperty("mode",new Property<>(ReapMode.RIGHT,this::setMode));
+        getProperties().registerProperty("mode",new Property<>(HandShakeMode.RIGHT,this::setMode));
         getProperties().register();
 
-        this.mode = getProperties().getProperty("mode",ReapMode.class).getValue();
+        this.mode = getProperties().getProperty("mode",HandShakeMode.class).getValue();
         this.to = target.getLocation().clone();
     }
 
@@ -59,7 +59,7 @@ public class ReapPose extends PluginPose
         //Requires PosePluginItems resource-pack
         ItemStack trident = PosePluginAPI.getAPI().getNMSFactory().createItemUtil(new ItemStack(Material.SHIELD)).addTag("PosePluginItem","SHIELD").getSource();
         npc.getCustomEquipmentInterface().setItemInMainHand(trident);
-        npc.setHandActive(mode.equals(ReapMode.RIGHT));
+        npc.setHandActive(mode.equals(HandShakeMode.RIGHT));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ReapPose extends PluginPose
 
     @Override
     public EnumPose getPose() {
-        return EnumPose.REAPING;
+        return EnumPose.HANDSHAKING;
     }
 
     @PersonalEventHandler
@@ -107,12 +107,12 @@ public class ReapPose extends PluginPose
         }
     }
 
-    public void setMode(ReapMode mode) {
+    public void setMode(HandShakeMode mode) {
         this.mode = mode;
-        npc.setHandActive(mode.equals(ReapMode.RIGHT));
+        npc.setHandActive(mode.equals(HandShakeMode.RIGHT));
     }
 
-    public enum ReapMode{
+    public enum HandShakeMode{
         LEFT, RIGHT
     }
 

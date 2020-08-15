@@ -9,7 +9,7 @@ public enum EnumPose
     SWIMMING("swim"),
     WAVING("wave"),
     POINTING("point"),
-    REAPING("reap");
+    HANDSHAKING("handshake");
     private final String name;
 
     EnumPose(String name) {

@@ -11,13 +11,13 @@ import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
+import ru.armagidon.poseplugin.api.poses.handshake.HandShakePose;
 import ru.armagidon.poseplugin.api.poses.point.PointPose;
-import ru.armagidon.poseplugin.api.poses.reap.ReapPose;
 import ru.armagidon.poseplugin.api.poses.wave.WavePose;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.property.Property;
-import ru.armagidon.poseplugin.config.ConfigConstants;
-import ru.armagidon.poseplugin.plugin.messaging.Message;
+import ru.armagidon.poseplugin.configuration.ConfigConstants;
+import ru.armagidon.poseplugin.configuration.messaging.Message;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +36,7 @@ public class PluginCommands
         } else if(c.getName().equalsIgnoreCase("point")){
             pose = EnumPose.POINTING;
         } else {
-            pose = EnumPose.REAPING;
+            pose = EnumPose.HANDSHAKING;
         }
         Class clazz;
         if(pose.equals(EnumPose.WAVING)){
@@ -44,7 +44,7 @@ public class PluginCommands
         } else if(pose.equals(EnumPose.POINTING)){
             clazz = PointPose.PointMode.class;
         } else {
-            clazz = ReapPose.ReapMode.class;
+            clazz = HandShakePose.HandShakeMode.class;
         }
         return checkMode(p, pose, sub, clazz);
     };
@@ -87,7 +87,7 @@ public class PluginCommands
     private final PosePluginCommand ppreload;
     private final PosePluginCommand wave;
     private final PosePluginCommand point;
-    private final PosePluginCommand reap;
+    private final PosePluginCommand handshake;
 
     public PluginCommands() {
         point = new PosePluginCommand("point",exExecutor);
@@ -101,7 +101,9 @@ public class PluginCommands
         lay = new PosePluginCommand("lay",executor);
         swim = new PosePluginCommand("swim",executor);
         sit = new PosePluginCommand("sit",executor);
-        reap = new PosePluginCommand("reap",exExecutor);
+        handshake = new PosePluginCommand("handshake",exExecutor);
+        handshake.setTabCompleter((s,c,l,a)-> Stream.of("left","right","off").filter(st->st.startsWith(a[0])).sorted(String.CASE_INSENSITIVE_ORDER).collect(Collectors.toList()));
+        handshake.setUsage("§9/handshake [right/left/off]");
     }
 
     public void initCommands(){
@@ -113,7 +115,7 @@ public class PluginCommands
             map.register("ppreload","poseplugin",ppreload);
             if(ConfigConstants.isWaveEnabled()) map.register("wave","poseplugin",wave);
             if(ConfigConstants.isPointEnabled()) map.register("point","poseplugin",point);
-            if(ConfigConstants.isReapEnabled()) map.register("reap","poseplugin",reap);
+            if(ConfigConstants.isHandShakeEnabled()) map.register("handshake","poseplugin",handshake);
         } catch (NoSuchMethodError error){
             PosePlugin.getInstance().getLogger().severe("To use commands use Paper or its forks");
         }
@@ -122,7 +124,7 @@ public class PluginCommands
     public void unregisterAll(){
         CommandMap map = Bukkit.getCommandMap();
 
-        Arrays.asList("sit","swim","lay","wave","point","ppreload","reap").forEach(cmd->{
+        Arrays.asList("sit","swim","lay","wave","point","ppreload","handshake").forEach(cmd->{
             map.getKnownCommands().remove("poseplugin:"+cmd);
             map.getKnownCommands().remove(cmd);
         });
