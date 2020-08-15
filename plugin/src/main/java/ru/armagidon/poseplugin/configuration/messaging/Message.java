@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.plugin.messaging;
+package ru.armagidon.poseplugin.configuration.messaging;
 
 public enum Message {
     IN_AIR("in-air"),

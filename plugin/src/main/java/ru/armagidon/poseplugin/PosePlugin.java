@@ -8,11 +8,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.command.PluginCommands;
-import ru.armagidon.poseplugin.config.ConfigConstants;
-import ru.armagidon.poseplugin.config.ConfigManager;
+import ru.armagidon.poseplugin.configuration.ConfigConstants;
+import ru.armagidon.poseplugin.configuration.ConfigManager;
+import ru.armagidon.poseplugin.configuration.messaging.Messages;
 import ru.armagidon.poseplugin.plugin.PluginEventListener;
 import ru.armagidon.poseplugin.plugin.UpdateChecker;
-import ru.armagidon.poseplugin.plugin.messaging.Messages;
 
 public final class PosePlugin extends JavaPlugin implements Listener
 {
@@ -83,6 +83,6 @@ public final class PosePlugin extends JavaPlugin implements Listener
     @NotNull
     @Override
     public FileConfiguration getConfig() {
-        return configManager.getConfig();
+        return configManager.getConfiguration();
     }
 }

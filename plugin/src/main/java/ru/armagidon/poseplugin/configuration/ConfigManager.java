@@ -1,31 +1,19 @@
-package ru.armagidon.poseplugin.config;
+package ru.armagidon.poseplugin.configuration;
 
 import lombok.SneakyThrows;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import ru.armagidon.poseplugin.PosePlugin;
 
-import java.io.File;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class ConfigManager 
+public class ConfigManager extends SelfRepairableConfig
 {
 
-    private final File configFile;
-    private FileConfiguration config;
-
-    @SneakyThrows
     public ConfigManager() {
-        configFile = new File(PosePlugin.getInstance().getDataFolder(), "config.yml");
-        if(!configFile.exists()) configFile.createNewFile();
-        config = YamlConfiguration.loadConfiguration(configFile);
-        fixConfig();
+        super("config");
     }
 
     @SneakyThrows
-    private void fixConfig() {
+    protected YamlConfiguration generateDefaults(FileConfiguration configuration) {
         YamlConfiguration defaults = new YamlConfiguration();
         //Add defaults for config
         {
@@ -52,47 +40,27 @@ public class ConfigManager
                 lay.set("update-overlays", true);
                 lay.set("prevent-use-when-invisible", false);
             }
-            if (config.getBoolean("x-mode")) {
+            if (configuration.getBoolean("x-mode")) {
                 {
                     ConfigurationSection wave = defaults.createSection("wave");
                     wave.set("enabled", true);
                     wave.set("stand-up-when-damaged", true);
+                    wave.set("disable-when-shift",false);
                 }
                 {
                     ConfigurationSection point = defaults.createSection("point");
                     point.set("enabled", true);
                     point.set("stand-up-when-damaged", true);
+                    point.set("disable-when-shift",false);
                 }
                 {
-                    ConfigurationSection reap = defaults.createSection("reap");
-                    reap.set("enabled",true);
-                    reap.set("stand-up-when-damaged",true);
+                    ConfigurationSection handshake = defaults.createSection("handshake");
+                    handshake.set("enabled",true);
+                    handshake.set("stand-up-when-damaged",true);
+                    handshake.set("disable-when-shift",false);
                 }
             }
         }
-        AtomicInteger integer = new AtomicInteger(0);
-        Set<String> defaultKeys = defaults.getKeys(true);
-        Set<String> presentedKeys = config.getKeys(true);
-        defaultKeys.forEach(key->{
-            if(!presentedKeys.contains(key)){
-                integer.incrementAndGet();
-                Object defaultValue = defaults.get(key);
-                config.addDefault(key, defaultValue);
-                config.set(key, defaultValue);
-            }
-        });
-        if(integer.get()!=0) {
-            config.options().copyDefaults(true);
-        }
-        config.save(configFile);
-    }
-
-    public FileConfiguration getConfig() {
-        return config;
-    }
-
-    public void reload() {
-        this.config = YamlConfiguration.loadConfiguration(this.configFile);
-        fixConfig();
+        return defaults;
     }
 }

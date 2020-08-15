@@ -4,11 +4,9 @@ import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
-import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.swim.module.LandModule;
@@ -64,14 +62,6 @@ public class SwimPose extends PluginPose implements Tickable {
     @Override
     public EnumPose getPose() {
         return EnumPose.SWIMMING;
-    }
-
-    @PersonalEventHandler
-    public void onSneak(PlayerToggleSneakEvent event){
-        //Call stop event
-        if (event.getPlayer().isOnGround()) {
-            PluginPose.callStopEvent(getPosePluginPlayer().getPoseType(), getPosePluginPlayer(), StopAnimationEvent.StopCause.STOPPED);
-        }
     }
 
     @EventHandler

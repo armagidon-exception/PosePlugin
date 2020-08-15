@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.plugin.messaging;
+package ru.armagidon.poseplugin.configuration.messaging;
 
 import lombok.SneakyThrows;
 import org.bukkit.ChatColor;
@@ -6,7 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.armagidon.poseplugin.PosePlugin;
-import ru.armagidon.poseplugin.config.ConfigConstants;
+import ru.armagidon.poseplugin.configuration.ConfigConstants;
 
 import java.io.File;
 import java.io.IOException;
