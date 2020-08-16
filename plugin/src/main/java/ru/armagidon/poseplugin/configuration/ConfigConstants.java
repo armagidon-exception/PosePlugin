@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.configuration;
 
 import ru.armagidon.poseplugin.PosePlugin;
-import ru.armagidon.poseplugin.plugin.VersionControl;
 
 public class ConfigConstants
 {
@@ -10,7 +9,7 @@ public class ConfigConstants
     }
 
     public static boolean experimentalMode(){
-        return PosePlugin.getInstance().getConfig().getBoolean("x-mode")&&!VersionControl.checkPackageVersion(VersionControl.V1_16_2);
+        return PosePlugin.getInstance().getConfig().getBoolean("x-mode");
     }
 
     public static boolean isWaveEnabled(){
