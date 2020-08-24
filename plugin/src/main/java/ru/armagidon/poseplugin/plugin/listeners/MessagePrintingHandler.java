@@ -27,6 +27,7 @@ public class MessagePrintingHandler implements Listener
     public void onStop(StopAnimationEvent e){
         PosePluginPlayer p = e.getPlayer();
         if(p.getPose().isAPIModeActivated()) return;
+        if(p.getPose().getPose().equals(EnumPose.STANDING)) return;
         String cause = e.getCustomCause();
         switch (cause){
             case "DAMAGE":{
