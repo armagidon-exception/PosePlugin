@@ -1,6 +1,6 @@
-package ru.armagidon.poseplugin.api.poses.point;
+package ru.armagidon.poseplugin.api.poses.experimental;
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
+import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,37 +9,46 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
+import ru.armagidon.poseplugin.api.events.HandTypeChangeEvent;
+import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
-import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.utils.items.ItemUtil;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
+import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
-public class PointPose extends PluginPose {
+public abstract class ExperimentalPose extends PluginPose
+{
 
+    private final ItemStack handItem;
     private final FakePlayer npc;
-    private PointMode mode;
+    private @Getter
+    HandType HandType;
     private final Location to;
 
-    public PointPose(Player target) {
+    public ExperimentalPose(Player target, ItemStack handItem) {
         super(target);
+        this.handItem = handItem;
         this.npc = PosePluginAPI.getAPI().getNMSFactory().createFakePlayer(target, Pose.STANDING);
 
-        getProperties().registerProperty("mode",new Property<>(PointMode.RIGHT,this::setMode));
+        getProperties().registerProperty("mode",new Property<>(this::getHandType, this::changeMode, this::setMode));
         getProperties().register();
 
-        this.mode = getProperties().getProperty("mode", PointMode.class).getValue();
+        this.HandType = HandType.RIGHT;
         this.to = target.getLocation().clone();
     }
 
     @Override
-    public void initiate() {
+    public final void initiate() {
         super.initiate();
         npc.setHeadRotationEnabled(true);
         npc.setUpdateEquipmentEnabled(false);
         npc.setUpdateOverlaysEnabled(true);
         npc.initiate();
+        PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
+        PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
+        PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
         npc.getCustomEquipmentInterface().setHelmet(getEquipmentBySlot(PlayerArmorChangeEvent.SlotType.HEAD, getPlayer().getEquipment()));
         npc.getCustomEquipmentInterface().setChestPlate(getEquipmentBySlot(PlayerArmorChangeEvent.SlotType.CHEST, getPlayer().getEquipment()));
         npc.getCustomEquipmentInterface().setLeggings(getEquipmentBySlot(PlayerArmorChangeEvent.SlotType.LEGS, getPlayer().getEquipment()));
@@ -47,25 +56,19 @@ public class PointPose extends PluginPose {
     }
 
     @Override
-    public void play(Player receiver) {
-        PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
-        PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
-        PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
+    public final void play(Player receiver) {
         if(receiver==null){
             npc.broadCastSpawn();
         } else {
             npc.spawnToPlayer(receiver);
         }
-
         //Requires PosePluginItems resource-pack
-        ItemStack bow = PosePluginAPI.getAPI().getNMSFactory().createItemUtil(new ItemStack(Material.BOW)).addTag("PosePluginItem","BOW").getSource();
-
-        npc.getCustomEquipmentInterface().setItemInMainHand(bow);
-        npc.setHandActive(mode.equals(PointMode.RIGHT));
+        npc.getCustomEquipmentInterface().setItemInMainHand(handItem);
+        npc.setActiveHand(getHandType());
     }
 
     @Override
-    public void stop() {
+    public final void stop() {
         super.stop();
         PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
@@ -74,13 +77,8 @@ public class PointPose extends PluginPose {
         npc.destroy();
     }
 
-    @Override
-    public EnumPose getPose() {
-        return EnumPose.POINTING;
-    }
-
     @PersonalEventHandler
-    public void onMove(PlayerMoveEvent event){
+    public final void onMove(PlayerMoveEvent event){
         if (event.getTo().getX() != event.getFrom().getX() || event.getTo().getY() != event.getFrom().getY() || event.getTo().getZ() != event.getFrom().getZ()) {
             Location t = to.clone().setDirection(getPlayer().getLocation().getDirection());
             t.setYaw(getPlayer().getLocation().getYaw());
@@ -90,7 +88,7 @@ public class PointPose extends PluginPose {
     }
 
     @PersonalEventHandler
-    public void onArmorChange(PlayerArmorChangeEvent event){
+    public final void onArmorChange(PlayerArmorChangeEvent event){
         if(event.getNewItem()==null) return;
         ItemUtil util = PosePluginAPI.getAPI().getNMSFactory().createItemUtil(event.getNewItem()).removeTag("PosePluginItem");
         switch (event.getSlotType()){
@@ -109,14 +107,14 @@ public class PointPose extends PluginPose {
         }
     }
 
-    public void setMode(PointMode mode) {
-        this.mode = mode;
-        npc.setHandActive(mode.equals(PointMode.RIGHT));
+    public final void setMode(HandType mode) {
+        this.HandType = mode;
+        npc.setActiveHand(mode);
     }
 
-    public enum PointMode{
-        LEFT,
-        RIGHT
+    public final void changeMode(HandType mode){
+        if(!new HandTypeChangeEvent(HandType, mode,getPose(), getPosePluginPlayer()).call()) return;
+        setMode(mode);
     }
 
     private ItemStack getEquipmentBySlot(PlayerArmorChangeEvent.SlotType slot, EntityEquipment eq){
@@ -140,4 +138,5 @@ public class PointPose extends PluginPose {
         }
         return out!=null?out:new ItemStack(Material.AIR);
     }
+
 }
