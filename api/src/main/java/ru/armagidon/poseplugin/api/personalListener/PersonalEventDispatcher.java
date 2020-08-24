@@ -1,9 +1,7 @@
 package ru.armagidon.poseplugin.api.personalListener;
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -11,19 +9,22 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
+import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 
 public class PersonalEventDispatcher implements Listener
 {
-    @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)
+    @EventHandler
     public void onMove(PlayerMoveEvent event){
+        if(event.isCancelled()) return;
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void onDamage(EntityDamageEvent event){
+        if(event.isCancelled()) return;
         if(!(event.getEntity() instanceof Player)) return;
         Player p = (Player) event.getEntity();
         if(playerAbsent(p)) return;
@@ -35,15 +36,17 @@ public class PersonalEventDispatcher implements Listener
         return !PosePluginAPI.getAPI().getPlayerMap().containsPlayer(player);
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+    @EventHandler
     public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        if(event.isCancelled()) return;
         if (playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void gameMode(PlayerGameModeChangeEvent event) {
+        if(event.isCancelled()) return;
         if (playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
@@ -51,52 +54,51 @@ public class PersonalEventDispatcher implements Listener
 
     @EventHandler
     public void onConsume(PlayerItemConsumeEvent event){
+        if(event.isCancelled()) return;
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void onClick(PlayerInteractEvent event){
+        if(event.isCancelled()) return;
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         if(event.getAction().equals(Action.RIGHT_CLICK_AIR)||event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
         }
     }
-    
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onGameModeChange(PlayerGameModeChangeEvent event){
-        if(playerAbsent(event.getPlayer())) return;
-        PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-        PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
-    }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void onSneak(PlayerToggleSneakEvent event){
         //If player's not in player list, ignore him
+        if(event.isCancelled()) return;
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player =PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void death(PlayerDeathEvent event){
         //If player's not in player list, ignore him
+        if(event.isCancelled()) return;
         if(playerAbsent(event.getEntity())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public void onBlockBreak(BlockBreakEvent event){
+        if(event.isCancelled()) return;
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler
     public final void onTeleport(PlayerTeleportEvent event){
+        if(event.isCancelled()) return;
         if(playerAbsent(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         PosePluginAPI.getAPI().getPersonalHandlerList().dispatch(player,event);
