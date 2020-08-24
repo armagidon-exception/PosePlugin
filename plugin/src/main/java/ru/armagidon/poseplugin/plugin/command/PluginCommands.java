@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.command;
+package ru.armagidon.poseplugin.plugin.command;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,13 +11,11 @@ import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.api.poses.handshake.HandShakePose;
-import ru.armagidon.poseplugin.api.poses.point.PointPose;
-import ru.armagidon.poseplugin.api.poses.wave.WavePose;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.property.Property;
-import ru.armagidon.poseplugin.configuration.ConfigConstants;
-import ru.armagidon.poseplugin.configuration.messaging.Message;
+import ru.armagidon.poseplugin.plugin.configuration.ConfigConstants;
+import ru.armagidon.poseplugin.plugin.configuration.messaging.Message;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,15 +36,7 @@ public class PluginCommands
         } else {
             pose = EnumPose.HANDSHAKING;
         }
-        Class clazz;
-        if(pose.equals(EnumPose.WAVING)){
-            clazz= WavePose.WaveMode.class;
-        } else if(pose.equals(EnumPose.POINTING)){
-            clazz = PointPose.PointMode.class;
-        } else {
-            clazz = HandShakePose.HandShakeMode.class;
-        }
-        return checkMode(p, pose, sub, clazz);
+        return checkMode(p, pose, sub);
     };
     private final CommandExecutor executor = (sender, command, lbl, args)->{
         if(sender instanceof Player) {
@@ -108,7 +98,7 @@ public class PluginCommands
 
     public void initCommands(){
         try{
-            CommandMap map = Bukkit.getServer().getCommandMap();
+            CommandMap map = PosePluginAPI.getAPI().getCoreWrapper().getCommandMap();
             map.register("sit", "poseplugin", sit);
             if(ConfigConstants.isSwimEnabled()) map.register("swim","poseplugin",swim);
             map.register("lay","poseplugin",lay);
@@ -122,15 +112,11 @@ public class PluginCommands
     }
 
     public void unregisterAll(){
-        CommandMap map = Bukkit.getCommandMap();
-
-        Arrays.asList("sit","swim","lay","wave","point","ppreload","handshake").forEach(cmd->{
-            map.getKnownCommands().remove("poseplugin:"+cmd);
-            map.getKnownCommands().remove(cmd);
-        });
+        CommandMap map = PosePluginAPI.getAPI().getCoreWrapper().getCommandMap();
+        Arrays.asList(sit,swim,lay,ppreload,wave,point,handshake).forEach(cmd-> cmd.unregister(map));
     }
 
-    private <T extends Enum<T>> boolean checkMode(PosePluginPlayer player, EnumPose pose, String mode, Class<T> clazz){
+    private boolean checkMode(PosePluginPlayer player, EnumPose pose, String mode){
         List<String> args = Arrays.asList("left", "right","off");
         if(!containsIgnoreCase(mode,args)) return false;
         if(!player.getPoseType().equals(pose)){
@@ -140,17 +126,19 @@ public class PluginCommands
                 return true;
             }
             player.changePose(pose);
+            Property<HandType> property = player.getPose().getProperties().getProperty("mode",HandType.class);
+            HandType m = Enum.valueOf(HandType.class, mode.toUpperCase());
+            property.initialize(m);
+            return true;
         } else {
             if(mode.equalsIgnoreCase("off")) {
                 PluginPose.callStopEvent(player.getPoseType(), player, StopAnimationEvent.StopCause.STOPPED);
                 return true;
             }
         }
-        Property<T> property = player.getPose().getProperties().getProperty("mode",clazz);
-        Enum<T> m = Enum.valueOf(clazz, mode.toUpperCase());
-        if (!property.getValue().equals(m)) {
-            property.setValue((T) m);
-        }
+        Property<HandType> property = player.getPose().getProperties().getProperty("mode",HandType.class);
+        HandType m = Enum.valueOf(HandType.class, mode.toUpperCase());
+        if (!property.getValue().equals(m)) property.setValue(m);
         return true;
     }
 

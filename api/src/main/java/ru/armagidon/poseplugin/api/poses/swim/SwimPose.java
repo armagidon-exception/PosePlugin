@@ -26,12 +26,12 @@ public class SwimPose extends PluginPose implements Tickable {
 
     public SwimPose(Player target) {
         super(target);
+        this._static = new AtomicReference<>(false);
         registerProperties();
-        this._static = new AtomicReference<>(getProperties().getProperty("static",Boolean.class).getValue());
     }
 
     private void registerProperties(){
-        getProperties().registerProperty("static", new Property<>(false, this::setStatic));
+        getProperties().registerProperty("static", new Property<>(_static::get, this::setStatic));
         getProperties().register();
     }
 
