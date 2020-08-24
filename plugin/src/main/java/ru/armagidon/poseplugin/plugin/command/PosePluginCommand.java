@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.command;
+package ru.armagidon.poseplugin.plugin.command;
 
 import lombok.Setter;
 import org.bukkit.command.Command;
