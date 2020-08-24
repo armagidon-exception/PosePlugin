@@ -7,12 +7,12 @@ import ru.armagidon.poseplugin.api.events.PostPoseChangeEvent;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.api.poses.handshake.HandShakePose;
+import ru.armagidon.poseplugin.api.poses.experimental.handshake.HandShakePose;
+import ru.armagidon.poseplugin.api.poses.experimental.point.PointPose;
+import ru.armagidon.poseplugin.api.poses.experimental.wave.WavePose;
 import ru.armagidon.poseplugin.api.poses.lay.LayPose;
-import ru.armagidon.poseplugin.api.poses.point.PointPose;
 import ru.armagidon.poseplugin.api.poses.sit.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
-import ru.armagidon.poseplugin.api.poses.wave.WavePose;
 
 //SitPlugin player
 public class PosePluginPlayer
