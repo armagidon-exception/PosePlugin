@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.configuration;
+package ru.armagidon.poseplugin.plugin.configuration;
 
 import ru.armagidon.poseplugin.PosePlugin;
 

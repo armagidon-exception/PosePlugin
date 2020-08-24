@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.configuration;
+package ru.armagidon.poseplugin.plugin.configuration;
 
 import lombok.Getter;
 import lombok.NonNull;
@@ -19,12 +19,15 @@ public abstract class SelfRepairableConfig
 
     @SneakyThrows
     public SelfRepairableConfig(File where, String name) {
+        if(!where.exists()){
+            PosePlugin.getInstance().getLogger().info("Creating data folder..." + where.mkdirs());
+        }
         file = new File(where, name+".yml");
         if(!file.exists()) {
-            if(file.createNewFile()) System.out.println("File "+name+".yml successfully created!");
+            if(file.createNewFile()) PosePlugin.getInstance().getLogger().info("File "+name+".yml successfully created!");
         }
         configuration = YamlConfiguration.loadConfiguration(file);
-        fixConfig(generateDefaults(configuration));
+        repair(generateDefaults(configuration));
     }
 
     public SelfRepairableConfig(String name) {
@@ -32,7 +35,7 @@ public abstract class SelfRepairableConfig
     }
 
     @SneakyThrows
-    private void fixConfig(YamlConfiguration defaults) {
+    private void repair(YamlConfiguration defaults) {
         AtomicInteger integer = new AtomicInteger(0);
         Set<String> defaultKeys = defaults.getKeys(true);
         Set<String> presentedKeys = configuration.getKeys(true);
@@ -54,6 +57,6 @@ public abstract class SelfRepairableConfig
 
     public void reload(){
         this.configuration = YamlConfiguration.loadConfiguration(this.file);
-        fixConfig(generateDefaults(configuration));
+        repair(generateDefaults(configuration));
     }
 }
