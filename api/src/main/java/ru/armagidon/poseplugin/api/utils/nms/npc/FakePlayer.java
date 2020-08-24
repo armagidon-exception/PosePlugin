@@ -54,11 +54,9 @@ public interface FakePlayer extends Tickable
 
     boolean isHandActive();
 
-    boolean isMainHandActive();
+    HandType getActiveHand();
 
-    boolean isOffHandActive();
-
-    void setHandActive(boolean right);
+    void setActiveHand(HandType mode);
 
     void disableHands();
 
@@ -71,4 +69,6 @@ public interface FakePlayer extends Tickable
     Set<Player> getTrackers();
 
     void setPosition(double x, double y, double z);
+
+    boolean isUpdateEquipmentEnabled();
 }

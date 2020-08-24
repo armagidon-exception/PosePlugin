@@ -48,8 +48,7 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
     private @Getter @Setter boolean updateOverlaysEnabled;
     private @Getter @Setter boolean updateEquipmentEnabled;
     private @Getter @Setter boolean swingAnimationEnabled;
-    private @Getter @Setter boolean mainHandActive;
-    private @Getter @Setter boolean offHandActive;
+    private @Getter HandType activeHand;
 
     /**Data**/
     private final @Getter DataWatcher watcher;
@@ -262,17 +261,11 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
     }
 
     @Override
-    public void setHandActive(boolean main) {
-        metadataAccessor.setActiveHand(main);
+    public void setActiveHand(HandType type) {
+        metadataAccessor.setActiveHand(type.getHandModeFlag());
         metadataAccessor.merge(true);
-        if(main){
-            setMainHandActive(true);
-            setOffHandActive(false);
-        } else {
-            setOffHandActive(true);
-            setMainHandActive(false);
-        }
         updateNPC();
+        activeHand = type;
     }
 
     @Override
