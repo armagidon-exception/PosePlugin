@@ -18,11 +18,11 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"translation": [-5.25, 5.25, 11.25],
+			"translation": [-5.75, -3.5, 6],
 			"scale": [0.1, 0.1, 0.1]
 		},
 		"thirdperson_lefthand": {
-			"translation": [-5, -0.25, 12.25],
+			"translation": [-5, -3.5, 4.25],
 			"scale": [0.1, 0.1, 0.1]
 		},
 		"firstperson_righthand": {
