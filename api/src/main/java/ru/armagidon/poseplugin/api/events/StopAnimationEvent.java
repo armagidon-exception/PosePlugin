@@ -1,5 +1,7 @@
 package ru.armagidon.poseplugin.api.events;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -10,23 +12,17 @@ public class StopAnimationEvent extends Event implements Cancellable
 {
     private static final HandlerList handlers = new HandlerList();
 
-    private final EnumPose pose;
-    private final PosePluginPlayer player;
-    private boolean cancelled;
-    private final StopCause cause;
+    private @Getter final EnumPose pose;
+    private @Getter final PosePluginPlayer player;
+    private @Getter @Setter boolean cancelled;
+    private @Getter final StopCause cause;
+    private @Getter final String customCause;
 
-    public StopAnimationEvent(EnumPose pose, PosePluginPlayer player, StopCause cause) {
+    public StopAnimationEvent(EnumPose pose, PosePluginPlayer player, StopCause cause, String custom_cause) {
         this.pose = pose;
         this.player = player;
         this.cause = cause;
-    }
-
-    public EnumPose getPose() {
-        return pose;
-    }
-
-    public PosePluginPlayer getPlayer() {
-        return player;
+        this.customCause = custom_cause;
     }
 
     @Override
@@ -38,33 +34,9 @@ public class StopAnimationEvent extends Event implements Cancellable
         return handlers;
     }
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean b) {
-        this.cancelled = b;
-    }
-
-    public StopCause getCause() {
-        return cause;
-    }
-
     @SuppressWarnings("DanglingJavadoc")
     public enum StopCause{
         STOPPED, /**Called when animation has been stopped by user*/
-
-        TELEPORT, /**Called when animation has been stopped because of teleport*/
-
-        BLOCK_UPDATE, /**Called when animation has been stopped because of breaking block under player*/
-
-        GAMEMODE_CHANGE, /**Called when animation has been stopped because of changing player's gamemode to spectator*/
-
-        DAMAGE, /**Called when animation has been stopped because of damage*/
-
-        DEATH, /**Called when animation has been stopped because of player's death*/
 
         QUIT /**Called when animation has been stopped because of player's quit(you can't cancel it)*/
     }
