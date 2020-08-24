@@ -48,15 +48,15 @@ PosePluginPlayer#changePose(EnumPose, boolean);
 ``` 
  - changes pose to provided pose type with API mode activation
 
-#####API mode
+##### API mode
 API mode is when poses don't react to main plugin event handlers
 
-##NMSFactory
+## NMSFactory
 NMSFactory creates utilities which are using NMS such as:
 1. ```ItemUtil``` - uses to add or remove NBTTags
 2. ```FakePlayer``` - can create NPC.
 
-##Personal events
+## Personal events
 Personal event are event which are calling to one player specifically.
 To listen those you need to subscribe a player to ```PersonalListener```.
 To do this you need to get ```PersonalHandlerList``` instance in ```PosePluginAPI```.
@@ -89,7 +89,7 @@ Here's events that can be listened:
 10. PlayerTeleportEvent
 11. PlayerArmorChangeEvent
 
-##Events
+## Events
 PosePlugin API has some events:
 1. PoseChangeEvent
 2. PosePoseChangeEvent
@@ -97,20 +97,20 @@ PosePlugin API has some events:
 4. HandTypeChangeEvent
 5. PlayerArmorChangeEvent(made for spigot support, but also works with paper)
 
-###PoseChangeEvent
+### PoseChangeEvent
 This event fires when player is changing his pose. Can be cancelled, pose can be set.
-###PostPoseChangeEvent
+### PostPoseChangeEvent
 This event fires when player changed his pose.
-###HandTypeChangeEvent
+### HandTypeChangeEvent
 Fires when player changes hand type of experimental pose
-###StopAnimationEvent
+### StopAnimationEvent
 This event fires when player stops his animation
-####StopCause
+#### StopCause
 STOPPED - Called when animation has been stopped by user
 
 QUIT - Called when animation has been stopped because of the player's quit (you can't cancel it)
 
-#####Custom stop causes
+##### Custom stop causes
 If you need to specify why exactly animation has been stopped, you can use overloaded method
 ```java
 PluginPose.callStopEvent(EnumPose pose, PosePluginPlayer player, StopAnimationEvent.StopCause cause, String custom);

@@ -1,3 +1,0 @@
-1. Argument check
-2. NPC align
-3. Armor hider fix
