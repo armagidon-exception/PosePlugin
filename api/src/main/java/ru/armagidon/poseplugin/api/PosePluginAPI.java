@@ -11,6 +11,9 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
 import ru.armagidon.poseplugin.api.utils.armor.ArmorHider;
+import ru.armagidon.poseplugin.api.utils.core_wrapper.CoreWrapper;
+import ru.armagidon.poseplugin.api.utils.core_wrapper.PaperCoreWrapper;
+import ru.armagidon.poseplugin.api.utils.core_wrapper.SpigotCoreWrapper;
 import ru.armagidon.poseplugin.api.utils.misc.Debugger;
 import ru.armagidon.poseplugin.api.utils.misc.event.EventListener;
 import ru.armagidon.poseplugin.api.utils.nms.NMSFactory;
@@ -35,6 +38,7 @@ public class PosePluginAPI
     private @Getter final PersonalHandlerList personalHandlerList;
     private @Getter final Debugger debugger;
     private @Getter ArmorHider armorHider;
+    private @Getter CoreWrapper coreWrapper;
 
     private PosePluginAPI() {
         this.packetReaderManager = new PacketReaderManager();
@@ -53,6 +57,9 @@ public class PosePluginAPI
         /*PoopCode ends(i hope)*/
         this.armorHider = new ArmorHider();
         //Init nms-factory and player-hider
+        if(checkPaper()) coreWrapper = new PaperCoreWrapper(plugin);
+        else coreWrapper = new SpigotCoreWrapper(plugin);
+
         try {
             this.nmsFactory = new NMSFactory();
             this.playerHider = nmsFactory.createPlayerHider();
@@ -105,5 +112,15 @@ public class PosePluginAPI
 
     public void registerListener(Listener listener){
         Bukkit.getPluginManager().registerEvents(listener, getPlugin());
+    }
+
+    private boolean checkPaper(){
+        boolean isPapermc = false;
+        try {
+            isPapermc = Class.forName("com.destroystokyo.paper.VersionHistoryManager.VersionData") != null;
+        } catch (ClassNotFoundException e) {
+            Bukkit.getLogger().info("Not paper");
+        }
+        return isPapermc;
     }
 }
