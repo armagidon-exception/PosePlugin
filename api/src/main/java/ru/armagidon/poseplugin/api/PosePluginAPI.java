@@ -59,7 +59,6 @@ public class PosePluginAPI
         //Init nms-factory and player-hider
         if(checkPaper()) coreWrapper = new PaperCoreWrapper(plugin);
         else coreWrapper = new SpigotCoreWrapper(plugin);
-
         try {
             this.nmsFactory = new NMSFactory();
             this.playerHider = nmsFactory.createPlayerHider();
@@ -115,12 +114,6 @@ public class PosePluginAPI
     }
 
     private boolean checkPaper(){
-        boolean isPapermc = false;
-        try {
-            isPapermc = Class.forName("com.destroystokyo.paper.VersionHistoryManager.VersionData") != null;
-        } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().info("Not paper");
-        }
-        return isPapermc;
+        return Package.getPackage("com.destroystokyo.paper")!=null;
     }
 }
