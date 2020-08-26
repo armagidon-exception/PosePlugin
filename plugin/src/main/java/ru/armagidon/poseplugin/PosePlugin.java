@@ -25,7 +25,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
     public static UpdateChecker checker;
     private Messages messages;
 
-    private final PluginCommands pcs = new PluginCommands();
+    private PluginCommands pcs;
 
 
     public PosePlugin() {
@@ -44,7 +44,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
         PosePluginAPI.getAPI().init(this);
         getServer().getPluginManager().registerEvents(new PluginEventListener(),this);
         getServer().getPluginManager().registerEvents(new MessagePrintingHandler(),this);
-
+        pcs = new PluginCommands();
         //Init commands
         pcs.initCommands();
         //Check for updates

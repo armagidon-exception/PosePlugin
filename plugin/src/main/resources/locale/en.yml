@@ -18,13 +18,16 @@ wave:
   damage: "§cYou suddenly stood up, because you got damaged"
   handmode-change: "§aYou've changed your hand to wave with"
   stop: "§aYou've stopped waving"
+  usage: "§9/wave [right/left/off]"
 point:
   play: "§bYou started to point with your finger"
   damage: "§cYou suddenly stood up, because you got damaged"
   handmode-change: "§aYou've changed your hand to point with"
   stop: "§aYou've stopped pointing"
+  usage: "§9/point [right/left/off]"
 handshake:
   play: "§bYou started handshaking with you hand."
   damage: "§cYou suddenly stood up, because you got damaged"
   handmode-change: "§aYou've changed your hand to handshake with"
   stop: "§aYou've stopped your handshake"
+  usage: "§9/handshake [right/left/off]"

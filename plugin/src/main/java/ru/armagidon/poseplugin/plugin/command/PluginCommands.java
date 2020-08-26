@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
@@ -80,20 +81,33 @@ public class PluginCommands
     private final PosePluginCommand handshake;
 
     public PluginCommands() {
-        point = new PosePluginCommand("point",exExecutor);
-        point.setUsage("§9/point [right/left/off]");
-        point.setTabCompleter((s,c,l,a)-> Stream.of("left","right","off").filter(st->st.startsWith(a[0])).sorted(String.CASE_INSENSITIVE_ORDER).collect(Collectors.toList()));
-        wave = new PosePluginCommand("wave",exExecutor);
-        wave.setUsage("§9/wave [right/left/off]");
-        wave.setTabCompleter((s,c,l,a)-> Stream.of("left","right","off").filter(st->st.startsWith(a[0])).sorted(String.CASE_INSENSITIVE_ORDER).collect(Collectors.toList()));
-        ppreload = new PosePluginCommand("ppreload",reloadExecutor);
-        ppreload.setPermission("poseplugin.admin");
-        lay = new PosePluginCommand("lay",executor);
-        swim = new PosePluginCommand("swim",executor);
-        sit = new PosePluginCommand("sit",executor);
-        handshake = new PosePluginCommand("handshake",exExecutor);
-        handshake.setTabCompleter((s,c,l,a)-> Stream.of("left","right","off").filter(st->st.startsWith(a[0])).sorted(String.CASE_INSENSITIVE_ORDER).collect(Collectors.toList()));
-        handshake.setUsage("§9/handshake [right/left/off]");
+        {
+            ppreload = new PosePluginCommand("ppreload", reloadExecutor);
+            ppreload.setPermission("poseplugin.admin");
+        }
+        {
+            lay = new PosePluginCommand("lay", executor);
+            swim = new PosePluginCommand("swim", executor);
+            sit = new PosePluginCommand("sit", executor);
+        }
+        {
+            TabCompleter completer = (s, c, l, a) -> Stream.of("left", "right", "off").filter(st -> st.startsWith(a[0])).sorted(String.CASE_INSENSITIVE_ORDER).collect(Collectors.toList());
+            {
+                handshake = new PosePluginCommand("handshake", exExecutor);
+                handshake.setTabCompleter(completer);
+                handshake.setUsage(PosePlugin.getInstance().message().getMessage("handshake.usage"));
+            }
+            {
+                point = new PosePluginCommand("point", exExecutor);
+                point.setUsage(PosePlugin.getInstance().message().getMessage("point.usage"));
+                point.setTabCompleter(completer);
+            }
+            {
+                wave = new PosePluginCommand("wave", exExecutor);
+                wave.setUsage(PosePlugin.getInstance().message().getMessage("wave.usage"));
+                wave.setTabCompleter(completer);
+            }
+        }
     }
 
     public void initCommands(){

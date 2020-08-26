@@ -51,8 +51,12 @@ public class Messages
         }
     }
 
+    public String getMessage(String path){
+        return COLORIZE.apply(localeConfig.getString(path));
+    }
+
     public void send(String path, CommandSender sender) {
-        sender.sendMessage(COLORIZE.apply(localeConfig.getString(path)));
+        sender.sendMessage(getMessage(path));
     }
 
     @SneakyThrows

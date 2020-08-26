@@ -154,7 +154,8 @@ public class PluginEventListener implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onTeleport(PlayerTeleportEvent event){
         if(event.isCancelled()) return;
-        if(event.getFrom().clone().add(.5,0,.5).distance(event.getTo().clone().add(.5,0,.5))>1) return;
+        if(event.getFrom().getWorld().equals(event.getTo().getWorld()))
+            if(event.getFrom().clone().add(.5,0,.5).distance(event.getTo().clone().add(.5,0,.5))<1) return;
         if(!PosePluginAPI.getAPI().getPlayerMap().containsPlayer(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         if(player.getPoseType().equals(EnumPose.STANDING)) return;
