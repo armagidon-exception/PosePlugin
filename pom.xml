@@ -21,7 +21,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <build.number>3</build.number>
+        <build.number>4</build.number>
         <build.prefix>-experimental</build.prefix>
         <build.version>1.8.3 beta</build.version>
         <plugin.name>poseplugin</plugin.name>

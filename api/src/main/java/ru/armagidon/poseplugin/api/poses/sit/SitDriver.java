@@ -45,6 +45,7 @@ public class SitDriver implements Listener, Tickable
     public void standUp() {
         HandlerList.unregisterAll(this);
         if(PosePluginAPI.getAPI().getPlugin().isEnabled()) seat.eject();
+        sitter.eject();
         seat.remove();
         sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection()));
         if(PosePluginAPI.getAPI().getPlugin().isEnabled()) {
