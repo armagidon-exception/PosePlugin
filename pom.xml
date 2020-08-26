@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>4</build.number>
         <build.prefix>-experimental</build.prefix>
-        <build.version>1.8.3 beta</build.version>
+        <build.version>1.8.3</build.version>
         <plugin.name>poseplugin</plugin.name>
         <build.name>${plugin.name}${build.prefix}-${build.version}-b${build.number}</build.name>
         <plugin.version>${build.version}${build.prefix}</plugin.version>
