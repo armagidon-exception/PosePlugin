@@ -52,10 +52,5 @@
             <version>parent</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations-java5</artifactId>
-            <version>19.0.0</version>
-        </dependency>
     </dependencies>
 </project>

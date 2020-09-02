@@ -21,9 +21,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <build.number>4</build.number>
+        <build.number>1</build.number>
         <build.prefix>-experimental</build.prefix>
-        <build.version>1.8.3</build.version>
+        <build.version>1.8.3.1</build.version>
         <plugin.name>poseplugin</plugin.name>
         <build.name>${plugin.name}${build.prefix}-${build.version}-b${build.number}</build.name>
         <plugin.version>${build.version}${build.prefix}</plugin.version>
@@ -72,6 +72,12 @@
             <artifactId>javassist</artifactId>
             <version>3.18.2-GA</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations-java5</artifactId>
+            <version>19.0.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
