@@ -15,9 +15,13 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SitDriver implements Listener, Tickable
 {
+
+    private final static Set<SitDriver> handlingSitDrivers = new HashSet<>();
 
     private final Consumer<EntityDismountEvent> execute;
     private ArmorStand seat;
@@ -39,7 +43,7 @@ public class SitDriver implements Listener, Tickable
             armorStand.setCollidable(false);
             armorStand.addPassenger(sitter);
         }));
-        PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
+        PosePluginAPI.getAPI().getTickingBundle().addToTickingBundle(SitDriver.class, this);
     }
 
     public void standUp() {
@@ -52,7 +56,7 @@ public class SitDriver implements Listener, Tickable
             Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), () ->
                     sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection())), 1);
         }
-        PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
+        PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(SitDriver.class, this);
     }
 
     @EventHandler

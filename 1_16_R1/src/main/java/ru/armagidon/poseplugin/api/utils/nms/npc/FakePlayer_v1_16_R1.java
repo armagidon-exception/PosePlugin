@@ -118,7 +118,7 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
         //Add this NPC to NPC Registry
         FAKE_PLAYERS.put(parent,this);
         //Register this NPC object as ticker.
-        PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
+        PosePluginAPI.getAPI().getTickingBundle().addToTickingBundle(FakePlayer_v1_16_R1.class, this);
         //Add all players nearby to trackers list
         trackers.addAll(VectorUtils.getNear(getViewDistance(), parent));
     }
@@ -127,7 +127,7 @@ public class FakePlayer_v1_16_R1 implements FakePlayer, Listener
     @Override
     public void destroy() {
         trackers.clear();
-        PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
+        PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(FakePlayer_v1_16_R1.class, this);
         HandlerList.unregisterAll(this);
         FAKE_PLAYERS.remove(this);
     }

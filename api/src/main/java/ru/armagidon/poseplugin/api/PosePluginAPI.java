@@ -10,6 +10,7 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
+import ru.armagidon.poseplugin.api.ticking.TickingBundle;
 import ru.armagidon.poseplugin.api.utils.armor.ArmorHider;
 import ru.armagidon.poseplugin.api.utils.core_wrapper.CoreWrapper;
 import ru.armagidon.poseplugin.api.utils.core_wrapper.PaperCoreWrapper;
@@ -37,6 +38,7 @@ public class PosePluginAPI
     private @Getter final NameTagHider nameTagHider;
     private @Getter final PersonalHandlerList personalHandlerList;
     private @Getter final Debugger debugger;
+    private @Getter TickingBundle tickingBundle;
     private @Getter ArmorHider armorHider;
     private @Getter CoreWrapper coreWrapper;
 
@@ -56,6 +58,7 @@ public class PosePluginAPI
         this.plugin = plugin;
         /*PoopCode ends(i hope)*/
         this.armorHider = new ArmorHider();
+        this.tickingBundle = new TickingBundle();
         //Init nms-factory and player-hider
         if(checkPaper()) coreWrapper = new PaperCoreWrapper(plugin);
         else coreWrapper = new SpigotCoreWrapper(plugin);

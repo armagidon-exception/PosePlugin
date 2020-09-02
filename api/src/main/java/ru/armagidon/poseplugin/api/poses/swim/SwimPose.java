@@ -9,6 +9,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
+import ru.armagidon.poseplugin.api.poses.sit.SitDriver;
 import ru.armagidon.poseplugin.api.poses.swim.module.LandModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.SwimModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.WaterModule;
@@ -39,7 +40,7 @@ public class SwimPose extends PluginPose implements Tickable {
     @Override
     public void initiate() {
         super.initiate();
-        PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
+        PosePluginAPI.getAPI().getTickingBundle().addToTickingBundle(SwimPose.class, this);
         if(isInWater(getPlayer())){
             module = new WaterModule(getPosePluginPlayer());
         } else {
@@ -56,7 +57,7 @@ public class SwimPose extends PluginPose implements Tickable {
     public void stop() {
         super.stop();
         module.stop();
-        PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
+        PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(SitDriver.class, this);
     }
 
     @Override
