@@ -2,7 +2,10 @@ package ru.armagidon.poseplugin.api.poses.lay;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.MainHand;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
@@ -67,6 +70,13 @@ public class LayPose extends PluginPose {
     @Override
     public EnumPose getPose() {
         return EnumPose.LYING;
+    }
+
+    @EventHandler
+    public void onArmSwing(PlayerAnimationEvent event){
+        if(event.getPlayer().equals(getPlayer())){
+            fakePlayer.swingHand(event.getPlayer().getMainHand().equals(MainHand.RIGHT));
+        }
     }
 
     @PersonalEventHandler

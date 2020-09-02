@@ -19,8 +19,6 @@ import ru.armagidon.poseplugin.api.utils.misc.Debugger;
 import ru.armagidon.poseplugin.api.utils.misc.event.EventListener;
 import ru.armagidon.poseplugin.api.utils.nms.NMSFactory;
 import ru.armagidon.poseplugin.api.utils.nms.PlayerHider;
-import ru.armagidon.poseplugin.api.utils.packetManagement.PacketReaderManager;
-import ru.armagidon.poseplugin.api.utils.packetManagement.readers.SwingPacketReader;
 import ru.armagidon.poseplugin.api.utils.scoreboard.NameTagHider;
 
 import java.lang.reflect.Method;
@@ -30,7 +28,6 @@ public class PosePluginAPI
 {
     private static final PosePluginAPI api = new PosePluginAPI();
 
-    private @Getter final PacketReaderManager packetReaderManager;
     private NMSFactory nmsFactory;
     private @Getter PlayerHider playerHider;
     private @Getter final P3Map playerMap;
@@ -43,7 +40,6 @@ public class PosePluginAPI
     private @Getter CoreWrapper coreWrapper;
 
     private PosePluginAPI() {
-        this.packetReaderManager = new PacketReaderManager();
         this.playerMap = new P3Map();
         this.tickManager = new TickModuleManager();
         this.nameTagHider = new NameTagHider();
@@ -72,12 +68,7 @@ public class PosePluginAPI
         }
         //Foreach online players
 
-        registerPacketListeners();
-
-        Bukkit.getOnlinePlayers().forEach(player->{
-            packetReaderManager.inject(player);
-            playerMap.addPlayer(player);
-        });
+        Bukkit.getOnlinePlayers().forEach(playerMap::addPlayer);
         //Register main events
         Bukkit.getServer().getPluginManager().registerEvents(new EventListener(),plugin);
         //Register PersonalEventDispatcher
@@ -86,7 +77,6 @@ public class PosePluginAPI
 
     public void shutdown(){
         getPlayerMap().forEach(p -> p.getPose().stop());
-        Bukkit.getOnlinePlayers().forEach(packetReaderManager::eject);
     }
 
     public static PosePluginAPI getAPI() {
@@ -99,10 +89,6 @@ public class PosePluginAPI
 
     public Logger getLogger(){
         return getPlugin().getLogger();
-    }
-
-    private void registerPacketListeners(){
-        getPacketReaderManager().registerPacketReader(new SwingPacketReader());
     }
 
     @SneakyThrows

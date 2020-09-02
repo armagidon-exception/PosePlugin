@@ -6,10 +6,9 @@
 2. ```PlayerHider``` - hides player from others using packets
 3. ```NameTagHider``` - hides player's name tag from himself(uses to hide NPC's name-tag. Also, disables collision with npc)
 4. ```TickModuleManager``` - ticking utility
-5. ```PacketReaderManager``` - utility to read some packets
-6. ```PersonalHandlerList``` - calls events for the player specifically.
-7. ```NMSFactory``` - creates some classes which are using NMS
-8. ```P3Map``` - contains all PosePluginPlayer instances
+5. ```PersonalHandlerList``` - calls events for the player specifically.
+6. ```NMSFactory``` - creates some classes which are using NMS
+7. ```P3Map``` - contains all PosePluginPlayer instances
 
 
 

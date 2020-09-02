@@ -20,7 +20,6 @@ public class EventListener implements Listener
     public void join(PlayerJoinEvent event){
         //Add player to playerlist
         PosePluginAPI.getAPI().getPlayerMap().addPlayer(event.getPlayer());
-        PosePluginAPI.getAPI().getPacketReaderManager().inject(event.getPlayer());
     }
 
     @EventHandler
@@ -32,8 +31,6 @@ public class EventListener implements Listener
             //Remove player from playerlist
             PosePluginAPI.getAPI().getPlayerMap().removePlayer(event.getPlayer());
         }
-        //Eject all packet reader out of player's pipeline
-        PosePluginAPI.getAPI().getPacketReaderManager().eject(event.getPlayer());
     }
 
     private boolean containsPlayer(Player player) {
