@@ -1,6 +1,9 @@
-# PosePlugin [Minecraft 1.15.2-1.16.3]
+  <h1>PosePlugin [Minecraft 1.15.2-1.16.3]</h1>
+  <h3>Choose your favorite pose</h3>
 
-PosePlugin is powerful open-source plugin that can help you change your pose to whatever you want. There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.
+[![Discord](https://img.shields.io/discord/720917120862519347?color=%237289DA&label=Discord&logo=discord&logoColor=white)](https://discord.io/stumpstudio)
+
+<p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. </br> There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.</p>
 
 ## PosePluginAPI
 ```PosePluginAPI``` class has access for following classes:
