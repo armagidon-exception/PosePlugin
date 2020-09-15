@@ -5,6 +5,14 @@
 
 <p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. </br> There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.</p>
 
+## Give it a try ##
+
+Available at the following options:
+
+* **[SpigotMC](https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose-1-15-2-1-16-3.76990/)** - Download plugin from SpigotMC
+* **[GitHub Releases](https://github.com/armagidon-exception/PosePlugin/releases)** - Download plugin from GitHub Releases
+
+
 ## PosePluginAPI
 ```PosePluginAPI``` class has access for following classes:
 
