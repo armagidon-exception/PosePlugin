@@ -42,7 +42,11 @@ public class PosePluginPlayer
     }
 
     public void changePose(EnumPose pose, boolean apiMode){
-        if(apiMode) this.pose.setAPIMode(true);
+        if(apiMode){
+            if(!this.pose.getPose().equals(EnumPose.STANDING)) {
+                this.pose.setAPIMode(true);
+            }
+        }
         PoseChangeEvent event = new PoseChangeEvent(this.pose.getPose(), pose, this);
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled()) return;
