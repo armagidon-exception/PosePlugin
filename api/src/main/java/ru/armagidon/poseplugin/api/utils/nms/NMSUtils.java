@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.utils.nms;
 
 
-import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
@@ -23,13 +22,13 @@ public class NMSUtils
 
     @SneakyThrows
     public static void setPlayerPose(Player target, Pose pose) {
-            Object handle = asNMSCopy(target);
-            Class<?> entityClass = getNmsClass("Entity");
-            Method setPose = entityClass.getDeclaredMethod("setPose", getNmsClass("EntityPose"));
-            setPose.setAccessible(true);
+        Object handle = asNMSCopy(target);
+        Class<?> entityClass = getNmsClass("Entity");
+        Method setPose = entityClass.getDeclaredMethod("setPose", getNmsClass("EntityPose"));
+        setPose.setAccessible(true);
 
-            Enum<?> value = getEnumValues(getEnum("EntityPose"))[pose.ordinal()];
-            setPose.invoke(handle, value);
+        Enum<?> value = getEnumValues(getEnum("EntityPose"))[pose.ordinal()];
+        setPose.invoke(handle, value);
     }
 
     @SneakyThrows
@@ -47,26 +46,29 @@ public class NMSUtils
     }
 
     @SneakyThrows
-    public static int getPlayerID(Player player) {
-        return (int) getNmsClass("Entity").getDeclaredMethod("getId").invoke(asNMSCopy(player));
-    }
-
-    @SneakyThrows
     public static Object createPacketInstance(String name, Class<?>[] types, Object... params) {
         return getNmsClass(name).getConstructor(types).newInstance(params);
     }
 
     @SneakyThrows
-    public static void sendPacket(Player receiver, Object packet){
-            Object nmsPlayer = asNMSCopy(receiver);
-            Object plrConnection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
-            plrConnection.getClass().getMethod("sendPacket", getNmsClass("Packet")).invoke(plrConnection, packet);
+    public static void sendPacket(Player receiver, Object packet) {
+        Object nmsPlayer = asNMSCopy(receiver);
+        Object plrConnection = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
+        plrConnection.getClass().getMethod("sendPacket", getNmsClass("Packet")).invoke(plrConnection, packet);
     }
 
-    public static Channel getPlayersChannel(Player player) throws IllegalAccessException, NoSuchFieldException {
-        Object handle = NMSUtils.asNMSCopy(player);
-        Object playerConnection = handle.getClass().getDeclaredField("playerConnection").get(handle);
-        Object networkManager = playerConnection.getClass().getDeclaredField("networkManager").get(playerConnection);
-        return (Channel) networkManager.getClass().getDeclaredField("channel").get(networkManager);
+    @SneakyThrows
+    public static Object createPosePacket(Player target, Pose pose){
+        Object dataWatcher = getNmsClass("Entity").getDeclaredMethod("getDataWatcher").invoke(asNMSCopy(target));
+        //DataWatcherRegistry.s.a(int)
+        Object serializer = getNmsClass("DataWatcherRegistry").getDeclaredField("s").get(null);
+
+        Object entityPose = getEnumValues(getEnum("EntityPose"))[pose.ordinal()];
+
+        Object datawatcherObject = getNmsClass("DataWatcherSerializer").getDeclaredMethod("a",int.class).invoke(serializer, 6);
+
+        dataWatcher.getClass().getDeclaredMethod("set",getNmsClass("DataWatcherObject"),Object.class).invoke(dataWatcher, datawatcherObject, entityPose);
+
+        return createPacketInstance("PacketPlayOutEntityMetadata", new Class[]{int.class, getNmsClass("DataWatcher"), boolean.class}, target.getEntityId(), dataWatcher, true);
     }
 }
