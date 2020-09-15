@@ -1,4 +1,4 @@
-# PosePlugin
+# PosePlugin [Minecraft 1.15.2-1.16.3]
 
 PosePlugin is powerful open-source plugin that can help you change your pose to whatever you want. There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.
 
