@@ -48,8 +48,7 @@ public class LandModule extends SwimModule {
         Block above = getAbove(target.getHandle().getLocation()).getBlock();
         this.cache = new BlockCache(above.getBlockData(), above.getLocation());
         this._static = _static;
-        NMSUtils.setPlayerPose(target.getHandle(), Pose.SWIMMING);
-        this.swimPacket = NMSUtils.createPosePacket(target.getHandle(), false);
+        this.swimPacket = NMSUtils.createPosePacket(target.getHandle(), Pose.SWIMMING);
     }
 
     @Override
@@ -61,8 +60,7 @@ public class LandModule extends SwimModule {
 
     @Override
     public void stop() {
-        NMSUtils.setPlayerPose(getTarget().getHandle(), Pose.SNEAKING);
-        Object resetPacket = NMSUtils.createPosePacket(getTarget().getHandle(), true);
+        Object resetPacket = NMSUtils.createPosePacket(getTarget().getHandle(), Pose.SNEAKING);
         getReceivers().forEach(p->NMSUtils.sendPacket(p, resetPacket));
         cache.restore(getTarget().getHandle());
         HandlerList.unregisterAll(this);
@@ -71,7 +69,7 @@ public class LandModule extends SwimModule {
 
     @Override
     public void tick() {
-        getReceivers().forEach(p->NMSUtils.sendPacket(p, swimPacket));
+        getReceivers().forEach(p-> NMSUtils.sendPacket(p, swimPacket));
         Block above = getAbove(getTarget().getHandle().getLocation()).getBlock();
         if(previous!=null&&compareLocations(previous, getTarget().getHandle().getLocation())) {
             if (!above.getType().isSolid() || IsUnSolidBlock(above.getBlockData()))

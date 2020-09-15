@@ -9,7 +9,6 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.api.poses.sit.SitDriver;
 import ru.armagidon.poseplugin.api.poses.swim.module.LandModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.SwimModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.WaterModule;
@@ -57,7 +56,7 @@ public class SwimPose extends PluginPose implements Tickable {
     public void stop() {
         super.stop();
         module.stop();
-        PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(SitDriver.class, this);
+        PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(SwimPose.class, this);
     }
 
     @Override
