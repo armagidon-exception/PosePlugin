@@ -15,6 +15,7 @@ import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.HandTypeChangeEvent;
 import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
+import ru.armagidon.poseplugin.api.events.PostPoseChangeEvent;
 import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
@@ -43,10 +44,9 @@ public class MessagePrintingHandler implements Listener
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onAnimationStart(PoseChangeEvent event){
-        if(event.isCancelled()) return;
+    public void onAnimationStart(PostPoseChangeEvent event){
         if(event.getPlayer().getPose().isAPIModeActivated()) return;
-        String sec = event.getAfter().getName();
+        String sec = event.getPose().getName();
         PosePlugin.getInstance().message().send(sec+".play",event.getPlayer().getHandle());
     }
 
