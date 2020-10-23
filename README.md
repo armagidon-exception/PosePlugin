@@ -1,6 +1,22 @@
-# PosePlugin
+  <h1>PosePlugin [Minecraft 1.15.2-1.16.3]</h1>
+  <h3>Choose your favorite pose</h3>
 
-PosePlugin is powerful open-source plugin that can help you change your pose to whatever you want. There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.
+[![Discord](https://img.shields.io/discord/720917120862519347?color=%237289DA&label=Discord&logo=discord&logoColor=white)](https://discord.io/stumpstudio)
+![img](http://badge.henrya.org/spigot/downloads?id=76990&color=green)
+![img2](https://img.shields.io/spiget/version/76990?color=blue&label=current%20version)
+
+<p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. </br> There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.</p>
+
+## Video review about the plugin ##
+In Nederlands/Dutch languages
+
+[![Netherlands review](https://img.youtube.com/vi/VLg3LIp6QIY/0.jpg)](https://www.youtube.com/watch?v=VLg3LIp6QIY)
+
+## Give it a try ##
+Available at the following options:
+
+* **[SpigotMC](https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose-1-15-2-1-16-3.76990/)** - Download plugin on SpigotMC
+* **[GitHub Releases](https://github.com/armagidon-exception/PosePlugin/releases)** - Download source code PosePlugin
 
 ## PosePluginAPI
 ```PosePluginAPI``` class has access for following classes:
@@ -12,8 +28,6 @@ PosePlugin is powerful open-source plugin that can help you change your pose to 
 5. ```PersonalHandlerList``` - calls events for the player specifically.
 6. ```NMSFactory``` - creates some classes which are using NMS
 7. ```P3Map``` - contains all PosePluginPlayer instances
-
-
 
 ## P3Map
 ```P3Map``` contains all PosePluginPlayer instances. To get one:
