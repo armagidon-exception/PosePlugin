@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.api.poses.experimental;
 
+import de.tr7zw.changeme.nbtapi.NBTItem;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -7,52 +8,51 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import ru.armagidon.armagidonapi.itemutils.ItemBuilder;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.events.HandTypeChangeEvent;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
-import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.api.utils.items.ItemUtil;
-import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
-import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
+import ru.armagidon.poseplugin.api.poses.AbstractPose;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
+import ru.armagidon.poseplugin.api.utils.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
-public abstract class ExperimentalPose extends PluginPose
+public abstract class ExperimentalPose extends AbstractPose
 {
 
     private final ItemStack handItem;
     private final FakePlayer npc;
-    private @Getter
-    HandType HandType;
+    private @Getter HandType handType;
     private final Location to;
 
-    public ExperimentalPose(Player target, ItemStack handItem) {
+    public ExperimentalPose(Player target, Material type) {
         super(target);
-        this.handItem = handItem;
-        this.npc = PosePluginAPI.getAPI().getNMSFactory().createFakePlayer(target, Pose.STANDING);
+        this.handItem = addHideTag(ItemBuilder.create(type).asItemStack());
+        this.npc = FakePlayer.createNew(target, Pose.STANDING);
 
-        getProperties().registerProperty("mode",new Property<>(this::getHandType, this::changeMode, this::setMode));
+        getProperties().registerProperty("mode",new Property<>(this::getHandType, this::setMode));
         getProperties().register();
 
-        this.HandType = HandType.RIGHT;
+        this.handType = HandType.RIGHT;
         this.to = target.getLocation().clone();
+
     }
 
     @Override
     public final void initiate() {
         super.initiate();
         npc.setHeadRotationEnabled(true);
-        npc.setUpdateEquipmentEnabled(false);
-        npc.setUpdateOverlaysEnabled(true);
+        npc.setSynchronizationEquipmentEnabled(false);
+        npc.setSynchronizationOverlaysEnabled(true);
         npc.initiate();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
-        npc.getCustomEquipmentInterface().setHelmet(getEquipmentBySlot(PlayerArmorChangeEvent.SlotType.HEAD, getPlayer().getEquipment()));
-        npc.getCustomEquipmentInterface().setChestPlate(getEquipmentBySlot(PlayerArmorChangeEvent.SlotType.CHEST, getPlayer().getEquipment()));
-        npc.getCustomEquipmentInterface().setLeggings(getEquipmentBySlot(PlayerArmorChangeEvent.SlotType.LEGS, getPlayer().getEquipment()));
-        npc.getCustomEquipmentInterface().setBoots(getEquipmentBySlot(PlayerArmorChangeEvent.SlotType.FEET, getPlayer().getEquipment()));
+        for (PlayerArmorChangeEvent.SlotType value : PlayerArmorChangeEvent.SlotType.values()) {
+            updateNPCsArmor(value, getEquipmentBySlot(value, getPlayer().getEquipment()));
+        }
     }
 
     @Override
@@ -63,7 +63,7 @@ public abstract class ExperimentalPose extends PluginPose
             npc.spawnToPlayer(receiver);
         }
         //Requires PosePluginItems resource-pack
-        npc.getCustomEquipmentInterface().setItemInMainHand(handItem);
+        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.HAND, handItem);
         npc.setActiveHand(getHandType());
     }
 
@@ -90,38 +90,22 @@ public abstract class ExperimentalPose extends PluginPose
     @PersonalEventHandler
     public final void onArmorChange(PlayerArmorChangeEvent event){
         if(event.getNewItem()==null) return;
-        ItemUtil util = PosePluginAPI.getAPI().getNMSFactory().createItemUtil(event.getNewItem()).removeTag("PosePluginItem");
-        switch (event.getSlotType()){
-            case HEAD:
-                npc.getCustomEquipmentInterface().setHelmet(util.getSource());
-                break;
-            case CHEST:
-                npc.getCustomEquipmentInterface().setChestPlate(util.getSource());
-                break;
-            case LEGS:
-                npc.getCustomEquipmentInterface().setLeggings(util.getSource());
-                break;
-            case FEET:
-                npc.getCustomEquipmentInterface().setBoots(util.getSource());
-                break;
-        }
+
+        PosePluginAPI.pluginTagClear.pushThrough(event.getNewItem());
+
+        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(event.getSlotType().name()), event.getNewItem());
     }
 
     public final void setMode(HandType mode) {
-        this.HandType = mode;
+        this.handType = mode;
         npc.setActiveHand(mode);
-    }
-
-    public final void changeMode(HandType mode){
-        if(!new HandTypeChangeEvent(HandType, mode,getPose(), getPosePluginPlayer()).call()) return;
-        setMode(mode);
     }
 
     private ItemStack getEquipmentBySlot(PlayerArmorChangeEvent.SlotType slot, EntityEquipment eq){
         ItemStack out;
         switch (slot){
             case HEAD:
-                out =  eq.getHelmet();
+                out = eq.getHelmet();
                 break;
             case CHEST:
                 out = eq.getChestplate();
@@ -136,7 +120,17 @@ public abstract class ExperimentalPose extends PluginPose
                 out = new ItemStack(Material.AIR);
                 break;
         }
-        return out!=null?out:new ItemStack(Material.AIR);
+        return out !=null ? out : new ItemStack(Material.AIR);
+    }
+
+    private void updateNPCsArmor(PlayerArmorChangeEvent.SlotType slotType, ItemStack stack){
+        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(slotType.name()), stack);
+    }
+
+    protected static ItemStack addHideTag(ItemStack stack){
+        NBTItem item = new NBTItem(stack, true);
+        item.setString("PosePluginItem", stack.getType().name());
+        return item.getItem();
     }
 
 }

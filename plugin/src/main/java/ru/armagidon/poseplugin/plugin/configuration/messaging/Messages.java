@@ -7,12 +7,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.plugin.configuration.ConfigConstants;
+import ru.armagidon.poseplugin.plugin.configuration.strategies.ConfigRepairStrategy;
+import ru.armagidon.poseplugin.plugin.configuration.strategies.SimpleConfigRepairStrategy;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.util.Set;
 import java.util.function.Function;
 
 public class Messages
@@ -21,6 +22,7 @@ public class Messages
     private final File localeFolder;
     private File localeFile;
     private final Function<String, String> COLORIZE = (string)-> ChatColor.translateAlternateColorCodes('&',string);
+    private final ConfigRepairStrategy configRepairStrategy;
 
     public Messages(String locale) {
         localeFolder = new File(PosePlugin.getInstance().getDataFolder(), "/locale");
@@ -33,7 +35,7 @@ public class Messages
             localeFile = new File(localeFolder, "en.yml");
         }
         this.localeConfig = YamlConfiguration.loadConfiguration(localeFile);
-        repair();
+        this.configRepairStrategy = new SimpleConfigRepairStrategy();
     }
 
     public void send(Message message, CommandSender sender) {
@@ -68,16 +70,7 @@ public class Messages
 
     @SneakyThrows
     public void repair(){
-        YamlConfiguration original = YamlConfiguration.loadConfiguration(new InputStreamReader(getClass().getResourceAsStream("/locale/en.yml")));
-        Set<String> originalKeys = original.getKeys(true);
-        Set<String> currentKeys = localeConfig.getKeys(true);
-        int counter = 0;
-        for (String key : originalKeys) {
-            if(!currentKeys.contains(key)){
-                counter++;
-                localeConfig.set(key, original.get(key));
-            }
-        }
-        if(counter!=0) localeConfig.save(localeFile);
+        YamlConfiguration defaults = YamlConfiguration.loadConfiguration(new InputStreamReader(getClass().getResourceAsStream("/locale/en.yml")));
+        configRepairStrategy.repair(defaults,localeConfig,localeFile);
     }
 }

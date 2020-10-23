@@ -65,10 +65,35 @@ public class NMSUtils
 
         Object entityPose = getEnumValues(getEnum("EntityPose"))[pose.ordinal()];
 
-        Object datawatcherObject = getNmsClass("DataWatcherSerializer").getDeclaredMethod("a",int.class).invoke(serializer, 6);
+        Object datawatcherObject = getDataWatcherObject("s", 6);
 
         dataWatcher.getClass().getDeclaredMethod("set",getNmsClass("DataWatcherObject"),Object.class).invoke(dataWatcher, datawatcherObject, entityPose);
 
         return createPacketInstance("PacketPlayOutEntityMetadata", new Class[]{int.class, getNmsClass("DataWatcher"), boolean.class}, target.getEntityId(), dataWatcher, true);
+    }
+
+    @SneakyThrows
+    public static byte getMetadataValueFromPlayer(Player player, int byteIndex){
+        Object vanillaPlayer = asNMSCopy(player);
+        Object dataWatcher = getDataWatcher(vanillaPlayer);
+
+        Object datawatcherObject = getDataWatcherObject("a", byteIndex);
+
+        return (Byte) dataWatcher.getClass().getDeclaredMethod("get",getNmsClass("DataWatcherObject")).invoke(dataWatcher, datawatcherObject);
+    }
+
+    @SneakyThrows
+    private static Object getDataWatcher(Object vanillaPlayer){
+        return getNmsClass("Entity").getDeclaredMethod("getDataWatcher").invoke(vanillaPlayer);
+    }
+
+    @SneakyThrows
+    private static Object getSerializer(String fieldName){
+        return getNmsClass("DataWatcherRegistry").getDeclaredField(fieldName).get(null);
+    }
+
+    @SneakyThrows
+    public static Object getDataWatcherObject(String fieldName, int index){
+        return getNmsClass("DataWatcherSerializer").getDeclaredMethod("a",int.class).invoke(getSerializer(fieldName), index);
     }
 }

@@ -4,15 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
 import ru.armagidon.poseplugin.api.events.PostPoseChangeEvent;
+import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
+import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
-import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.api.poses.experimental.handshake.HandShakePose;
-import ru.armagidon.poseplugin.api.poses.experimental.point.PointPose;
-import ru.armagidon.poseplugin.api.poses.experimental.wave.WavePose;
-import ru.armagidon.poseplugin.api.poses.lay.LayPose;
-import ru.armagidon.poseplugin.api.poses.sit.SitPose;
-import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 
 //SitPlugin player
 public class PosePluginPlayer
@@ -24,7 +19,7 @@ public class PosePluginPlayer
 
     public PosePluginPlayer(Player player) {
         this.player = player;
-        this.pose = PluginPose.standing;
+        this.pose = AbstractPose.STANDING;
     }
 
     public Player getHandle(){
@@ -41,50 +36,47 @@ public class PosePluginPlayer
         this.pose = newPose;
     }
 
-    public void changePose(EnumPose pose, boolean apiMode){
-        if(apiMode){
-            if(!this.pose.getPose().equals(EnumPose.STANDING)) {
-                this.pose.setAPIMode(true);
-            }
-        }
-        PoseChangeEvent event = new PoseChangeEvent(this.pose.getPose(), pose, this);
+    /**
+     * @return Whether the pose has been changed
+     * */
+    public boolean changePose(IPluginPose pose){
+
+        if(pose == null) return false;
+
+        //Event calling section
+        PoseChangeEvent event = new PoseChangeEvent(this.pose.getType(), pose, this);
         Bukkit.getPluginManager().callEvent(event);
-        if(event.isCancelled()) return;
+        if(event.isCancelled()) return false;
+        //If player is sleeping then stop sleeping
         if(player.isSleeping()) player.wakeup(true);
+        IPluginPose newPose = event.getNewPose();
+        //Stop pose
         this.pose.stop();
-        IPluginPose newPose;
-        switch (event.getAfter()) {
-            case LYING:
-                newPose = new LayPose(player);
-                break;
-            case SWIMMING:
-                newPose = new SwimPose(player);
-                break;
-            case SITTING:
-                newPose = new SitPose(player);
-                break;
-            case WAVING:
-                newPose = new WavePose(player);
-                break;
-            case POINTING:
-                newPose = new PointPose(player);
-                break;
-            case HANDSHAKING:
-                newPose = new HandShakePose(player);
-                break;
-            default:
-                newPose = PluginPose.standing;
-                break;
-        }
-        newPose.setAPIMode(apiMode);
-        setPose(newPose);
-        Bukkit.getPluginManager().callEvent(new PostPoseChangeEvent(this, event.getAfter()));
+
+        this.setPose(newPose);
+
         this.pose.initiate();
         this.pose.play(null);
+
+        PostPoseChangeEvent postChangeEvent = new PostPoseChangeEvent(this, this.getPose());
+        Bukkit.getPluginManager().callEvent(postChangeEvent);
+
+        return true;
     }
 
-    public void changePose(EnumPose pose){
-        changePose(pose, false);
+
+    /**
+     * @return Whether the pose-resetting has been done
+     *
+     */
+    public boolean resetCurrentPose(boolean cancellable)
+    {
+        if ( getPoseType().equals(EnumPose.STANDING) ) return true;
+        StopAnimationEvent stopEvent = new StopAnimationEvent(getPoseType(), this, cancellable);
+        Bukkit.getPluginManager().callEvent(stopEvent);
+        if ( stopEvent.isCancelled() ) return false;
+        getPose().stop();
+        return true;
     }
 
     public IPluginPose getPose() {
@@ -92,6 +84,6 @@ public class PosePluginPlayer
     }
 
     public EnumPose getPoseType(){
-        return getPose().getPose();
+        return getPose().getType();
     }
 }

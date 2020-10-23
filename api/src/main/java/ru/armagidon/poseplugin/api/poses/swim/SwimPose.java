@@ -6,32 +6,25 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
+import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.swim.module.LandModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.SwimModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.WaterModule;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
-import ru.armagidon.poseplugin.api.utils.property.Property;
 
-import java.util.concurrent.atomic.AtomicReference;
+public class SwimPose extends AbstractPose implements Tickable {
 
-public class SwimPose extends PluginPose implements Tickable {
-
-    private final AtomicReference<Boolean> _static;
     private SwimModule module;
 
     public SwimPose(Player target) {
         super(target);
-        this._static = new AtomicReference<>(false);
         registerProperties();
     }
 
     private void registerProperties(){
-        getProperties().registerProperty("static", new Property<>(_static::get, this::setStatic));
         getProperties().register();
     }
 
@@ -43,7 +36,7 @@ public class SwimPose extends PluginPose implements Tickable {
         if(isInWater(getPlayer())){
             module = new WaterModule(getPosePluginPlayer());
         } else {
-            module = new LandModule(getPosePluginPlayer(), _static);
+            module = new LandModule(getPosePluginPlayer());
         }
     }
 
@@ -60,26 +53,22 @@ public class SwimPose extends PluginPose implements Tickable {
     }
 
     @Override
-    public EnumPose getPose() {
+    public EnumPose getType() {
         return EnumPose.SWIMMING;
     }
 
     @EventHandler
     public void onMount(EntityMountEvent event){
         if(event.getEntity().equals(getPlayer())){
-            callStopEvent(getPosePluginPlayer().getPoseType(), getPosePluginPlayer(), StopAnimationEvent.StopCause.STOPPED);
+            getPosePluginPlayer().resetCurrentPose(true);
         }
     }
 
     @EventHandler
     public void onFly(PlayerToggleFlightEvent event){
         if (event.getPlayer().equals(getPlayer())) {
-            PluginPose.callStopEvent(getPosePluginPlayer().getPoseType(), getPosePluginPlayer(), StopAnimationEvent.StopCause.STOPPED);
+            getPosePluginPlayer().resetCurrentPose(false);
         }
-    }
-
-    public void setStatic(boolean _static) {
-        this._static.set(_static);
     }
 
     @Override
@@ -93,7 +82,7 @@ public class SwimPose extends PluginPose implements Tickable {
         } else {
             if(!module.getMode().equals(SwimMode.CRAWLING)) {
                 module.stop();
-                module = new LandModule(getPosePluginPlayer(), _static);
+                module = new LandModule(getPosePluginPlayer());
                 module.play();
             }
         }
@@ -101,7 +90,9 @@ public class SwimPose extends PluginPose implements Tickable {
     }
 
     public enum SwimMode{
-        FLYING,SWIMMING, CRAWLING
+        FLYING,
+        SWIMMING,
+        CRAWLING
     }
 
     @SneakyThrows

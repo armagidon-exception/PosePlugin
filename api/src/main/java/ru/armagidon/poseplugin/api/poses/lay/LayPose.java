@@ -7,37 +7,35 @@ import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.MainHand;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
+import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.api.poses.PluginPose;
-import ru.armagidon.poseplugin.api.poses.sit.SitDriver;
-import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
+import ru.armagidon.poseplugin.api.poses.sit.ArmorStandSeat;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
-public class LayPose extends PluginPose {
+public class LayPose extends AbstractPose {
 
     private final FakePlayer fakePlayer;
-    private final SitDriver driver;
+    private final ArmorStandSeat driver;
 
     public LayPose(Player target) {
         super(target);
-        this.fakePlayer = PosePluginAPI.getAPI().getNMSFactory().createFakePlayer(getPlayer(), Pose.SLEEPING);
+        this.fakePlayer = FakePlayer.createNew(target, Pose.SLEEPING);
         registerProperties();
-        this.driver = new SitDriver(target, (e)-> {
-            if(!callStopEvent(EnumPose.LYING, getPosePluginPlayer(), StopAnimationEvent.StopCause.STOPPED)) e.setCancelled(true);
+        this.driver = new ArmorStandSeat(target, (e)-> {
+            if(!getPosePluginPlayer().resetCurrentPose(true)) e.setCancelled(true);
         });
     }
 
     private void registerProperties(){
-        getProperties().registerProperty("head-rotation", new Property<>(fakePlayer::isHeadRotationEnabled, fakePlayer::setHeadRotationEnabled));
-        getProperties().registerProperty("swing-animation",new Property<>(fakePlayer::isSwingAnimationEnabled, fakePlayer::setSwingAnimationEnabled));
-        getProperties().registerProperty("update-equipment",new Property<>(fakePlayer::isUpdateEquipmentEnabled, fakePlayer::setUpdateEquipmentEnabled));
-        getProperties().registerProperty("update-overlays",new Property<>(fakePlayer::isUpdateOverlaysEnabled, fakePlayer::setUpdateOverlaysEnabled));
-        getProperties().registerProperty("view-distance",new Property<>(fakePlayer::getViewDistance, fakePlayer::setViewDistance));
-        getProperties().registerProperty("invisible",new Property<>(fakePlayer::isInvisible, fakePlayer::setInvisible));
-
-        getProperties().register();
+        getProperties().registerProperty("head-rotation", new Property<>(fakePlayer::isHeadRotationEnabled, fakePlayer::setHeadRotationEnabled))
+                .registerProperty("swing-animation",new Property<>(fakePlayer::isSwingAnimationEnabled, fakePlayer::setSwingAnimationEnabled))
+                .registerProperty("sync-equipment",new Property<>(fakePlayer::isSynchronizationEquipmentEnabled, fakePlayer::setSynchronizationEquipmentEnabled))
+                .registerProperty("sync-overlays",new Property<>(fakePlayer::isSynchronizationOverlaysEnabled, fakePlayer::setSynchronizationOverlaysEnabled))
+                .registerProperty("view-distance",new Property<>(fakePlayer::getViewDistance, fakePlayer::setViewDistance))
+                .registerProperty("invisible",new Property<>(fakePlayer::isInvisible, fakePlayer::setInvisible))
+                .register();
     }
 
     @Override
@@ -68,7 +66,7 @@ public class LayPose extends PluginPose {
     }
 
     @Override
-    public EnumPose getPose() {
+    public EnumPose getType() {
         return EnumPose.LYING;
     }
 
@@ -81,7 +79,6 @@ public class LayPose extends PluginPose {
 
     @PersonalEventHandler
     public void onTeleport(PlayerTeleportEvent event) {
-        if(event.isCancelled()) return;
         fakePlayer.remove();
         fakePlayer.setPosition(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
         fakePlayer.updateNPC();

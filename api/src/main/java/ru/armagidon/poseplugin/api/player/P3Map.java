@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 public class P3Map
 {
-    private Map<String, PosePluginPlayer> players = new HashMap<>();
+    private final Map<String, PosePluginPlayer> players = new HashMap<>();
 
     public boolean addPlayer(Player player){
         if(player!=null) {
@@ -31,6 +31,10 @@ public class P3Map
 
     public PosePluginPlayer getPosePluginPlayer(String player) {
         return players.get(player);
+    }
+
+    public PosePluginPlayer getPosePluginPlayer(Player player){
+        return players.get(player.getName());
     }
 
     public void forEach(Consumer<PosePluginPlayer> action){

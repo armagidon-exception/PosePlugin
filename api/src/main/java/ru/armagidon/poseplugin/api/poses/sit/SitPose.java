@@ -1,18 +1,17 @@
 package ru.armagidon.poseplugin.api.poses.sit;
 
 import org.bukkit.entity.Player;
-import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
+import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.api.poses.PluginPose;
 
-public class SitPose extends PluginPose {
+public class SitPose extends AbstractPose {
 
-    private final SitDriver driver;
+    private final ArmorStandSeat driver;
 
     public SitPose(Player player) {
         super(player);
-        this.driver = new SitDriver(player, (e)-> {
-            if(!callStopEvent(EnumPose.LYING, getPosePluginPlayer(), StopAnimationEvent.StopCause.STOPPED)){
+        this.driver = new ArmorStandSeat(player, (e)-> {
+            if(!getPosePluginPlayer().resetCurrentPose(true)){
                 e.setCancelled(true);
             }
         });
@@ -29,7 +28,7 @@ public class SitPose extends PluginPose {
     }
 
     @Override
-    public EnumPose getPose() {
+    public EnumPose getType() {
         return EnumPose.SITTING;
     }
 

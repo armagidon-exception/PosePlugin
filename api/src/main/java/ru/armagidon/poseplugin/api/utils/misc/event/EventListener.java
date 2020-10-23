@@ -7,9 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
-import ru.armagidon.poseplugin.api.poses.PluginPose;
 
 //Listener of all necessary events
 public class EventListener implements Listener
@@ -27,7 +25,10 @@ public class EventListener implements Listener
         //Stop current animation
         if(containsPlayer(event.getPlayer())) {
             PosePluginPlayer ppp = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-            PluginPose.callStopEvent(ppp.getPoseType(), ppp, StopAnimationEvent.StopCause.QUIT);
+            //ppp.leave();
+
+            ppp.resetCurrentPose(false);
+
             //Remove player from playerlist
             PosePluginAPI.getAPI().getPlayerMap().removePlayer(event.getPlayer());
         }

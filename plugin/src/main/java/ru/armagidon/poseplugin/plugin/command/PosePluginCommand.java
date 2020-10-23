@@ -1,51 +1,57 @@
 package ru.armagidon.poseplugin.plugin.command;
 
-import lombok.Setter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import com.google.common.collect.ImmutableList;
+import lombok.SneakyThrows;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import ru.armagidon.poseplugin.PosePlugin;
 
-import java.util.ArrayList;
+import java.lang.reflect.Constructor;
 import java.util.List;
 
-public class PosePluginCommand extends Command
+public abstract class PosePluginCommand
 {
 
-    private @NotNull final CommandExecutor executor;
-    private @NotNull @Setter TabCompleter tabCompleter;
+    private final PluginCommand command;
 
-    public PosePluginCommand(@NotNull String name, CommandExecutor executor) {
-        super(name);
-        this.executor = executor;
-        tabCompleter = (s,c,l,a)->new ArrayList<>();
-        usageMessage = "";
+    @SneakyThrows
+    public PosePluginCommand(@NotNull String name) {
+
+        Constructor<PluginCommand> pluginCMDConstructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+        pluginCMDConstructor.setAccessible(true);
+        command = pluginCMDConstructor.newInstance(name, PosePlugin.getInstance());
+        command.setExecutor((sender, command, label, args) -> {
+            if(!(sender instanceof Player)) return true;
+            return execute((Player) sender,label, args);
+        });
+        command.setTabCompleter((sender, command, alias, args) -> {
+            if(sender instanceof Player) return tabComplete(((Player) sender),alias, args);
+            return ImmutableList.of();
+        });
+
         setPermission("poseplugin.command."+name.toLowerCase());
         setPermissionMessage("§cYou can't do this for some reason! Sorry :(");
     }
 
-    @Override
-    public boolean execute(@NotNull CommandSender commandSender, @NotNull String label, @NotNull String[] args) {
-        boolean success;
-        if(!testPermission(commandSender)) return false;
-        success = executor.onCommand(commandSender,this, label, args);
-        if (!success && this.usageMessage.length() > 0) {
-            String[] var5 = this.usageMessage.replace("<command>", label).split("\n");
-            int var6 = var5.length;
+    protected abstract boolean execute(Player player,String label,String[] args);
 
-            for(int var7 = 0; var7 < var6; ++var7) {
-                String line = var5[var7];
-                commandSender.sendMessage(line);
-            }
-        }
-        return success;
+    protected List<String> tabComplete(Player player,String alias, String[] args) {return ImmutableList.of();}
+
+    public void setPermission(String permission){
+        command.setPermission(permission);
     }
 
-    @NotNull
-    @Override
-    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-        List<String> tab = tabCompleter.onTabComplete(sender,this,alias,args);
-        return tab!=null?tab:new ArrayList<>();
+    public void setPermissionMessage(String permissionMessage){
+        command.setPermissionMessage(permissionMessage);
+    }
+
+    public void setUsage(String usage){
+        command.setUsage(usage);
+    }
+
+    public PluginCommand getCommand() {
+        return command;
     }
 }

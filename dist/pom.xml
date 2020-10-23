@@ -71,8 +71,17 @@
                                     <include>ru.armagidon:1_16_R2</include>
                                     <include>ru.armagidon:plugin</include>
                                     <include>ru.armagidon:api</include>
+                                    <include>ru.armagidon:core</include>
+                                    <include>ru.armagidon:ItemUtils</include>
+                                    <include>io.papermc:paperlib</include>
                                 </includes>
                             </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>de.tr7zw.changeme.nbtapi</pattern>
+                                    <shadedPattern>ru.armagidon.armagidonapi.itemutils.nbt-api</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
@@ -99,6 +108,4 @@
             </resource>
         </resources>
     </build>
-
-
 </project>

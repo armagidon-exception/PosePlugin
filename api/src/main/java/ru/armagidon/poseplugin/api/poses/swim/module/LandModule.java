@@ -18,24 +18,19 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
-import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.api.poses.PluginPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class LandModule extends SwimModule {
 
     //Some data
-    private final AtomicReference<Boolean> _static;
     private final BlockCache cache;
     private boolean under;
     private Location previous;
@@ -43,11 +38,10 @@ public class LandModule extends SwimModule {
     //Packets
     private final Object swimPacket;
 
-    public LandModule(PosePluginPlayer target, AtomicReference<Boolean> _static) {
+    public LandModule(PosePluginPlayer target) {
         super(target);
         Block above = getAbove(target.getHandle().getLocation()).getBlock();
         this.cache = new BlockCache(above.getBlockData(), above.getLocation());
-        this._static = _static;
         this.swimPacket = NMSUtils.createPosePacket(target.getHandle(), Pose.SWIMMING);
     }
 
@@ -61,7 +55,7 @@ public class LandModule extends SwimModule {
     @Override
     public void stop() {
         Object resetPacket = NMSUtils.createPosePacket(getTarget().getHandle(), Pose.SNEAKING);
-        getReceivers().forEach(p->NMSUtils.sendPacket(p, resetPacket));
+        getReceivers().forEach(p -> NMSUtils.sendPacket(p, resetPacket));
         cache.restore(getTarget().getHandle());
         HandlerList.unregisterAll(this);
         PosePluginAPI.getAPI().getPersonalHandlerList().unsubscribe(getTarget(), this);
@@ -71,8 +65,8 @@ public class LandModule extends SwimModule {
     public void tick() {
         getReceivers().forEach(p-> NMSUtils.sendPacket(p, swimPacket));
         Block above = getAbove(getTarget().getHandle().getLocation()).getBlock();
-        if(previous!=null&&compareLocations(previous, getTarget().getHandle().getLocation())) {
-            if (!above.getType().isSolid() || IsUnSolidBlock(above.getBlockData()))
+        if( previous != null && compareLocations(previous, getTarget().getHandle().getLocation()) ) {
+            if (!above.getType().isSolid() || isUnSolidBlock(above.getBlockData()))
                 getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
             else cache.restore(getTarget().getHandle());
         }
@@ -101,21 +95,16 @@ public class LandModule extends SwimModule {
 
     @PersonalEventHandler
     public void onMove(PlayerMoveEvent event){
-        if(!_static.get()) {
-            boolean compare = compareLocations(event.getFrom(), getTarget().getHandle().getLocation());
-            if (!compare) {
-                cache.restore(getTarget().getHandle());
-                Block above = getAbove(getTarget().getHandle().getLocation()).getBlock();
-                cache.setData(above.getBlockData());
-                cache.setLocation(above.getLocation());
-                if (!above.getType().isSolid() || IsUnSolidBlock(above.getBlockData()))
-                    getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
-            }
-            previous=event.getTo();
-        } else {
-            if(event.getFrom().getX()!=event.getTo().getX()||event.getFrom().getY()!=event.getTo().getY()||event.getFrom().getZ()!=event.getTo().getZ())
-                event.setCancelled(true);
+        boolean compare = compareLocations(event.getFrom(), getTarget().getHandle().getLocation());
+        if (!compare) {
+            cache.restore(getTarget().getHandle());
+            Block above = getAbove(getTarget().getHandle().getLocation()).getBlock();
+            cache.setData(above.getBlockData());
+            cache.setLocation(above.getLocation());
+            if (!above.getType().isSolid() || isUnSolidBlock(above.getBlockData()))
+                getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
         }
+        previous=event.getTo();
     }
 
     @EventHandler
@@ -123,8 +112,8 @@ public class LandModule extends SwimModule {
         if(event.getEntity().equals(getTarget().getHandle())){
             if(!event.isGliding()&&under){
                 event.setCancelled(true);
-            } else if(!under&&event.isGliding()){
-                PluginPose.callStopEvent(EnumPose.SWIMMING, getTarget(), StopAnimationEvent.StopCause.STOPPED);
+            } else if( !under && event.isGliding() ){
+                getTarget().resetCurrentPose(false);
             }
         }
     }
@@ -136,7 +125,7 @@ public class LandModule extends SwimModule {
     public boolean compareLocations(Location first, Location second){
         Location f = VectorUtils.getRoundedBlock(first).getLocation();
         Location s = VectorUtils.getRoundedBlock(second).getLocation();
-        return (f.getX()==s.getX()&&f.getY()==s.getY()&&f.getX()==s.getZ());
+        return (f.getX() == s.getX() && f.getY() == s.getY() && f.getX() == s.getZ());
     }
 
     private boolean isWaterLogged(BlockData data){
@@ -146,21 +135,17 @@ public class LandModule extends SwimModule {
                 return slab.getType().equals(Slab.Type.TOP);
             } else if(data instanceof TrapDoor){
                 TrapDoor trapDoor = (TrapDoor) data;
-                return trapDoor.getHalf().equals(Bisected.Half.TOP)||trapDoor.isOpen();
+                return trapDoor.getHalf().equals(Bisected.Half.TOP) || trapDoor.isOpen();
             }
             return true;
         }
         return false;
     }
 
-    private boolean IsUnSolidBlock(BlockData data){
-        if(isWaterLogged(data)) return true;
-        else if(Tag.PORTALS.isTagged(data.getMaterial())) return true;
-        else if(Tag.BANNERS.isTagged(data.getMaterial())) return true;
-        else if(Tag.FENCE_GATES.isTagged(data.getMaterial())) return true;
-        else if (Tag.DOORS.isTagged(data.getMaterial())) return true;
-        else if(Tag.TALL_FLOWERS.isTagged(data.getMaterial())) return true;
-        return false;
+    private boolean isUnSolidBlock(BlockData data){
+        return isWaterLogged(data) || Tag.PORTALS.isTagged(data.getMaterial())
+                || Tag.BANNERS.isTagged(data.getMaterial()) || Tag.FENCE_GATES.isTagged(data.getMaterial())
+                || Tag.DOORS.isTagged(data.getMaterial()) || Tag.TALL_FLOWERS.isTagged(data.getMaterial());
     }
 
     @Override

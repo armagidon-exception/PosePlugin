@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.events;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -14,15 +13,18 @@ public class StopAnimationEvent extends Event implements Cancellable
 
     private @Getter final EnumPose pose;
     private @Getter final PosePluginPlayer player;
-    private @Getter @Setter boolean cancelled;
-    private @Getter final StopCause cause;
-    private @Getter final String customCause;
+    private @Getter boolean cancelled;
+    private @Getter final boolean cancellable;
 
-    public StopAnimationEvent(EnumPose pose, PosePluginPlayer player, StopCause cause, String custom_cause) {
+    public StopAnimationEvent(EnumPose pose, PosePluginPlayer player, boolean cancellable) {
         this.pose = pose;
         this.player = player;
-        this.cause = cause;
-        this.customCause = custom_cause;
+        this.cancellable = cancellable;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        if( !cancellable ) return;
+        this.cancelled = cancelled;
     }
 
     @Override
@@ -32,12 +34,5 @@ public class StopAnimationEvent extends Event implements Cancellable
 
     public static HandlerList getHandlerList() {
         return handlers;
-    }
-
-    @SuppressWarnings("DanglingJavadoc")
-    public enum StopCause{
-        STOPPED, /**Called when animation has been stopped by user*/
-
-        QUIT /**Called when animation has been stopped because of player's quit(you can't cancel it)*/
     }
 }

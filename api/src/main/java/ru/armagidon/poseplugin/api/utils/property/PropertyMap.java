@@ -3,15 +3,16 @@ package ru.armagidon.poseplugin.api.utils.property;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class PropertyMap
 {
     private boolean registered;
 
-    @SuppressWarnings("raw")
-    private Map<String, Property> propertyMap = Maps.newHashMap();
+    @SuppressWarnings("ALL")
+    private final Map<String, Property> propertyMap = Maps.newHashMap();
 
-    public <T> void registerProperty(String key, Property<T> property) {
+    public <T> PropertyMap registerProperty(String key, Property<T> property) {
         if(isRegistered()){
             throw new IllegalStateException("Properties are registered, you can't register it anymore!");
         }
@@ -25,6 +26,7 @@ public class PropertyMap
             throw new IllegalArgumentException("Property object cannot be null!");
         }
         propertyMap.put(key, property);
+        return this;
     }
 
     @SuppressWarnings("unchecked")
@@ -46,5 +48,9 @@ public class PropertyMap
 
     private boolean isRegistered() {
         return registered;
+    }
+
+    public void forEach(BiConsumer<String,Property> action){
+        propertyMap.forEach(action);
     }
 }
