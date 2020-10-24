@@ -16,7 +16,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
+import ru.armagidon.poseplugin.api.events.StopPosingEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
@@ -51,12 +51,11 @@ public class PluginEventListener implements Listener
         boolean preventInvisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
         if( !preventInvisible ){
             if(event.getAction().equals(EntityPotionEffectEvent.Action.ADDED)){
-                if(event.getNewEffect() !=null && event.getNewEffect().getType().equals(PotionEffectType.INVISIBILITY)) {
+                if(event.getNewEffect() !=null && event.getNewEffect().getType().equals(PotionEffectType.INVISIBILITY))
                     p.getPose().getProperty(EnumPoseOption.INVISIBLE).setValue(true);
-                }
             } else if(event.getAction().equals(EntityPotionEffectEvent.Action.REMOVED)||event.getAction().equals(EntityPotionEffectEvent.Action.CLEARED)){
                 if(event.getOldEffect() != null && event.getOldEffect().getType().equals(PotionEffectType.INVISIBILITY))
-                p.getPose().getProperty(EnumPoseOption.INVISIBLE).setValue(false);
+                    p.getPose().getProperty(EnumPoseOption.INVISIBLE).setValue(false);
             }
         }
     }
@@ -76,7 +75,7 @@ public class PluginEventListener implements Listener
         } else if ( player.getPoseType() == HANDSHAKING ){
             if( !ConfigConstants.isHandShakeShiftEnabled() ) return;
         }
-        throwStopEvent(player, StopAnimationWithMessageEvent.StopCause.OTHER);
+        player.resetCurrentPose(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -88,8 +87,11 @@ public class PluginEventListener implements Listener
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
         if(player.getPoseType() == EnumPose.STANDING) return;
         boolean standUpWhenDamaged = PosePlugin.getInstance().getConfig().getBoolean(player.getPoseType().getName()+".stand-up-when-damaged");
-        if (standUpWhenDamaged)
-            throwStopEvent(player, StopAnimationWithMessageEvent.StopCause.DAMAGE);
+        if (standUpWhenDamaged) {
+            Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(StopAnimationWithMessageEvent.StopCause.DAMAGE, player, player.getPoseType()));
+            PLAYERS_POSES.remove(player.getHandle());
+            player.resetCurrentPose(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -99,7 +101,7 @@ public class PluginEventListener implements Listener
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         if(player.getPoseType().equals(EnumPose.STANDING)) return;
         if(event.getNewGameMode().equals(GameMode.SPECTATOR))
-            throwStopEvent(player, StopAnimationWithMessageEvent.StopCause.OTHER);
+            player.resetCurrentPose(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -113,20 +115,20 @@ public class PluginEventListener implements Listener
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer());
         if(player.getPoseType().equals(EnumPose.STANDING)) return;
         if(event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
-        throwStopEvent(player, StopAnimationWithMessageEvent.StopCause.OTHER);
+
+        player.resetCurrentPose(true);
 
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public final void onBlockBreak(BlockBreakEvent event) {
 
-
         VectorUtils.getNear(5,event.getPlayer()).forEach(near->{
             Block under = VectorUtils.getBlockOnLoc(near.getLocation()).getRelative(BlockFace.DOWN);
             PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
             if(player.getPoseType().equals(EnumPose.STANDING)) return;
             if (event.getBlock().equals(under)) {
-                throwStopEvent(player, StopAnimationWithMessageEvent.StopCause.OTHER);
+                player.resetCurrentPose(true);
             }
         });
     }
@@ -149,7 +151,7 @@ public class PluginEventListener implements Listener
     }
 
     @EventHandler
-    public void onStop(StopAnimationEvent event){
+    public void onStop(StopPosingEvent event){
 
         if ( !PLAYERS_POSES.containsKey(event.getPlayer().getHandle()) ) return;
         if ( !event.isCancellable()) return;
@@ -158,12 +160,5 @@ public class PluginEventListener implements Listener
         PLAYERS_POSES.remove(event.getPlayer().getHandle());
 
     }
-
-    private void throwStopEvent (PosePluginPlayer who, StopAnimationWithMessageEvent.StopCause cause){
-        Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(cause, who, who.getPoseType()));
-        PLAYERS_POSES.remove(who.getHandle());
-        who.resetCurrentPose(true);
-    }
-
 
 }
