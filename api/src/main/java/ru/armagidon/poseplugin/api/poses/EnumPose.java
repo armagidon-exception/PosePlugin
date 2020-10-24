@@ -62,7 +62,7 @@ public interface EnumPose
 
         @Override
         public EnumPoseOption<?>[] availableOptions() {
-            return new EnumPoseOption[]{EnumPoseOption.MODE};
+            return new EnumPoseOption[]{EnumPoseOption.HANDTYPE};
         }
     };
     EnumPose POINTING = new EnumPose() {
@@ -73,7 +73,7 @@ public interface EnumPose
 
         @Override
         public EnumPoseOption<?>[] availableOptions() {
-            return new EnumPoseOption[]{EnumPoseOption.MODE};
+            return new EnumPoseOption[]{EnumPoseOption.HANDTYPE};
         }
     };
     EnumPose HANDSHAKING = new EnumPose() {
@@ -84,7 +84,7 @@ public interface EnumPose
 
         @Override
         public EnumPoseOption<?>[] availableOptions() {
-            return new EnumPoseOption[]{EnumPoseOption.MODE};
+            return new EnumPoseOption[]{EnumPoseOption.HANDTYPE};
         }
     };
 

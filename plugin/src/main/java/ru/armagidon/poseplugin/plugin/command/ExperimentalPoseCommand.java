@@ -49,7 +49,7 @@ public class ExperimentalPoseCommand extends PosePluginCommand
         if (player.getPoseType() != pose){
             if (mode.equalsIgnoreCase("off")) return true;
 
-            player.changePose(PoseBuilder.builder(pose).option(EnumPoseOption.MODE, HandType.valueOf(mode.toUpperCase())).build(player));
+            player.changePose(PoseBuilder.builder(pose).option(EnumPoseOption.HANDTYPE, HandType.valueOf(mode.toUpperCase())).build(player));
 
             return true;
         }
@@ -60,12 +60,12 @@ public class ExperimentalPoseCommand extends PosePluginCommand
             return true;
         }
 
-        HandType old = player.getPose().getProperty(EnumPoseOption.MODE).getValue();
+        HandType old = player.getPose().getProperty(EnumPoseOption.HANDTYPE).getValue();
         HandType newType = HandType.valueOf(mode.toUpperCase());
 
         if(newType.equals(old)) return true;
 
-        player.getPose().getProperty(EnumPoseOption.MODE).setValue( HandType.valueOf(mode.toUpperCase()) );
+        player.getPose().getProperty(EnumPoseOption.HANDTYPE).setValue( HandType.valueOf(mode.toUpperCase()) );
 
         Bukkit.getPluginManager().callEvent(new HandTypeChangeEvent(old, newType, pose, player));
 

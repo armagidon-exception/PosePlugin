@@ -32,7 +32,7 @@ public abstract class ExperimentalPose extends AbstractPose
         this.handItem = addHideTag(ItemBuilder.create(type).asItemStack());
         this.npc = FakePlayer.createNew(target, Pose.STANDING);
 
-        getProperties().registerProperty("mode",new Property<>(this::getHandType, this::setMode));
+        getProperties().registerProperty("handtype",new Property<>(this::getHandType, this::setMode));
         getProperties().register();
 
         this.handType = HandType.RIGHT;

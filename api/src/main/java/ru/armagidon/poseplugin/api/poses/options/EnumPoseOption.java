@@ -4,10 +4,10 @@ import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 public interface EnumPoseOption<T> {
 
-    EnumPoseOption<HandType> MODE = new EnumPoseOption<HandType>() {
+    EnumPoseOption<HandType> HANDTYPE = new EnumPoseOption<HandType>() {
         @Override
         public String mapper() {
-            return "mode";
+            return "handtype";
         }
 
         @Override
