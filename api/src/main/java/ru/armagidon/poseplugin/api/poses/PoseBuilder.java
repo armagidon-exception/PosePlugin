@@ -49,11 +49,11 @@ public class PoseBuilder {
         return this;
     }
 
-    public IPluginPose build(PosePluginPlayer player){
+    public IPluginPose build(Player player){
 
         EnumPose poseType = this.pose;
 
-        IPluginPose pose = getPoseBuilder(poseType).apply(player.getHandle());
+        IPluginPose pose = getPoseBuilder(poseType).apply(player);
 
 
         for (EnumPoseOption option : defaultOptions) {
@@ -68,8 +68,8 @@ public class PoseBuilder {
         return pose;
     }
 
-    public IPluginPose build(Player player){
-        return build(PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(player));
+    public IPluginPose build(PosePluginPlayer player){
+        return build(player.getHandle());
     }
 
     public static Function<Player, IPluginPose> getPoseBuilder(EnumPose poseType){
