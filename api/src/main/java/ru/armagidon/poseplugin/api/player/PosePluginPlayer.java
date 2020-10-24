@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
 import ru.armagidon.poseplugin.api.events.PostPoseChangeEvent;
-import ru.armagidon.poseplugin.api.events.StopAnimationEvent;
+import ru.armagidon.poseplugin.api.events.StopPosingEvent;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
@@ -26,27 +26,21 @@ public class PosePluginPlayer
         return player;
     }
 
-    //Changed name
-    @Deprecated
-    public Player getPlayer() {
-        return player;
-    }
-
     public void setPose(IPluginPose newPose) {
         this.pose = newPose;
     }
 
-    /**
-     * @return Whether the pose has been changed
-     * */
-    public boolean changePose(IPluginPose pose){
+    public void changePose(IPluginPose pose){
 
-        if(pose == null) return false;
+        if(pose == null) return;
+
+        if (pose.getType().equals(this.pose.getType()))
+            throw new IllegalArgumentException("This pose type is already in use.");
 
         //Event calling section
         PoseChangeEvent event = new PoseChangeEvent(this.pose.getType(), pose, this);
         Bukkit.getPluginManager().callEvent(event);
-        if(event.isCancelled()) return false;
+        if(event.isCancelled()) return;
         //If player is sleeping then stop sleeping
         if(player.isSleeping()) player.wakeup(true);
         IPluginPose newPose = event.getNewPose();
@@ -60,19 +54,16 @@ public class PosePluginPlayer
 
         PostPoseChangeEvent postChangeEvent = new PostPoseChangeEvent(this, this.getPose());
         Bukkit.getPluginManager().callEvent(postChangeEvent);
-
-        return true;
     }
 
 
     /**
      * @return Whether the pose-resetting has been done
-     *
      */
     public boolean resetCurrentPose(boolean cancellable)
     {
         if ( getPoseType().equals(EnumPose.STANDING) ) return true;
-        StopAnimationEvent stopEvent = new StopAnimationEvent(getPoseType(), this, cancellable);
+        StopPosingEvent stopEvent = new StopPosingEvent(getPoseType(), this, cancellable);
         Bukkit.getPluginManager().callEvent(stopEvent);
         if ( stopEvent.isCancelled() ) return false;
         getPose().stop();
