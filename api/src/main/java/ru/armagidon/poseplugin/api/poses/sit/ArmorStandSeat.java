@@ -9,21 +9,21 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.util.Consumer;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 
 import java.lang.reflect.Field;
+import java.util.function.BiConsumer;
 
 public class ArmorStandSeat implements Listener, Tickable
 {
 
-    private final Consumer<EntityDismountEvent> execute;
+    private final BiConsumer<EntityDismountEvent, ArmorStandSeat> execute;
     private ArmorStand seat;
     private final Player sitter;
 
-    public ArmorStandSeat(Player sitter, Consumer<EntityDismountEvent> onDismount) {
+    public ArmorStandSeat(Player sitter, BiConsumer<EntityDismountEvent, ArmorStandSeat> onDismount) {
         Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
         this.sitter = sitter;
         this.execute = onDismount;
@@ -55,6 +55,10 @@ public class ArmorStandSeat implements Listener, Tickable
         PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(ArmorStandSeat.class, this);
     }
 
+    public void pushBack(){
+        Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), ()-> seat.addPassenger(sitter), 3L);
+    }
+
     @EventHandler
     private void armorManipulate(PlayerArmorStandManipulateEvent event){
         if(event.getRightClicked().equals(seat)){
@@ -69,7 +73,7 @@ public class ArmorStandSeat implements Listener, Tickable
             Player player = (Player) event.getEntity();
             if( player.getUniqueId().equals(sitter.getUniqueId()) && stand.equals(seat) ){
                 //If player dismounted from seat, do stuff
-                execute.accept(event);
+                execute.accept(event, this);
             }
         }
     }
@@ -94,5 +98,6 @@ public class ArmorStandSeat implements Listener, Tickable
     public void tick(){
         rotate();
         gc();
+
     }
 }

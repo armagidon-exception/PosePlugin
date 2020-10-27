@@ -23,8 +23,11 @@ public class LayPose extends AbstractPose {
         super(target);
         this.fakePlayer = FakePlayer.createNew(target, Pose.SLEEPING);
         registerProperties();
-        this.driver = new ArmorStandSeat(target, (e)-> {
-            if(!getPosePluginPlayer().resetCurrentPose(true)) e.setCancelled(true);
+        this.driver = new ArmorStandSeat(target, (e,a)-> {
+            if(!getPosePluginPlayer().resetCurrentPose(true)) {
+                e.setCancelled(true);
+                a.pushBack();
+            }
         });
     }
 
