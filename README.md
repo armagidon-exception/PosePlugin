@@ -31,6 +31,10 @@ PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(Player);
 Where Player is a player whose instance of PosePluginPlayer you want to get.
 
 **Note**: PosePluginPlayer is **NOT** a Player, so you **CANNOT** cast it to Player class.
+If you want to get Player instacne use:
+```java
+Player player = posePluginPlayer.getHandle();
+```
 
 When we got our PosePluginPlayer instance we need to change his pose.
 
@@ -71,7 +75,7 @@ Here's options for different poses:
     - SYNC_EQUIPMENT - enables equipment synchronization with an original player of lying player
     - SYNC_OVERLAYS - enables overlays synchronization with an original player of lying player
     - INVISIBLE - toggles invisibility of lying player
-    - VIEW_DISTANCE - changes distance between lying player and other player to see the lying player
+    - VIEW_DISTANCE - distance between lying player and other player that is needed to display lying player
 - Wave pose:
     - HANDTYPE - changes hand player will be waving with
 - Point pose:
