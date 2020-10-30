@@ -60,14 +60,14 @@ public class SwimPose extends AbstractPose implements Tickable {
     @EventHandler
     public void onMount(EntityMountEvent event){
         if(event.getEntity().equals(getPlayer())){
-            getPosePluginPlayer().resetCurrentPose(true);
+            getPosePluginPlayer().resetCurrentPose();
         }
     }
 
     @EventHandler
     public void onFly(PlayerToggleFlightEvent event){
         if (event.getPlayer().equals(getPlayer())) {
-            getPosePluginPlayer().resetCurrentPose(false);
+            getPosePluginPlayer().stopPosingSilently();
         }
     }
 

@@ -11,7 +11,7 @@ public class SitPose extends AbstractPose {
     public SitPose(Player player) {
         super(player);
         this.driver = new ArmorStandSeat(player, (e,s)-> {
-            if(!getPosePluginPlayer().resetCurrentPose(true)){
+            if(!getPosePluginPlayer().resetCurrentPose()){
                 e.setCancelled(true);
                 s.pushBack();
             }

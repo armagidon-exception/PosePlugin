@@ -55,7 +55,7 @@ public class ExperimentalPoseCommand extends PosePluginCommand
         }
 
         if (mode.equalsIgnoreCase("off")){
-            player.resetCurrentPose(true);
+            player.resetCurrentPose();
             PosePlugin.PLAYERS_POSES.remove(player.getHandle());
             return true;
         }

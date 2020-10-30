@@ -75,7 +75,7 @@ public class PluginEventListener implements Listener
         } else if ( player.getPoseType() == HANDSHAKING ){
             if( !ConfigConstants.isHandShakeShiftEnabled() ) return;
         }
-        player.resetCurrentPose(true);
+        player.resetCurrentPose();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -90,7 +90,7 @@ public class PluginEventListener implements Listener
         if (standUpWhenDamaged) {
             Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(StopAnimationWithMessageEvent.StopCause.DAMAGE, player, player.getPoseType()));
             PLAYERS_POSES.remove(player.getHandle());
-            player.resetCurrentPose(true);
+            player.resetCurrentPose();
         }
     }
 
@@ -101,7 +101,7 @@ public class PluginEventListener implements Listener
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         if(player.getPoseType().equals(EnumPose.STANDING)) return;
         if(event.getNewGameMode().equals(GameMode.SPECTATOR))
-            player.resetCurrentPose(true);
+            player.resetCurrentPose();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -116,7 +116,7 @@ public class PluginEventListener implements Listener
         if(player.getPoseType().equals(EnumPose.STANDING)) return;
         if(event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
 
-        player.resetCurrentPose(true);
+        player.resetCurrentPose();
 
     }
 
@@ -128,7 +128,7 @@ public class PluginEventListener implements Listener
             PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
             if(player.getPoseType().equals(EnumPose.STANDING)) return;
             if (event.getBlock().equals(under)) {
-                player.resetCurrentPose(true);
+                player.resetCurrentPose();
             }
         });
     }
@@ -154,7 +154,6 @@ public class PluginEventListener implements Listener
     public void onStop(StopPosingEvent event){
 
         if ( !PLAYERS_POSES.containsKey(event.getPlayer().getHandle()) ) return;
-        if ( !event.isCancellable()) return;
 
         Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(StopAnimationWithMessageEvent.StopCause.OTHER, event.getPlayer(), event.getPose()));
         PLAYERS_POSES.remove(event.getPlayer().getHandle());

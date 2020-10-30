@@ -8,6 +8,7 @@ import ru.armagidon.poseplugin.api.events.StopPosingEvent;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.IPluginPose;
+import ru.armagidon.poseplugin.api.poses.PoseBuilder;
 
 //SitPlugin player
 public class PosePluginPlayer
@@ -26,13 +27,16 @@ public class PosePluginPlayer
         return player;
     }
 
-    public void setPose(IPluginPose newPose) {
+    private void setPose(IPluginPose newPose) {
         this.pose = newPose;
     }
 
     public void changePose(IPluginPose pose){
 
-        if(pose == null) return;
+        if (pose == null) return;
+
+        if (PoseBuilder.getPoseBuilder(pose.getType()) == null)
+            throw new IllegalArgumentException("Unknown pose type: " + pose.getType().getName());
 
         if (pose.getType().equals(this.pose.getType()))
             throw new IllegalArgumentException("This pose type is already in use.");
@@ -58,16 +62,27 @@ public class PosePluginPlayer
 
 
     /**
+     * Stops player posing with throwing StopPosingEvent
      * @return Whether the pose-resetting has been done
      */
-    public boolean resetCurrentPose(boolean cancellable)
+    public boolean resetCurrentPose()
     {
         if ( getPoseType().equals(EnumPose.STANDING) ) return true;
-        StopPosingEvent stopEvent = new StopPosingEvent(getPoseType(), this, cancellable);
+        StopPosingEvent stopEvent = new StopPosingEvent(getPoseType(), this);
         Bukkit.getPluginManager().callEvent(stopEvent);
         if ( stopEvent.isCancelled() ) return false;
         getPose().stop();
+        setPose(AbstractPose.STANDING);
         return true;
+    }
+
+    /*
+     * Stops player posing without throwing StopPosingEvent
+     */
+
+    public void stopPosingSilently(){
+        if ( getPoseType().equals(EnumPose.STANDING) ) return;
+        getPose().stop();
     }
 
     public IPluginPose getPose() {

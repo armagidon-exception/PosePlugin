@@ -14,16 +14,13 @@ public class StopPosingEvent extends Event implements Cancellable
     private @Getter final EnumPose pose;
     private @Getter final PosePluginPlayer player;
     private @Getter boolean cancelled;
-    private @Getter final boolean cancellable;
 
-    public StopPosingEvent(EnumPose pose, PosePluginPlayer player, boolean cancellable) {
+    public StopPosingEvent(EnumPose pose, PosePluginPlayer player) {
         this.pose = pose;
         this.player = player;
-        this.cancellable = cancellable;
     }
 
     public void setCancelled(boolean cancelled) {
-        if( !cancellable ) return;
         this.cancelled = cancelled;
     }
 

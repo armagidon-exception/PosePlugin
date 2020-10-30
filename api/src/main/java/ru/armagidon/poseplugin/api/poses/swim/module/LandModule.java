@@ -113,7 +113,7 @@ public class LandModule extends SwimModule {
             if(!event.isGliding()&&under){
                 event.setCancelled(true);
             } else if( !under && event.isGliding() ){
-                getTarget().resetCurrentPose(false);
+                getTarget().stopPosingSilently();
             }
         }
     }

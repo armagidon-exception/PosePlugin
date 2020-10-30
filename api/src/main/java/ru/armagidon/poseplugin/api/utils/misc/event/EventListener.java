@@ -27,7 +27,7 @@ public class EventListener implements Listener
             PosePluginPlayer ppp = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
             //ppp.leave();
 
-            ppp.resetCurrentPose(false);
+            ppp.stopPosingSilently();
 
             //Remove player from playerlist
             PosePluginAPI.getAPI().getPlayerMap().removePlayer(event.getPlayer());

@@ -59,7 +59,6 @@ public abstract class AbstractPose implements IPluginPose, Listener, PersonalLis
     public void stop(){
         PosePluginAPI.getAPI().getPersonalHandlerList().unsubscribe(getPosePluginPlayer(), this);
         HandlerList.unregisterAll(this);
-        getPosePluginPlayer().setPose(AbstractPose.STANDING);
     }
 
     @Override
@@ -69,6 +68,6 @@ public abstract class AbstractPose implements IPluginPose, Listener, PersonalLis
 
     @PersonalEventHandler
     public void onDeath(PlayerDeathEvent e){
-        getPosePluginPlayer().resetCurrentPose(false);
+        getPosePluginPlayer().stopPosingSilently();
     }
 }
