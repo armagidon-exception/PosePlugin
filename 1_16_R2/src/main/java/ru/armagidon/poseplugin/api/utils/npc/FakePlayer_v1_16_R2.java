@@ -2,7 +2,6 @@ package ru.armagidon.poseplugin.api.utils.npc;
 
 import com.mojang.authlib.GameProfile;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,8 +10,6 @@ import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.EntityEquipment;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
@@ -22,13 +19,12 @@ import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
 import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_16_R2.FakePlayerStaff.*;
 
-public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
+public class FakePlayer_v1_16_R2 extends FakePlayer
 {
 
     /*Scheme
@@ -39,40 +35,20 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
       */
 
     /**Main data*/
-    private @Getter final Player parent;
     private @Getter final EntityPlayer fake;
-
-    /**Flags**/
-    private @Getter boolean invisible;
-    private @Getter @Setter boolean headRotationEnabled;
-    private @Getter @Setter boolean synchronizationOverlaysEnabled;
-    private @Getter @Setter boolean synchronizationEquipmentEnabled;
-    private @Getter @Setter boolean swingAnimationEnabled;
-    private @Getter HandType activeHand;
 
     /**Data**/
     private final @Getter DataWatcher watcher;
-    private final BlockCache cache;
-    private final Pose pose;
-    private final Location bedLoc;
-    private final FakePlayerSynchronizer npcUpdater;
-    private final @Getter FakePlayerCustomEquipmentManager customEquipmentManager;
-    private final @Getter FakePlayerMetadataAccessor metadataAccessor;
-
-    /**Tracking**/
-    //All players that tracks this npc
-    private @Getter final Set<Player> trackers = ConcurrentHashMap.newKeySet();
-    private @Getter @Setter int viewDistance = 20;
 
     /**Packets*/
     private final PacketPlayOutBlockChange fakeBedPacket;
     private final PacketPlayOutPlayerInfo addNPC;
     private final PacketPlayOutNamedEntitySpawn spawner;
     private final PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook movePacket;
+    private final PacketPlayOutEntityDestroy destroy;
 
     public FakePlayer_v1_16_R2(Player parent, Pose pose) {
-        this.pose = pose;
-        this.parent = parent;
+        super(parent, pose);
 
         //Create EntityPlayer instance
         this.fake = createNPC(parent);
@@ -110,26 +86,8 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
 
         this.customEquipmentManager = new CustomEquipmentManagerImpl_v1_16_R2(this);
 
-    }
+        this.destroy = new PacketPlayOutEntityDestroy(fake.getId());
 
-    //Initiate method. Uses to initiate entity spawn. Use before spawn.
-    @Override
-    public void initiate() {
-        //Add this NPC to NPC Registry
-        FAKE_PLAYERS.put(parent,this);
-        //Register this NPC object as ticker.
-        PosePluginAPI.getAPI().getTickingBundle().addToTickingBundle(FakePlayer_v1_16_R2.class, this);
-        //Add all players nearby to trackers list
-        trackers.addAll(VectorUtils.getNear(getViewDistance(), parent));
-    }
-
-    //Destroy method. Uses to fully delete NPC from server
-    @Override
-    public void destroy() {
-        trackers.clear();
-        PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(FakePlayer_v1_16_R2.class, this);
-        HandlerList.unregisterAll(this);
-        FAKE_PLAYERS.remove(this);
     }
 
     //Spawn methods
@@ -157,17 +115,8 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
 
     //Remove methods
     public void removeToPlayer(Player player){
-        PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fake.getId());
         NMSUtils.sendPacket(player, destroy);
         cache.restore(player);
-    }
-
-    public void remove(){
-        PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(fake.getId());
-        trackers.forEach(online->{
-            NMSUtils.sendPacket(online, destroy);
-            cache.restore(online);
-        });
     }
 
     private void setMetadata(){
@@ -227,10 +176,6 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
         npcUpdater.syncEquipment();
     }
 
-    public void updateNPC(){
-        broadCastSpawn();
-    }
-
     @Override
     public void setPosition(double x, double y, double z) {
         fake.setPosition(x, y, z);
@@ -248,13 +193,6 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
         trackers.forEach(p-> NMSUtils.sendPacket(p,status));
     }
 
-    //Meta info
-    public void setInvisible(boolean invisible){
-        metadataAccessor.setInvisible(invisible);
-        metadataAccessor.merge(true);
-        updateNPC();
-    }
-
     @Override
     public boolean isHandActive() {
         return metadataAccessor.isHandActive();
@@ -266,13 +204,6 @@ public class FakePlayer_v1_16_R2 implements FakePlayer, Listener
         metadataAccessor.merge(true);
         updateNPC();
         activeHand = type;
-    }
-
-    @Override
-    public void disableHands() {
-        metadataAccessor.disableHand();
-        metadataAccessor.merge(true);
-        updateNPC();
     }
 
     static class FakePlayerStaff {

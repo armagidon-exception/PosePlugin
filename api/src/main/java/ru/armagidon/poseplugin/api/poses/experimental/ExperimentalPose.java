@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.poses.experimental;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,8 +14,8 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
+import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
-import ru.armagidon.poseplugin.api.utils.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
 public abstract class ExperimentalPose extends AbstractPose
@@ -24,7 +23,6 @@ public abstract class ExperimentalPose extends AbstractPose
 
     private final ItemStack handItem;
     private final FakePlayer npc;
-    private @Getter HandType handType;
     private final Location to;
 
     public ExperimentalPose(Player target, Material type) {
@@ -32,10 +30,9 @@ public abstract class ExperimentalPose extends AbstractPose
         this.handItem = addHideTag(ItemBuilder.create(type).asItemStack());
         this.npc = FakePlayer.createNew(target, Pose.STANDING);
 
-        getProperties().registerProperty("handtype",new Property<>(this::getHandType, this::setMode));
+        getProperties().registerProperty(EnumPoseOption.HANDTYPE.mapper(), new Property<>(npc::getActiveHand, npc::setActiveHand));
         getProperties().register();
 
-        this.handType = HandType.RIGHT;
         this.to = target.getLocation().clone();
 
     }
@@ -57,14 +54,13 @@ public abstract class ExperimentalPose extends AbstractPose
 
     @Override
     public final void play(Player receiver) {
-        if(receiver==null){
+        if(receiver == null){
             npc.broadCastSpawn();
         } else {
             npc.spawnToPlayer(receiver);
         }
         //Requires PosePluginItems resource-pack
         npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.HAND, handItem);
-        npc.setActiveHand(getHandType());
     }
 
     @Override
@@ -94,11 +90,6 @@ public abstract class ExperimentalPose extends AbstractPose
         PosePluginAPI.pluginTagClear.pushThrough(event.getNewItem());
 
         npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(event.getSlotType().name()), event.getNewItem());
-    }
-
-    public final void setMode(HandType mode) {
-        this.handType = mode;
-        npc.setActiveHand(mode);
     }
 
     private ItemStack getEquipmentBySlot(PlayerArmorChangeEvent.SlotType slot, EntityEquipment eq){

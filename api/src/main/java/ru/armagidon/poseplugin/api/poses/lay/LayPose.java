@@ -10,6 +10,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.sit.ArmorStandSeat;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
@@ -24,7 +25,7 @@ public class LayPose extends AbstractPose {
         this.fakePlayer = FakePlayer.createNew(target, Pose.SLEEPING);
         registerProperties();
         this.driver = new ArmorStandSeat(target, (e,a)-> {
-            if(!getPosePluginPlayer().resetCurrentPose(true)) {
+            if(!getPosePluginPlayer().resetCurrentPose()) {
                 e.setCancelled(true);
                 a.pushBack();
             }
@@ -32,12 +33,12 @@ public class LayPose extends AbstractPose {
     }
 
     private void registerProperties(){
-        getProperties().registerProperty("head-rotation", new Property<>(fakePlayer::isHeadRotationEnabled, fakePlayer::setHeadRotationEnabled))
-                .registerProperty("swing-animation",new Property<>(fakePlayer::isSwingAnimationEnabled, fakePlayer::setSwingAnimationEnabled))
-                .registerProperty("sync-equipment",new Property<>(fakePlayer::isSynchronizationEquipmentEnabled, fakePlayer::setSynchronizationEquipmentEnabled))
-                .registerProperty("sync-overlays",new Property<>(fakePlayer::isSynchronizationOverlaysEnabled, fakePlayer::setSynchronizationOverlaysEnabled))
-                .registerProperty("view-distance",new Property<>(fakePlayer::getViewDistance, fakePlayer::setViewDistance))
-                .registerProperty("invisible",new Property<>(fakePlayer::isInvisible, fakePlayer::setInvisible))
+        getProperties().registerProperty(EnumPoseOption.HEAD_ROTATION.mapper(), new Property<>(fakePlayer::isHeadRotationEnabled, fakePlayer::setHeadRotationEnabled))
+                .registerProperty(EnumPoseOption.SWING_ANIMATION.mapper(),new Property<>(fakePlayer::isSwingAnimationEnabled, fakePlayer::setSwingAnimationEnabled))
+                .registerProperty(EnumPoseOption.SYNC_EQUIPMENT.mapper(),new Property<>(fakePlayer::isSynchronizationEquipmentEnabled, fakePlayer::setSynchronizationEquipmentEnabled))
+                .registerProperty(EnumPoseOption.SYNC_OVERLAYS.mapper(),new Property<>(fakePlayer::isSynchronizationOverlaysEnabled, fakePlayer::setSynchronizationOverlaysEnabled))
+                .registerProperty(EnumPoseOption.VIEW_DISTANCE.mapper(),new Property<>(fakePlayer::getViewDistance, fakePlayer::setViewDistance))
+                .registerProperty(EnumPoseOption.INVISIBLE.mapper(),new Property<>(fakePlayer::isInvisible, fakePlayer::setInvisible))
                 .register();
     }
 
@@ -53,7 +54,8 @@ public class LayPose extends AbstractPose {
 
     @Override
     public void play(Player receiver) {
-        if(receiver==null) fakePlayer.broadCastSpawn();
+        if(receiver==null)
+            fakePlayer.broadCastSpawn();
         else fakePlayer.spawnToPlayer(receiver);
     }
 
