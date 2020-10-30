@@ -22,16 +22,27 @@ Available at the following options:
 
 Main feature that PosePlugin provides is the pose changing
 
-Firstly, you have to get a PosePluginPlayer instance, class which represents a player who can change his pose.
+Firstly, you have to get a PosePluginPlayer instance.
+
+### PosePluginPlayer
+PosePluginPlayer is the class which represents a player who can change his pose.
 Use following code to get it:
 ```java
-PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(Player);
+PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(Player player);
 ```
 
-Where Player is a player whose instance of PosePluginPlayer you want to get.
+Where "player" is a player, whose instance of PosePluginPlayer you want to get.
+
+Methods of PosePluginPlayer you need:
+
+- void changePose(IPluginPose pose) - changes pose of player
+- void resetCurrentPose() - resets the current pose of player and fires StopPosingEvent
+- Player getHandle() - gets Player instance
+- IPluginPose getPose() - gets current pose object
+- EnumPose - gets current pose type
 
 **Note**: PosePluginPlayer is **NOT** a Player, so you **CANNOT** cast it to Player class.
-If you want to get Player instacne use:
+If you want to get Player instance use:
 ```java
 Player player = posePluginPlayer.getHandle();
 ```
@@ -82,6 +93,7 @@ Here's options for different poses:
     - HANDTYPE - changes hand player will be pointing with
 - Handshake pose:
     - HANDTYPE - changes hand player will be handshaking with
+
 Now after you customized your pose, you have to build it using "build" method:
 ```java
 PoseBuilder.builder(EnumPose poseType).option(EnumPoseOption option, T value).build(Player player);
@@ -109,21 +121,23 @@ PosePlugin API has some events to use.
 
 - getPose() - gets pose player has stopped posing with
 - getPlayer() - gets player who stopped posing
-- isCancellable() is this event cancellable
 - setCancelled(boolean cancelled) sets whether this event cancelled.
-
-#### Cancellable StopPosingEvent
-
-StopPosingEvent is cancellable, but not every stop posing can be canceled such as death, quit, toggling fly, getting in a boat, etc.
-To check if this event cancellable you should use a isCancellable();
 
 #### Stop posing
 To stop player posing, you have to use "resetCurrentPose" method.
 ```java
-posePluginPlayer.resetCurrentPose(boolean cancellable);
+posePluginPlayer.resetCurrentPose();
 ```
+This method throws StopPosingEvent and can be canceled.
 
-resetCurrentPose fires StopPosingEvent, cancellable is passing to StopPosingEvent, and can be got using isCancellable()
+```java
+@EventHandler
+public void onStop(StopPosingEvent event){
+    if (event.getPose().getType().equals(EnumPose.LYING)){
+        event.setCancelled(true);
+    }
+}
+```
 
 ### PoseChangeEvent
 *fired when player changes his pose*
@@ -134,8 +148,26 @@ resetCurrentPose fires StopPosingEvent, cancellable is passing to StopPosingEven
 - getBefore() - gets pose type of pose that was before changing
 - setCancelled(boolean cancelled) sets whether this event cancelled.
 
+```java
+@EventHandler
+public void onPoseChange(PoseChangeEvent event){
+    if (event.getNewPose().getType().equals(EnumPose.SWIMMING)){
+        event.setCancelled(true);
+    }
+}
+```
+
 ### PostPoseChangeEvent
 *fired when player changed his pose*
 
 - getPlayer() - gets player who changed his pose.
-- getNewPose() - gets new pose 
+- getNewPose() - gets new pose
+
+```java
+@EventHandler
+public void onPostPoseChange(PostPoseChangeEvent event){
+     if (event.getNewPose().getType().equals(EnumPose.WAVING)){
+        event.getPlayer().getHandle().sendMessage("Wave!");
+     }
+}
+```
