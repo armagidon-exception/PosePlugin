@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
@@ -78,7 +79,14 @@ public class ArmorStandSeat implements Listener, Tickable
         }
     }
 
+    @EventHandler
+    public void playerMoveEvent(PlayerMoveEvent event){
+        if (!event.getPlayer().equals(sitter)) return;
+        rotate();
+    }
+
     private void rotate(){
+        if (seat == null) return;
         try {
             Object vanillaStand = seat.getClass().getMethod("getHandle").invoke(seat);
             Field yawF = vanillaStand.getClass().getField("yaw");
@@ -88,16 +96,10 @@ public class ArmorStandSeat implements Listener, Tickable
         }
     }
 
-    private void gc(){
+    @Override
+    public void tick(){
         if( !seat.isDead() && !seat.getPassengers().contains(sitter) ){
             seat.remove();
         }
-    }
-
-    @Override
-    public void tick(){
-        rotate();
-        gc();
-
     }
 }

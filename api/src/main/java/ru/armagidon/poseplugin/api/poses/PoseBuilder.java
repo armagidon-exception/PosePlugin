@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.poses;
 
 import org.bukkit.entity.Player;
-import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.experimental.HandShakePose;
 import ru.armagidon.poseplugin.api.poses.experimental.PointPose;

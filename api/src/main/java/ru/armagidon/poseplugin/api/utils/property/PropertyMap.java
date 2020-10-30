@@ -9,8 +9,7 @@ public class PropertyMap
 {
     private boolean registered;
 
-    @SuppressWarnings("ALL")
-    private final Map<String, Property> propertyMap = Maps.newHashMap();
+    private final Map<String, Property<?>> propertyMap = Maps.newHashMap();
 
     public <T> PropertyMap registerProperty(String key, Property<T> property) {
         if(isRegistered()){
@@ -31,15 +30,15 @@ public class PropertyMap
 
     @SuppressWarnings("unchecked")
     public <T> Property<T> getProperty(String key, Class<T> type){
-        if(!propertyMap.containsKey(key)) return null;
-        if(propertyMap.get(key)==null) return null;
-        if(propertyMap.get(key).getValue()==null) return null;
-        Property<T> property = propertyMap.get(key);
+        if(!propertyMap.containsKey(key)) throw new IllegalArgumentException("This property is not registered");
+        if(propertyMap.get(key) == null) throw new NullPointerException("Property is null");
+        if(propertyMap.get(key).getValue()==null) throw new NullPointerException("Value of this property is null");
+        Property<?> property = propertyMap.get(key);
         Class<?> clazz = property.getValueClass();
         if(!type.equals(clazz)){
             throw new IllegalArgumentException("Class "+type.getTypeName()+ " doesn't match to "+clazz);
         }
-        return propertyMap.get(key);
+        return (Property<T>) property;
     }
 
     public void register(){
@@ -50,7 +49,7 @@ public class PropertyMap
         return registered;
     }
 
-    public void forEach(BiConsumer<String,Property> action){
+    public void forEach(BiConsumer<String,Property<?>> action){
         propertyMap.forEach(action);
     }
 }
