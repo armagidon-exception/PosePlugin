@@ -5,17 +5,16 @@ import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 
-import java.lang.reflect.Constructor;
-
-public interface PlayerHider extends Tickable
+public abstract class PlayerHider implements Tickable
 {
-    void hide(Player player);
-    void show(Player player);
-    boolean isHidden(Player player);
-    
+
+    public abstract void hide(Player player);
+    public abstract void show(Player player);
+    public abstract boolean isHidden(Player player);
+
     @SneakyThrows
-    static PlayerHider createNew(){
-        Constructor<?> constructor = Class.forName("ru.armagidon.poseplugin.api.utils.playerhider.PlayerHider_" + ReflectionTools.nmsVersion()).getDeclaredConstructor();
-        return  (PlayerHider) constructor.newInstance();
+    public static PlayerHider createNew(){
+        String path = String.format("ru.armagidon.poseplugin.api.utils.playerhider.%s.PlayerHiderImpl", ReflectionTools.nmsVersion());
+        return (PlayerHider) Class.forName(path).getDeclaredConstructor().newInstance();
     }
 }

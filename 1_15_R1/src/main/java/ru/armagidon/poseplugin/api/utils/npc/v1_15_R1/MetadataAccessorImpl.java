@@ -1,27 +1,26 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_15_R1;
 
-import net.minecraft.server.v1_16_R2.*;
+import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayerMetadataAccessor;
+import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 import java.util.Optional;
 
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_16_R2.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.v1_15_R1.FakePlayer.FakePlayerStaff.*;
 
-public class FakePlayerMetadataAccessorImpl_v1_16_R2 implements FakePlayerMetadataAccessor
+public class MetadataAccessorImpl implements FakePlayerMetadataAccessor
 {
 
-    private final FakePlayer_v1_16_R2 npc;
+    private final FakePlayer npc;
     private PacketPlayOutEntityMetadata metadata;
-    private boolean invisible;
     private final DataWatcher watcher;
-
-    //Constants
     private final DataWatcherSerializer<Byte> BYTE = DataWatcherRegistry.a;
 
-    public FakePlayerMetadataAccessorImpl_v1_16_R2(FakePlayer_v1_16_R2 npc) {
+    public MetadataAccessorImpl(FakePlayer npc) {
         this.npc = npc;
         this.watcher = npc.getWatcher();
     }
@@ -46,11 +45,8 @@ public class FakePlayerMetadataAccessorImpl_v1_16_R2 implements FakePlayerMetada
 
     @Override
     public void setInvisible(boolean flag) {
-        if(this.invisible!=flag) {
-            byte value = ((EntityPlayer) NMSUtils.asNMSCopy(npc.getParent())).getDataWatcher().get(BYTE.a(0));
-            npc.getWatcher().set(BYTE.a(0), setBit(value, 5,flag));
-            this.invisible = flag;
-        }
+        byte value = npc.getWatcher().get(DataWatcherRegistry.a.a(0));
+        watcher.set(DataWatcherRegistry.a.a(0), setBit(value, 5,flag));
     }
 
     @Override
@@ -82,7 +78,7 @@ public class FakePlayerMetadataAccessorImpl_v1_16_R2 implements FakePlayerMetada
 
     @Override
     public boolean isInvisible() {
-        return invisible;
+        return isKthBitSet(watcher.get(DataWatcherRegistry.a.a(0)),5);
     }
 
     @Override
@@ -98,7 +94,7 @@ public class FakePlayerMetadataAccessorImpl_v1_16_R2 implements FakePlayerMetada
 
     @Override
     public void setMainHand(boolean right) {
-        npc.getWatcher().set(BYTE.a(17),(byte)(right?127:0));
+        npc.getWatcher().set(BYTE.a(17),(byte) (right ? 127 : 0));
     }
 
     @Override

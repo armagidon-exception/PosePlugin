@@ -1,19 +1,21 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_16_R2;
 
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayerMetadataAccessor;
+import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 import java.util.Optional;
 
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_16_R1.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.v1_16_R2.FakePlayer.FakePlayerStaff.*;
 
-public class FakePlayerMetadataAccessorImpl_v1_16_R1 implements FakePlayerMetadataAccessor
+public class FakePlayerMetadataAccessorImpl implements FakePlayerMetadataAccessor
 {
 
-    private final FakePlayer_v1_16_R1 npc;
+    private final FakePlayer npc;
     private PacketPlayOutEntityMetadata metadata;
     private boolean invisible;
     private final DataWatcher watcher;
@@ -21,7 +23,7 @@ public class FakePlayerMetadataAccessorImpl_v1_16_R1 implements FakePlayerMetada
     //Constants
     private final DataWatcherSerializer<Byte> BYTE = DataWatcherRegistry.a;
 
-    public FakePlayerMetadataAccessorImpl_v1_16_R1(FakePlayer_v1_16_R1 npc) {
+    public FakePlayerMetadataAccessorImpl(FakePlayer npc) {
         this.npc = npc;
         this.watcher = npc.getWatcher();
     }

@@ -14,11 +14,11 @@ import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 public abstract class FakePlayer implements Tickable, Listener
 {
@@ -117,7 +117,7 @@ public abstract class FakePlayer implements Tickable, Listener
 
     @SneakyThrows
     public static FakePlayer createNew(Player parent, Pose pose){
-        Constructor<?> constructor = Class.forName("ru.armagidon.poseplugin.api.utils.npc.FakePlayer_" + ReflectionTools.nmsVersion()).getDeclaredConstructor(Player.class, Pose.class);
-        return  (FakePlayer) constructor.newInstance(parent, pose);
+        String path = String.format("ru.armagidon.poseplugin.api.utils.npc.%s.FakePlayer", ReflectionTools.nmsVersion());
+        return (FakePlayer) Class.forName(path).getDeclaredConstructor(Player.class, Pose.class).newInstance(parent, pose);
     }
 }

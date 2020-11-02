@@ -1,29 +1,30 @@
-package ru.armagidon.poseplugin.api.utils.playerhider;
+package ru.armagidon.poseplugin.api.utils.playerhider.v1_16_R2;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.playerhider.PlayerHider;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public final class PlayerHider_v1_16_R1 implements PlayerHider, Listener {
+public final class PlayerHiderImpl extends PlayerHider implements Listener {
 
     private final Map<Player, Packet<?>[]> hiddenPlayers;
 
-    public PlayerHider_v1_16_R1() {
+    public PlayerHiderImpl() {
         this.hiddenPlayers = Maps.newHashMap();
         Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
         PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);

@@ -1,26 +1,26 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_16_R2;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.server.v1_16_R1.EnumItemSlot;
-import net.minecraft.server.v1_16_R1.ItemStack;
-import net.minecraft.server.v1_16_R1.PacketPlayOutEntityEquipment;
-import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import net.minecraft.server.v1_16_R2.EnumItemSlot;
+import net.minecraft.server.v1_16_R2.ItemStack;
+import net.minecraft.server.v1_16_R2.PacketPlayOutEntityEquipment;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayerCustomEquipmentManager;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CustomEquipmentManagerImpl_v1_16_R1 implements FakePlayerCustomEquipmentManager
-{
-    private final FakePlayer_v1_16_R1 npc;
+public class CustomEquipmentManagerImpl implements FakePlayerCustomEquipmentManager {
+    private final FakePlayer npc;
     private PacketPlayOutEntityEquipment customEquipmentPacket;
-    private final Map<EnumItemSlot, ItemStack> customEquipment;
+    private final Map<EnumItemSlot, net.minecraft.server.v1_16_R2.ItemStack> customEquipment;
 
-    public CustomEquipmentManagerImpl_v1_16_R1(FakePlayer_v1_16_R1 npc) {
+    public CustomEquipmentManagerImpl(FakePlayer npc) {
         this.npc = npc;
         this.customEquipment = new HashMap<>();
     }

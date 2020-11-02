@@ -1,32 +1,32 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_16_R2;
 
 import com.mojang.authlib.GameProfile;
 import lombok.Getter;
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.EntityEquipment;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 import javax.annotation.Nullable;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_15_R1.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.v1_16_R2.FakePlayer.FakePlayerStaff.*;
 
-public class FakePlayer_v1_15_R1 extends FakePlayer implements Listener
+public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
 {
-
     /*Scheme
       on startup - initiate - load some data, executes once
       broadcast spawn
@@ -47,7 +47,7 @@ public class FakePlayer_v1_15_R1 extends FakePlayer implements Listener
     private final PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook movePacket;
     private final PacketPlayOutEntityDestroy destroy;
 
-    public FakePlayer_v1_15_R1(Player parent, Pose pose) {
+    public FakePlayer(Player parent, Pose pose) {
         super(parent, pose);
 
         //Create EntityPlayer instance
@@ -79,12 +79,13 @@ public class FakePlayer_v1_15_R1 extends FakePlayer implements Listener
         //Create data watcher to modify entity metadata
         this.watcher = cloneDataWatcher(parent, fake.getProfile());
         //Create instance of the packet with this data
-        this.metadataAccessor = new MetadataAccessorImpl_v1_15_R1(this);
+        this.metadataAccessor = new FakePlayerMetadataAccessorImpl(this);
         //Set metadata
         setMetadata();
-        this.npcUpdater = new FakePlayerUpdaterImpl_v1_15_R1(this);
+        this.npcUpdater = new FakePlayerSynchronizerImpl(this);
 
-        this.customEquipmentManager = new CustomEquipmentManagerImpl_v1_15_R1(this);
+        this.customEquipmentManager = new CustomEquipmentManagerImpl(this);
+
         this.destroy = new PacketPlayOutEntityDestroy(fake.getId());
 
     }
@@ -92,10 +93,10 @@ public class FakePlayer_v1_15_R1 extends FakePlayer implements Listener
     //Spawn methods
     /**Main methods*/
     public void broadCastSpawn(){
-        Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p-> p.getWorld().equals(parent.getWorld()))
-                .filter(p-> p.getLocation().distanceSquared(parent.getLocation())<=Math.pow(viewDistance,2)).collect(Collectors.toSet());
+        Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p -> p.getWorld().equals(parent.getWorld()))
+                .filter(p-> p.getLocation().distanceSquared(parent.getLocation()) <= Math.pow(viewDistance,2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
-        Bukkit.getOnlinePlayers().forEach(receiver-> NMSUtils.sendPacket(receiver, addNPC));
+        Bukkit.getOnlinePlayers().forEach(receiver -> NMSUtils.sendPacket(receiver, addNPC));
         trackers.forEach(this::spawnToPlayer);
     }
 
@@ -177,7 +178,7 @@ public class FakePlayer_v1_15_R1 extends FakePlayer implements Listener
 
     @Override
     public void setPosition(double x, double y, double z) {
-        fake.setPosition(x,y,z);
+        fake.setPosition(x, y, z);
     }
 
     public void swingHand(boolean mainHand) {
@@ -240,9 +241,8 @@ public class FakePlayer_v1_15_R1 extends FakePlayer implements Listener
             return eq;
         }
 
-
         static DataWatcher cloneDataWatcher(Player parent, GameProfile profile){
-            EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(),profile) {
+            EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(),toBlockPosition(parent.getLocation()),0, profile) {
                 @Override
                 public boolean isSpectator() {
                     return false;
@@ -312,6 +312,9 @@ public class FakePlayer_v1_15_R1 extends FakePlayer implements Listener
             profile.getProperties().putAll(parentVanilla.getProfile().getProperties());
 
             return new EntityPlayer(server.getServer(), world.getHandle(), profile, new PlayerInteractManager(world.getHandle())){
+
+                @Override
+                public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {}
 
                 @Override
                 public void sendMessage(IChatBaseComponent[] iChatBaseComponents) {}

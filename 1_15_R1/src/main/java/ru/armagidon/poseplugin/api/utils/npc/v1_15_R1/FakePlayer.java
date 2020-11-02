@@ -1,30 +1,31 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_15_R1;
 
 import com.mojang.authlib.GameProfile;
 import lombok.Getter;
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.EntityEquipment;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 import javax.annotation.Nullable;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_16_R1.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.v1_15_R1.FakePlayer.FakePlayerStaff.*;
 
-public class FakePlayer_v1_16_R1 extends FakePlayer
+public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer implements Listener
 {
 
     /*Scheme
@@ -47,7 +48,7 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
     private final PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook movePacket;
     private final PacketPlayOutEntityDestroy destroy;
 
-    public FakePlayer_v1_16_R1(Player parent, Pose pose) {
+    public FakePlayer(Player parent, Pose pose) {
         super(parent, pose);
 
         //Create EntityPlayer instance
@@ -61,7 +62,7 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
         //Create single instances of packet for optimisation purposes. So server won't need to create tons of copies of the same packet.
 
         //Create instance of move packet to pop up npc a little
-        this.movePacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short)2,(short)0,(byte)0,(byte)0, true);
+        this.movePacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short) 2,(short) 0,(byte) 0,(byte) 0, true);
 
         EnumDirection direction = getDirection(parent.getLocation().clone().getYaw());
 
@@ -79,13 +80,13 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
         //Create data watcher to modify entity metadata
         this.watcher = cloneDataWatcher(parent, fake.getProfile());
         //Create instance of the packet with this data
-        this.metadataAccessor = new FakePlayerMetadataAccessorImpl_v1_16_R1(this);
+        this.metadataAccessor = new MetadataAccessorImpl(this);
         //Set metadata
         setMetadata();
-        this.npcUpdater = new FakePlayerSynchronizerImpl_v1_16_R1(this);
+        this.npcUpdater = new FakePlayerUpdaterImpl(this);
 
-        this.customEquipmentManager = new CustomEquipmentManagerImpl_v1_16_R1(this);
-        this.destroy  = new PacketPlayOutEntityDestroy(fake.getId());
+        this.customEquipmentManager = new CustomEquipmentManagerImpl(this);
+        this.destroy = new PacketPlayOutEntityDestroy(fake.getId());
 
     }
 
@@ -164,7 +165,7 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
     }
 
     private void updateOverlays() {
-       npcUpdater.syncOverlays();
+        npcUpdater.syncOverlays();
     }
 
     private void updateHeadRotation() {
@@ -177,7 +178,7 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
 
     @Override
     public void setPosition(double x, double y, double z) {
-        fake.setPosition(x, y, z);
+        fake.setPosition(x,y,z);
     }
 
     public void swingHand(boolean mainHand) {
@@ -204,6 +205,7 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
         updateNPC();
         activeHand = type;
     }
+
     static class FakePlayerStaff {
 
         static byte getFixedRotation(float var1){
@@ -239,8 +241,9 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
             return eq;
         }
 
+
         static DataWatcher cloneDataWatcher(Player parent, GameProfile profile){
-            EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(),toBlockPosition(parent.getLocation()), profile) {
+            EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(),profile) {
                 @Override
                 public boolean isSpectator() {
                     return false;
@@ -310,9 +313,6 @@ public class FakePlayer_v1_16_R1 extends FakePlayer
             profile.getProperties().putAll(parentVanilla.getProfile().getProperties());
 
             return new EntityPlayer(server.getServer(), world.getHandle(), profile, new PlayerInteractManager(world.getHandle())){
-
-                @Override
-                public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {}
 
                 @Override
                 public void sendMessage(IChatBaseComponent[] iChatBaseComponents) {}

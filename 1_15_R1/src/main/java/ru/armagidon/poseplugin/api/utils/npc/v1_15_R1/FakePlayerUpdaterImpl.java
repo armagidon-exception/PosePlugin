@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_15_R1;
 
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
@@ -7,20 +7,21 @@ import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.util.PacketContainer;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayerSynchronizer;
 
 import java.util.Arrays;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_15_R1.FakePlayerStaff.getEquipmentBySlot;
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_15_R1.FakePlayerStaff.getFixedRotation;
+import static ru.armagidon.poseplugin.api.utils.npc.v1_15_R1.FakePlayer.FakePlayerStaff.getEquipmentBySlot;
+import static ru.armagidon.poseplugin.api.utils.npc.v1_15_R1.FakePlayer.FakePlayerStaff.getFixedRotation;
 
-public class FakePlayerUpdaterImpl_v1_15_R1 implements FakePlayerSynchronizer {
+public class FakePlayerUpdaterImpl implements FakePlayerSynchronizer {
 
-    private final FakePlayer_v1_15_R1 npc;
+    private final FakePlayer npc;
 
     private byte pOverlays;
 
-    public FakePlayerUpdaterImpl_v1_15_R1(FakePlayer_v1_15_R1 npc) {
+    public FakePlayerUpdaterImpl(FakePlayer npc) {
         this.npc = npc;
         this.pOverlays = ((EntityPlayer)asNMSCopy(npc.getParent())).getDataWatcher().get(DataWatcherRegistry.a.a(16));
     }

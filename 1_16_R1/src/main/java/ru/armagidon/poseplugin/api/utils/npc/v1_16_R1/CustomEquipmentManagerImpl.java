@@ -1,30 +1,34 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_16_R1;
 
-import net.minecraft.server.v1_15_R1.EnumItemSlot;
-import net.minecraft.server.v1_15_R1.ItemStack;
-import net.minecraft.server.v1_15_R1.PacketPlayOutEntityEquipment;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.server.v1_16_R1.EnumItemSlot;
+import net.minecraft.server.v1_16_R1.ItemStack;
+import net.minecraft.server.v1_16_R1.PacketPlayOutEntityEquipment;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
-import ru.armagidon.poseplugin.api.utils.nms.util.PacketContainer;
+import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayerCustomEquipmentManager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class CustomEquipmentManagerImpl_v1_15_R1 implements FakePlayerCustomEquipmentManager
+public class CustomEquipmentManagerImpl implements FakePlayerCustomEquipmentManager
 {
-    private final FakePlayer_v1_15_R1 npc;
-    private PacketContainer<PacketPlayOutEntityEquipment> customEquipmentPacket;
+    private final FakePlayer npc;
+    private PacketPlayOutEntityEquipment customEquipmentPacket;
     private final Map<EnumItemSlot, ItemStack> customEquipment;
 
-    public CustomEquipmentManagerImpl_v1_15_R1(FakePlayer_v1_15_R1 npc) {
+    public CustomEquipmentManagerImpl(FakePlayer npc) {
         this.npc = npc;
         this.customEquipment = new HashMap<>();
     }
 
     public void showEquipment(Player receiver){
         if(!customEquipment.isEmpty())
-            customEquipmentPacket.send(receiver);
+            NMSUtils.sendPacket(receiver, customEquipmentPacket);
     }
 
     @Override
@@ -64,10 +68,10 @@ public class CustomEquipmentManagerImpl_v1_15_R1 implements FakePlayerCustomEqui
     }
 
     private void mergeCustomEquipmentPacket() {
-        PacketPlayOutEntityEquipment[] eq = customEquipment.entrySet().stream().
-                map(entry->new PacketPlayOutEntityEquipment(npc.getFake().getId(),entry.getKey(),entry.getValue()))
-                .toArray(PacketPlayOutEntityEquipment[]::new);
-        customEquipmentPacket = new PacketContainer<>(eq);
+        List<Pair<EnumItemSlot, ItemStack>> slots = customEquipment.entrySet().stream().map(entry->
+                Pair.of(entry.getKey(), entry.getValue())).collect(Collectors.toList());
+        customEquipmentPacket = new PacketPlayOutEntityEquipment(npc.getFake().getId(), slots);
         npc.updateNPC();
     }
+
 }
