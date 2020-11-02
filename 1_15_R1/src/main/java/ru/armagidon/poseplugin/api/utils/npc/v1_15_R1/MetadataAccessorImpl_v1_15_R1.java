@@ -1,14 +1,16 @@
-package ru.armagidon.poseplugin.api.utils.npc;
+package ru.armagidon.poseplugin.api.utils.npc.v1_15_R1;
 
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.npc.FakePlayerMetadataAccessor;
+import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 import java.util.Optional;
 
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayer_v1_15_R1.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.v1_15_R1.FakePlayer_v1_15_R1.FakePlayerStaff.*;
 
 public class MetadataAccessorImpl_v1_15_R1 implements FakePlayerMetadataAccessor
 {
@@ -54,13 +56,12 @@ public class MetadataAccessorImpl_v1_15_R1 implements FakePlayerMetadataAccessor
 
     @Override
     public void setActiveHand(boolean main) {
-        byte data = npc.getWatcher().get(DataWatcherRegistry.a.a(7));
+        setMainHand(main);
+        byte data = npc.getWatcher().get(BYTE.a(7));
         if(!isHandActive()){
             data = setBit(data, 0,true);
         }
-        boolean active = isKthBitSet(npc.getWatcher().get(DataWatcherRegistry.a.a(7)),2);
-        if(active==main) return;
-        npc.getWatcher().set(DataWatcherRegistry.a.a(7),setBit(data,1,!main));
+        npc.getWatcher().set(BYTE.a(7),setBit(data,1,false));
     }
 
     @Override
