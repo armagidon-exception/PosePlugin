@@ -15,16 +15,6 @@
     <dependencies>
         <dependency>
             <groupId>ru.armagidon</groupId>
-            <artifactId>1_15_R1</artifactId>
-            <version>parent</version>
-        </dependency>
-        <dependency>
-            <groupId>ru.armagidon</groupId>
-            <artifactId>1_16_R1</artifactId>
-            <version>parent</version>
-        </dependency>
-        <dependency>
-            <groupId>ru.armagidon</groupId>
             <artifactId>plugin</artifactId>
             <version>parent</version>
         </dependency>
@@ -35,7 +25,22 @@
         </dependency>
         <dependency>
             <groupId>ru.armagidon</groupId>
+            <artifactId>1_15_R1</artifactId>
+            <version>parent</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.armagidon</groupId>
+            <artifactId>1_16_R1</artifactId>
+            <version>parent</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.armagidon</groupId>
             <artifactId>1_16_R2</artifactId>
+            <version>parent</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.armagidon</groupId>
+            <artifactId>1_16_R3</artifactId>
             <version>parent</version>
         </dependency>
     </dependencies>
@@ -64,11 +69,13 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <!--<minimizeJar>true</minimizeJar>-->
                             <artifactSet>
                                 <includes>
                                     <include>ru.armagidon:1_15_R1</include>
                                     <include>ru.armagidon:1_16_R1</include>
                                     <include>ru.armagidon:1_16_R2</include>
+                                    <include>ru.armagidon:1_16_R3</include>
                                     <include>ru.armagidon:plugin</include>
                                     <include>ru.armagidon:api</include>
                                     <include>ru.armagidon:core</include>
@@ -76,12 +83,6 @@
                                     <include>io.papermc:paperlib</include>
                                 </includes>
                             </artifactSet>
-                            <relocations>
-                                <relocation>
-                                    <pattern>de.tr7zw.changeme.nbtapi</pattern>
-                                    <shadedPattern>ru.armagidon.armagidonapi.itemutils.nbt-api</shadedPattern>
-                                </relocation>
-                            </relocations>
                         </configuration>
                     </execution>
                 </executions>

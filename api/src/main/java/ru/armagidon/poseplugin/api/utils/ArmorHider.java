@@ -1,6 +1,5 @@
 package ru.armagidon.poseplugin.api.utils;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import ru.armagidon.armagidonapi.itemutils.ItemModifingPipeline;
+import ru.armagidon.armagidonapi.itemutils.nbtapi.NBTItem;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.ticking.Tickable;

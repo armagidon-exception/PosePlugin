@@ -11,6 +11,7 @@
         <module>1_15_R1</module>
         <module>1_16_R1</module>
         <module>1_16_R2</module>
+        <module>1_16_R3</module>
         <module>plugin</module>
         <module>dist</module>
         <module>api</module>
@@ -23,7 +24,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>1</build.number>
         <build.prefix>-experimental</build.prefix>
-        <build.version>2.0-rc-4</build.version>
+        <build.version>2.0</build.version>
         <plugin.name>poseplugin</plugin.name>
         <build.name>${plugin.name}${build.prefix}-${build.version}-b${build.number}</build.name>
         <plugin.version>${build.version}${build.prefix}</plugin.version>

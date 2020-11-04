@@ -1,6 +1,5 @@
 package ru.armagidon.poseplugin.api;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import io.papermc.lib.PaperLib;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -10,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.armagidon.armagidonapi.itemutils.ItemModifingPipeline;
+import ru.armagidon.armagidonapi.itemutils.nbtapi.NBTItem;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
