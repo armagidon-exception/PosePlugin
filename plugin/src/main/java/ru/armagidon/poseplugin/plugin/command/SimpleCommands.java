@@ -35,20 +35,23 @@ public class SimpleCommands extends PosePluginCommand
         ConfigManager cfg = PosePlugin.getInstance().getConfigManager();
 
         PosePlugin.PLAYERS_POSES.put(sender, p.getPoseType());
+        try {
+            if (getCommand().getName().equalsIgnoreCase("swim")) {
+                p.changePose(PoseBuilder.builder(EnumPose.SWIMMING).build(sender));
 
-        if( getCommand().getName().equalsIgnoreCase("swim") ){
-            p.changePose(PoseBuilder.builder(EnumPose.SWIMMING).build(sender));
-
-        } else if( getCommand().getName().equalsIgnoreCase("lay") ){
-            p.changePose(PoseBuilder.builder(EnumPose.LYING).
-                    option(EnumPoseOption.HEAD_ROTATION,cfg.get(LAY, HEAD_ROTATION)).
-                    option(EnumPoseOption.SWING_ANIMATION, cfg.get(LAY, SWING_ANIMATION)).
-                    option(EnumPoseOption.SYNC_EQUIPMENT, cfg.get(LAY, SYNC_EQUIPMENT)).
-                    option(EnumPoseOption.SYNC_OVERLAYS, cfg.get(LAY, SYNC_OVERLAYS)).
-                    option(EnumPoseOption.INVISIBLE, sender.hasPotionEffect(PotionEffectType.INVISIBILITY)).
-                    option(EnumPoseOption.VIEW_DISTANCE, cfg.get(LAY, VIEW_DISTANCE)).build(sender));
-        } else if( getCommand().getName().equalsIgnoreCase("sit") ){
-            p.changePose(PoseBuilder.builder(EnumPose.SITTING).build(sender));
+            } else if (getCommand().getName().equalsIgnoreCase("lay")) {
+                p.changePose(PoseBuilder.builder(EnumPose.LYING).
+                        option(EnumPoseOption.HEAD_ROTATION, cfg.get(LAY, HEAD_ROTATION)).
+                        option(EnumPoseOption.SWING_ANIMATION, cfg.get(LAY, SWING_ANIMATION)).
+                        option(EnumPoseOption.SYNC_EQUIPMENT, cfg.get(LAY, SYNC_EQUIPMENT)).
+                        option(EnumPoseOption.SYNC_OVERLAYS, cfg.get(LAY, SYNC_OVERLAYS)).
+                        option(EnumPoseOption.INVISIBLE, sender.hasPotionEffect(PotionEffectType.INVISIBILITY)).
+                        option(EnumPoseOption.VIEW_DISTANCE, cfg.get(LAY, VIEW_DISTANCE)).build(sender));
+            } else if (getCommand().getName().equalsIgnoreCase("sit")) {
+                p.changePose(PoseBuilder.builder(EnumPose.SITTING).build(sender));
+            }
+        } catch (IllegalArgumentException e){
+            p.resetCurrentPose();
         }
 
         return true;
