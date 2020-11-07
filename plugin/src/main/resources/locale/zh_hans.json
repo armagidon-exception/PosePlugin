@@ -1,0 +1,33 @@
+in-air: "§c您不能在空中那么做"
+swim:
+  play: "§b您做出了游泳的姿态"
+  damage: "§c意识到自己受到了伤害，您猛然站了起来"
+  stop: "§a您站了起来"
+lay:
+  play: "§b您躺下了"
+  damage: "§c意识到自己受到了伤害，您猛然站了起来"
+  prevent-use-when-invisible: "§c您不能在隐身状态下躺下"
+  prevent-use-invisibility-when-use: "§c别在躺下的时候喝隐身药水，小心呛着"
+  stop: "§a您站了起来"
+sit:
+  play: "§b您坐了下来"
+  damage: "§c意识到自己受到了伤害，您猛然站了起来"
+  stop: "§a您站了起来"
+wave:
+  play: "§b您开始招手"
+  damage: "§c意识到自己受到了伤害，您停下了目前的动作"
+  handmode-change: "§a您将您的招手的手更改为"
+  stop: "§a您停止了招手"
+  usage: "§9/wave [right/left/off] → 招手-右手/左手/关闭"
+point:
+  play: "§b您伸出手指向某样东西"
+  damage: "§c意识到自己受到了伤害，您停下了目前的动作"
+  handmode-change: "§a您将您的伸手指的手更改为"
+  stop: "§a您停止了指点"
+  usage: "§9/point [right/left/off] → 指点-右手/左手/关闭"
+handshake:
+  play: "§b您开始用手作出握手姿态。"
+  damage: "§c意识到自己受到了伤害，您停下了目前的动作"
+  handmode-change: "§a您将您握手的手更改为"
+  stop: "§a您停止了握手"
+  usage: "§9/handshake [right/left/off] → 握手-右手/左手/关闭"
