@@ -29,6 +29,7 @@ public class NameTagHider
         ScoreboardUtil util = new ScoreboardUtil(player);
         PosePluginAPI.getAPI().registerListener(util);
         utils.put(player, util);
+        util.hideTag();
 
 
         /*String NAME = player.getName();
@@ -62,6 +63,7 @@ public class NameTagHider
         if (utils.containsKey(player)){
             ScoreboardUtil util = utils.remove(player);
             HandlerList.unregisterAll(util);
+            util.showTag();
         }
 
         /*if(teamMap.containsKey(player)) {

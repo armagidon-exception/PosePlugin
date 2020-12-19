@@ -6,9 +6,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
-import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
-
-import java.lang.reflect.Method;
 
 public class ScoreboardUtil implements Listener {
 
@@ -36,7 +33,7 @@ public class ScoreboardUtil implements Listener {
         try {
             //Remove team
             NMSUtils.sendPacket(this.player, TeamManager.removeTeam(new TeamWrapper(player.getName())));
-            //Resend scoreboard
+/*            //Resend scoreboard
             Object vanillaPlayer = NMSUtils.asNMSCopy(player);
             Object mcServer = vanillaPlayer.getClass().getDeclaredField("server").get(vanillaPlayer);
             Object playerList = mcServer.getClass().getDeclaredMethod("getPlayerList").invoke(mcServer);
@@ -47,7 +44,7 @@ public class ScoreboardUtil implements Listener {
             Scoreboard scoreboard = player.getScoreboard();
             Object vanillaScoreboard = scoreboard.getClass().getDeclaredMethod("getHandle").invoke(scoreboard);
 
-            sendScoreboard.invoke(playerList, vanillaScoreboard, vanillaPlayer);
+            sendScoreboard.invoke(playerList, vanillaScoreboard, vanillaPlayer);*/
 
         } catch (Exception e){
             e.printStackTrace();
