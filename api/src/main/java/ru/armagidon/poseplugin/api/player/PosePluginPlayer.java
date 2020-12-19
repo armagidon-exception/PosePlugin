@@ -83,6 +83,7 @@ public class PosePluginPlayer
     public void stopPosingSilently(){
         if ( getPoseType().equals(EnumPose.STANDING) ) return;
         getPose().stop();
+        setPose(AbstractPose.STANDING);
     }
 
     public IPluginPose getPose() {
