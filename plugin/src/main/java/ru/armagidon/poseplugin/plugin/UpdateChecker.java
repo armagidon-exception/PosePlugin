@@ -49,14 +49,14 @@ public class UpdateChecker extends BukkitRunnable
 
     public void sendNotification(Player p){
         TextComponent link = new TextComponent("§bDownload");
-        TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&',"&7&lNEW UPDATE &e"+newest+"&7&l AVAILABLE! CLICK TO DOWNLOAD!"));
+        TextComponent msg = new TextComponent(ChatColor.translateAlternateColorCodes('&',"&7&lNEW UPDATE &e" + newest + "&7&l AVAILABLE! CLICK TO DOWNLOAD!"));
         p.sendMessage(ChatColor.translateAlternateColorCodes('&',"                   &f&l{[&3POSEPLUGIN&f&l]}"));
         msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,new BaseComponent[]{link}));
         msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,"https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose.76990/"));
         p.spigot().sendMessage(msg);
         p.sendMessage(ChatColor.translateAlternateColorCodes('&',"                   &f&l{[&3POSEPLUGIN&f&l]}"));
 
-        PosePlugin.getInstance().getDescription().getAuthors().stream().map(Bukkit::getPlayer).filter(pl->pl!=null&&pl.isOnline()).forEach(pl->
+        PosePlugin.getInstance().getDescription().getAuthors().stream().map(Bukkit::getPlayer).filter(pl->pl != null && pl.isOnline()).forEach(pl->
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&bDEVELOPER IS ONLINE ON THIS SERVER > &a"+pl.getName())));
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
     }

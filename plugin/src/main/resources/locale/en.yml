@@ -6,7 +6,7 @@ swim:
 lay:
   play: "§bYou've laid down"
   damage: "§cYou suddenly stood up, because you got damaged"
-  prevent-use-when-invisible: "§cYou can't set lying pose in invisibility"
+  prevent-use-when-invisible: "§cYou can't set lying pose being invisible"
   prevent-use-invisibility-when-use: "§cYou can't use invisibility potion while using lay pose"
   stop: "§aYou stood up"
 sit:

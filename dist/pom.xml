@@ -12,12 +12,11 @@
     <artifactId>dist</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <build.name>PosePluginAPI${build.prefix}-${build.version}-b${build.number}</build.name>
+    </properties>
+
     <dependencies>
-        <dependency>
-            <groupId>ru.armagidon</groupId>
-            <artifactId>plugin</artifactId>
-            <version>parent</version>
-        </dependency>
         <dependency>
             <groupId>ru.armagidon</groupId>
             <artifactId>api</artifactId>
@@ -51,15 +50,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.1</version>
                 <executions>
@@ -76,7 +66,6 @@
                                     <include>ru.armagidon:1_16_R1</include>
                                     <include>ru.armagidon:1_16_R2</include>
                                     <include>ru.armagidon:1_16_R3</include>
-                                    <include>ru.armagidon:plugin</include>
                                     <include>ru.armagidon:api</include>
                                     <include>ru.armagidon:core</include>
                                     <include>ru.armagidon:ItemUtils</include>

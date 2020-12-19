@@ -12,7 +12,14 @@
     <artifactId>plugin</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <plugin.name>poseplugin</plugin.name>
+        <build.name>${plugin.name}${build.prefix}-${build.version}-b${build.number}</build.name>
+    </properties>
+
     <build>
+        <finalName>${build.name}</finalName>
+        <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>com.google.code.maven-replacer-plugin</groupId>
@@ -36,7 +43,27 @@
                     </replacements>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>show-profiles</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>active-profiles</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
     <dependencies>

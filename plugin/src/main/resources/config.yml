@@ -15,3 +15,15 @@ lay:
   update-overlays: true
 sit:
   stand-up-when-damaged: true
+wave:
+  enabled: true
+  stand-up-when-damaged: true
+  disable-when-shift: true
+point:
+  enabled: true
+  stand-up-when-damaged: true
+  disable-when-shift: true
+handshake:
+  enabled: true
+  stand-up-when-damaged: true
+  disable-when-shift: true

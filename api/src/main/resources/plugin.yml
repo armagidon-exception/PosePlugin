@@ -1,0 +1,5 @@
+name: PosePluginAPI
+main: ru.armagidon.poseplugin.api.PosePluginBootloader
+version: plugin-version
+api-version: 1.15
+loadbefore: [PosePlugin]
