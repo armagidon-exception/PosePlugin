@@ -6,6 +6,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -18,9 +19,6 @@ import ru.armagidon.poseplugin.api.events.PoseChangeEvent;
 import ru.armagidon.poseplugin.api.events.PostPoseChangeEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.plugin.configuration.ConfigCategory;
-import ru.armagidon.poseplugin.plugin.configuration.messaging.Message;
-import ru.armagidon.poseplugin.plugin.configuration.settings.LaySettings;
 import ru.armagidon.poseplugin.plugin.events.HandTypeChangeEvent;
 import ru.armagidon.poseplugin.plugin.events.StopAnimationWithMessageEvent;
 
@@ -36,10 +34,10 @@ public class MessagePrintingHandler implements Listener
         if(p.getPose().getType().equals(EnumPose.STANDING)) return;
         switch (e.getCause()){
             case DAMAGE:
-                PosePlugin.getInstance().message().send(e.getPose().getName()+".damage", p.getHandle());
+                PosePlugin.getInstance().messages().send(p.getHandle(), e.getPose().getName()+".damage");
                 break;
             case OTHER:
-                PosePlugin.getInstance().message().send(e.getPose().getName()+".stop", e.getPlayer().getHandle());
+                PosePlugin.getInstance().messages().send(p.getHandle(), e.getPose().getName()+".stop");
                 break;
         }
     }
@@ -50,7 +48,7 @@ public class MessagePrintingHandler implements Listener
         if( !PLAYERS_POSES.containsKey(event.getPlayer().getHandle()) ) return;
 
         String sec = event.getPoseType().getName();
-        PosePlugin.getInstance().message().send(sec + ".play",event.getPlayer().getHandle());
+        PosePlugin.getInstance().messages().send(event.getPlayer().getHandle(), sec + ".play");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -60,9 +58,9 @@ public class MessagePrintingHandler implements Listener
 
         if( event.getNewPose().getType().equals(EnumPose.LYING) ){
             Player player = event.getPlayer().getHandle();
-            boolean preventInvisible = PosePlugin.getInstance().getConfigManager().get(ConfigCategory.LAY, LaySettings.PREVENT_USE_WHEN_INVISIBLE);
+            boolean preventInvisible = PosePlugin.getInstance().getCfg().getBoolean("lay.prevent-use-when-invisible");
             if(preventInvisible && player.hasPotionEffect(PotionEffectType.INVISIBILITY)){
-                PosePlugin.getInstance().message().send(Message.LAY_PREVENT_INVISIBILITY, player);
+                PosePlugin.getInstance().messages().send(player, "lay.prevent-use-when-invisible");
                 event.setCancelled(true);
             }
         }
@@ -75,7 +73,8 @@ public class MessagePrintingHandler implements Listener
 
     @EventHandler
     public void onUsePotionThrowable(PlayerInteractEvent e){
-        handlePotion(e, e.getPlayer(), e.getItem());
+        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
+            handlePotion(e, e.getPlayer(), e.getItem());
     }
 
     private void handlePotion(Cancellable cancellable, Player player, ItemStack hand){
@@ -92,7 +91,7 @@ public class MessagePrintingHandler implements Listener
                 if (meta != null) {
                     if (meta.getBasePotionData().getType() == PotionType.INVISIBILITY) {
                         cancellable.setCancelled(true);
-                        PosePlugin.getInstance().message().send(Message.LAY_PREVENT_USE_POTION, player);
+                        PosePlugin.getInstance().messages().send(player, "lay.prevent-use-invisibility-when-use");
                     }
                 }
 
@@ -103,6 +102,6 @@ public class MessagePrintingHandler implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onHandModeChange(HandTypeChangeEvent event){
         if( !PLAYERS_POSES.containsKey(event.getPlayer().getHandle()) ) return;
-        PosePlugin.getInstance().message().send(event.getPose().getName()+".handmode-change", event.getPlayer().getHandle());
+        PosePlugin.getInstance().messages().send(event.getPlayer().getHandle(), event.getPose().getName()+".handmode-change");
     }
 }

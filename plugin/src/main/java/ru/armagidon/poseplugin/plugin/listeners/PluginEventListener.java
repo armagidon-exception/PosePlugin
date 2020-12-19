@@ -21,10 +21,11 @@ import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
-import ru.armagidon.poseplugin.plugin.configuration.ConfigCategory;
-import ru.armagidon.poseplugin.plugin.configuration.ConfigConstants;
-import ru.armagidon.poseplugin.plugin.configuration.settings.SwimSettings;
 import ru.armagidon.poseplugin.plugin.events.StopAnimationWithMessageEvent;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.armagidon.poseplugin.PosePlugin.PLAYERS_POSES;
 import static ru.armagidon.poseplugin.api.poses.EnumPose.*;
@@ -66,14 +67,13 @@ public class PluginEventListener implements Listener
         if ( !PLAYERS_POSES.containsKey(event.getPlayer()) ) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
 
+        Set<EnumPose> posesToCheck = Stream.of(WAVING, POINTING, HANDSHAKING).collect(Collectors.toSet());
+
         if ( player.getPoseType() == SWIMMING ){
             if ( !event.getPlayer().isOnGround() ) return;
-        } else if( player.getPoseType() == WAVING ){
-            if( !ConfigConstants.isWaveShiftEnabled() ) return;
-        } else if (player.getPoseType() == POINTING){
-            if( !ConfigConstants.isPointShiftEnabled()) return;
-        } else if ( player.getPoseType() == HANDSHAKING ){
-            if( !ConfigConstants.isHandShakeShiftEnabled() ) return;
+        } else {
+            if ( !posesToCheck.contains(player.getPoseType()) ) return;
+            if ( !PosePlugin.getInstance().getCfg().getBoolean(player.getPoseType().getName()+".disable-when-shift") ) return;
         }
         player.resetCurrentPose();
     }
@@ -86,7 +86,7 @@ public class PluginEventListener implements Listener
 
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
         if(player.getPoseType() == EnumPose.STANDING) return;
-        boolean standUpWhenDamaged = PosePlugin.getInstance().getConfig().getBoolean(player.getPoseType().getName()+".stand-up-when-damaged");
+        boolean standUpWhenDamaged = PosePlugin.getInstance().getConfig().getBoolean(player.getPoseType().getName() + ".stand-up-when-damaged");
         if (standUpWhenDamaged) {
             Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(StopAnimationWithMessageEvent.StopCause.DAMAGE, player, player.getPoseType()));
             PLAYERS_POSES.remove(player.getHandle());
@@ -139,7 +139,7 @@ public class PluginEventListener implements Listener
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer());
         if (player.getPoseType() != SWIMMING) return;
 
-        boolean isSwimmingStatic = PosePlugin.getInstance().getConfigManager().get(ConfigCategory.SWIM, SwimSettings.STATIC);
+        boolean isSwimmingStatic = PosePlugin.getInstance().getCfg().getBoolean("swim.static");
         if (isSwimmingStatic){
             if (event.getTo().getX() != event.getFrom().getX() ||
                 event.getTo().getY() != event.getFrom().getY() ||

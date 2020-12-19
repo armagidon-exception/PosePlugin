@@ -1,18 +1,15 @@
 package ru.armagidon.poseplugin;
 
 import lombok.Getter;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.plugin.UpdateChecker;
 import ru.armagidon.poseplugin.plugin.command.PluginCommands;
-import ru.armagidon.poseplugin.plugin.configuration.ConfigConstants;
-import ru.armagidon.poseplugin.plugin.configuration.ConfigManager;
-import ru.armagidon.poseplugin.plugin.configuration.messaging.Messages;
+import ru.armagidon.poseplugin.plugin.configuration.Config;
+import ru.armagidon.poseplugin.plugin.configuration.Messages;
 import ru.armagidon.poseplugin.plugin.listeners.MessagePrintingHandler;
 import ru.armagidon.poseplugin.plugin.listeners.PluginEventListener;
 
@@ -22,30 +19,21 @@ import java.util.Map;
 public final class PosePlugin extends JavaPlugin implements Listener
 {
     private @Getter static PosePlugin instance;
-    private @Getter final ConfigManager configManager;
-
     public static Map<Player, EnumPose> PLAYERS_POSES = new HashMap<>();
-
     public static UpdateChecker checker;
-    private Messages messages;
-
+    private @Getter final Config cfg;
+    private final Messages messages;
     private PluginCommands pcs;
 
 
     public PosePlugin() {
         instance = this;
-        configManager = new ConfigManager();
-        try {
-            this.messages = new Messages(ConfigConstants.locale());
-        } catch (IllegalArgumentException e){
-            setEnabled(false);
-            getLogger().severe(e.getMessage());
-        }
+        cfg = new Config(this);
+        messages = new Messages(this, cfg.getString("locale").trim().toLowerCase());
     }
 
     @Override
     public void onEnable() {
-        PosePluginAPI.getAPI().init(this);
         getServer().getPluginManager().registerEvents(new PluginEventListener(),this);
         getServer().getPluginManager().registerEvents(new MessagePrintingHandler(),this);
         pcs = new PluginCommands();
@@ -61,25 +49,19 @@ public final class PosePlugin extends JavaPlugin implements Listener
         pcs.unregisterAll();
     }
 
-    public Messages message(){
-        return messages;
-    }
-
     private void checkForUpdates(){
-        if(ConfigConstants.checkForUpdates()){
+        if ( cfg.getBoolean("check-for-updates") ) {
             checker = new UpdateChecker();
             checker.runTaskAsynchronously(this);
         }
     }
 
-    @Override
-    public void reloadConfig() {
-        configManager.reload();
+    public Messages messages(){
+        return messages;
     }
 
-    @NotNull
     @Override
-    public FileConfiguration getConfig() {
-        return configManager.getConfiguration();
+    public void reloadConfig() {
+        cfg.reload();
     }
 }

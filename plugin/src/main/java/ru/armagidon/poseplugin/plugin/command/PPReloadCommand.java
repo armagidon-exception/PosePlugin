@@ -16,7 +16,7 @@ public class PPReloadCommand extends PosePluginCommand
     protected boolean execute(Player player, String label, String[] args) {
         Bukkit.getPluginManager().disablePlugin(PosePlugin.getInstance());
         PosePlugin.getInstance().reloadConfig();
-        PosePlugin.getInstance().message().reload();
+        PosePlugin.getInstance().messages().reload(PosePlugin.getInstance().getCfg().getString("locale").toLowerCase().trim());
         Bukkit.getOnlinePlayers().forEach(Player::updateCommands);
         Bukkit.getPluginManager().enablePlugin(PosePlugin.getInstance());
         player.sendMessage(ChatColor.translateAlternateColorCodes('&',"&8&l[&b&l&nPosePlugin&8&l]&a Plugin reloaded!"));

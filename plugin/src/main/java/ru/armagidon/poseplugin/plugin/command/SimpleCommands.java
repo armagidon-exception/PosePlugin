@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.plugin.command;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -10,11 +11,6 @@ import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PoseBuilder;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
-import ru.armagidon.poseplugin.plugin.configuration.ConfigManager;
-import ru.armagidon.poseplugin.plugin.configuration.messaging.Message;
-
-import static ru.armagidon.poseplugin.plugin.configuration.ConfigCategory.LAY;
-import static ru.armagidon.poseplugin.plugin.configuration.settings.LaySettings.*;
 
 public class SimpleCommands extends PosePluginCommand
 {
@@ -28,11 +24,11 @@ public class SimpleCommands extends PosePluginCommand
 
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(sender.getName());
         if(!VectorUtils.onGround(p.getHandle())){
-            PosePlugin.getInstance().message().send(Message.IN_AIR, sender);
+            PosePlugin.getInstance().messages().send(sender, "in-air");
             return true;
         }
 
-        ConfigManager cfg = PosePlugin.getInstance().getConfigManager();
+        FileConfiguration cfg = PosePlugin.getInstance().getCfg().getCfg();
 
         PosePlugin.PLAYERS_POSES.put(sender, p.getPoseType());
         try {
@@ -41,12 +37,12 @@ public class SimpleCommands extends PosePluginCommand
 
             } else if (getCommand().getName().equalsIgnoreCase("lay")) {
                 p.changePose(PoseBuilder.builder(EnumPose.LYING).
-                        option(EnumPoseOption.HEAD_ROTATION, cfg.get(LAY, HEAD_ROTATION)).
-                        option(EnumPoseOption.SWING_ANIMATION, cfg.get(LAY, SWING_ANIMATION)).
-                        option(EnumPoseOption.SYNC_EQUIPMENT, cfg.get(LAY, SYNC_EQUIPMENT)).
-                        option(EnumPoseOption.SYNC_OVERLAYS, cfg.get(LAY, SYNC_OVERLAYS)).
+                        option(EnumPoseOption.HEAD_ROTATION, cfg.getBoolean("lay.head-rotation")).
+                        option(EnumPoseOption.SWING_ANIMATION, cfg.getBoolean("lay.swing-animation")).
+                        option(EnumPoseOption.SYNC_EQUIPMENT, cfg.getBoolean("lay.update-equipment")).
+                        option(EnumPoseOption.SYNC_OVERLAYS, cfg.getBoolean("lay.update-overlays")).
                         option(EnumPoseOption.INVISIBLE, sender.hasPotionEffect(PotionEffectType.INVISIBILITY)).
-                        option(EnumPoseOption.VIEW_DISTANCE, cfg.get(LAY, VIEW_DISTANCE)).build(sender));
+                        option(EnumPoseOption.VIEW_DISTANCE, cfg.getInt("lay.view-distance")).build(sender));
             } else if (getCommand().getName().equalsIgnoreCase("sit")) {
                 p.changePose(PoseBuilder.builder(EnumPose.SITTING).build(sender));
             }

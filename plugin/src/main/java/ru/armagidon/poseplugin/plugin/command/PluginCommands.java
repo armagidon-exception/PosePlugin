@@ -1,9 +1,10 @@
 package ru.armagidon.poseplugin.plugin.command;
 
 import org.bukkit.command.CommandMap;
+import org.bukkit.configuration.file.FileConfiguration;
 import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.plugin.configuration.ConfigConstants;
+import ru.armagidon.poseplugin.plugin.configuration.Config;
 
 import java.util.Arrays;
 
@@ -35,13 +36,13 @@ public class PluginCommands
         }
         {
             {
-                handshake.setUsage(PosePlugin.getInstance().message().getMessage("handshake.usage"));
+                handshake.setUsage(PosePlugin.getInstance().messages().getColorized("handshake.usage"));
             }
             {
-                point.setUsage(PosePlugin.getInstance().message().getMessage("point.usage"));
+                point.setUsage(PosePlugin.getInstance().messages().getColorized("point.usage"));
             }
             {
-                wave.setUsage(PosePlugin.getInstance().message().getMessage("wave.usage"));
+                wave.setUsage(PosePlugin.getInstance().messages().getColorized("wave.usage"));
             }
         }
     }
@@ -50,13 +51,16 @@ public class PluginCommands
         CommandMap map = PosePluginAPI.getAPI().getCoreWrapper().getCommandMap();
         map.register("lay", "poseplugin", lay.getCommand());
         map.register("sit", "poseplugin", sit.getCommand());
-        if(ConfigConstants.isSwimEnabled())
-            map.register("swim","poseplugin",swim.getCommand());
         map.register("lay","poseplugin",lay.getCommand());
         map.register("ppreload","poseplugin",ppreload.getCommand());
-        if(ConfigConstants.isWaveEnabled()) map.register("wave","poseplugin",wave.getCommand());
-        if(ConfigConstants.isPointEnabled()) map.register("point","poseplugin",point.getCommand());
-        if(ConfigConstants.isHandShakeEnabled()) map.register("handshake","poseplugin",handshake.getCommand());
+
+        Config cfg = PosePlugin.getInstance().getCfg();
+        if (cfg.getBoolean("swim.enabled") ) map.register("swim","poseplugin",swim.getCommand());
+        if (cfg.getBoolean("x-mode")) {
+            if (cfg.getBoolean("wave.enabled")) map.register("wave", "poseplugin", wave.getCommand());
+            if (cfg.getBoolean("point.enabled")) map.register("point", "poseplugin", point.getCommand());
+            if (cfg.getBoolean("handshake.enabled")) map.register("handshake", "poseplugin", handshake.getCommand());
+        }
     }
 
     public void unregisterAll(){
