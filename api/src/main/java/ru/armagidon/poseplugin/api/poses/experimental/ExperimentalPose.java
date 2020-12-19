@@ -9,6 +9,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.armagidon.armagidonapi.itemutils.ItemBuilder;
+import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
 import ru.armagidon.armagidonapi.itemutils.nbtapi.NBTItem;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
@@ -87,7 +88,8 @@ public abstract class ExperimentalPose extends AbstractPose
     public final void onArmorChange(PlayerArmorChangeEvent event){
         if(event.getNewItem()==null) return;
 
-        PosePluginAPI.pluginTagClear.pushThrough(event.getNewItem());
+        NBTModifier.remove(event.getNewItem(), "PosePluginItem");
+        //PosePluginAPI.pluginTagClear.pushThrough(event.getNewItem());
 
         npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(event.getSlotType().name()), event.getNewItem());
     }

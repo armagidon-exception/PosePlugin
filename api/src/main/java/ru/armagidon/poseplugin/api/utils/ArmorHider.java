@@ -6,8 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
-import ru.armagidon.armagidonapi.itemutils.ItemModifingPipeline;
-import ru.armagidon.armagidonapi.itemutils.nbtapi.NBTItem;
+import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
@@ -16,16 +15,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static ru.armagidon.poseplugin.api.PosePluginAPI.pluginTagClear;
+import static ru.armagidon.poseplugin.api.PosePluginAPI.NBT_TAG;
 
 public class ArmorHider implements Listener, Tickable {
 
-    private final String HIDE_KEY = "PosePluginItem";
     private final String HIDE_VALUE = "ARMOR";
-
-    private final ItemModifingPipeline pluginAddTag = new ItemModifingPipeline(){{
-        addLast(i -> addHideTag(i));
-    }};
 
     private final Set<Player> hiddenArmor;
 
@@ -41,7 +35,7 @@ public class ArmorHider implements Listener, Tickable {
         ItemStack[] armor = player.getInventory().getArmorContents();
         for (ItemStack content : armor) {
             if(content == null || content.getType() == Material.AIR) continue;
-            pluginAddTag.pushThrough(content);
+            NBTModifier.setString(content, NBT_TAG, HIDE_VALUE);
         }
         player.getInventory().setArmorContents(armor);
         player.updateInventory();
@@ -51,22 +45,15 @@ public class ArmorHider implements Listener, Tickable {
         if(!hiddenArmor.contains(player)) return;
         hiddenArmor.remove(player);
         ItemStack[] armor = player.getInventory().getArmorContents();
-        Arrays.stream(armor).forEach(pluginTagClear::pushThrough);
-        player.getInventory().setArmorContents(armor);
+        Arrays.stream(armor).forEach(i -> NBTModifier.remove(i, NBT_TAG));
         player.updateInventory();
-    }
-
-    private ItemStack addHideTag(ItemStack stack){
-        NBTItem item = new NBTItem(stack, true);
-        item.setString(HIDE_KEY,HIDE_VALUE);
-        return item.getItem();
     }
 
     @EventHandler
     public void onArmor(PlayerArmorChangeEvent event){
         if(!hiddenArmor.contains(event.getPlayer())) return;
         ItemStack newItem = event.getNewItem();
-        if(newItem==null || newItem.getType().equals(Material.AIR)) return;
+        if(newItem == null || newItem.getType().equals(Material.AIR)) return;
         if(event.getPlayer().getEquipment()==null) return;
         addTag(event.getPlayer());
         event.getPlayer().updateInventory();
@@ -76,7 +63,6 @@ public class ArmorHider implements Listener, Tickable {
     public void onItemDrop(PlayerDropItemEvent event){
         if ( !hiddenArmor.contains(event.getPlayer()) ) return;
         ItemStack item = event.getItemDrop().getItemStack();
-        pluginTagClear.pushThrough(item);
         event.getItemDrop().setItemStack(item);
     }
 
@@ -84,30 +70,24 @@ public class ArmorHider implements Listener, Tickable {
         if(player.getEquipment()==null) return;
 
         ItemStack[] armor = player.getEquipment().getArmorContents();
-        for (ItemStack content : armor) {
-            if(content == null || content.getType() == Material.AIR) continue;
-            pluginAddTag.pushThrough(content);
-        }
+
+        Arrays.stream(armor).filter(item -> item != null && item.getType() != Material.AIR)
+                .forEach(item -> NBTModifier.setString(item, NBT_TAG, HIDE_VALUE));
+
         player.getEquipment().setArmorContents(armor);
     }
 
     @Override
     public void tick() {
         hiddenArmor.forEach(player -> {
-            ItemStack[] armor = player.getInventory().getStorageContents();
-            for (ItemStack content : armor) {
-                if(content == null || content.getType() == Material.AIR) continue;
-                pluginTagClear.pushThrough(content);
-            }
-            player.getInventory().setStorageContents(armor);
+            ItemStack[] storage = player.getInventory().getStorageContents();
+            Arrays.stream(storage).filter(item -> item != null && item.getType() != Material.AIR)
+                    .forEach(item -> NBTModifier.remove(item, NBT_TAG));
+            player.getInventory().setStorageContents(storage);
 
-            ItemStack main = player.getInventory().getItemInMainHand();
-            pluginTagClear.pushThrough(main);
-            player.getInventory().setItemInMainHand(main);
+            NBTModifier.remove(player.getInventory().getItemInMainHand(), NBT_TAG);
 
-            ItemStack off = player.getInventory().getItemInOffHand();
-            pluginTagClear.pushThrough(off);
-            player.getInventory().setItemInOffHand(off);
+            NBTModifier.remove(player.getInventory().getItemInOffHand(), NBT_TAG);
         });
     }
 }

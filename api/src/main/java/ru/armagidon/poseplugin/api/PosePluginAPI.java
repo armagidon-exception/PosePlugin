@@ -4,19 +4,15 @@ import io.papermc.lib.PaperLib;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import ru.armagidon.armagidonapi.itemutils.ItemModifingPipeline;
-import ru.armagidon.armagidonapi.itemutils.nbtapi.NBTItem;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
 import ru.armagidon.poseplugin.api.ticking.TickingBundle;
 import ru.armagidon.poseplugin.api.utils.ArmorHider;
-import ru.armagidon.poseplugin.api.utils.NameTagHider;
+import ru.armagidon.poseplugin.api.utils.scoreboard.NameTagHider;
 import ru.armagidon.poseplugin.api.utils.corewrapper.CoreWrapper;
 import ru.armagidon.poseplugin.api.utils.corewrapper.PaperCoreWrapper;
 import ru.armagidon.poseplugin.api.utils.corewrapper.SpigotCoreWrapper;
@@ -24,20 +20,13 @@ import ru.armagidon.poseplugin.api.utils.misc.Debugger;
 import ru.armagidon.poseplugin.api.utils.misc.event.EventListener;
 import ru.armagidon.poseplugin.api.utils.playerhider.PlayerHider;
 
-import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 public class PosePluginAPI
 {
-    private static final PosePluginAPI api = new PosePluginAPI();
-    public static ItemModifingPipeline pluginTagClear = new ItemModifingPipeline() {{
-        addLast(stack -> {
-            if(  stack == null || stack.getType() == Material.AIR ) return;
-            NBTItem i = new NBTItem(stack, true);
-            if(i.hasKey("PosePluginItem"))
-                i.removeKey("PosePluginItem");
-        });
-    }};
+    private static PosePluginAPI API;
+
+    public static final String NBT_TAG = "PosePluginItem";
 
 
     private @Getter PlayerHider playerHider;
@@ -51,7 +40,8 @@ public class PosePluginAPI
     private @Getter CoreWrapper coreWrapper;
 
     @SneakyThrows
-    private PosePluginAPI() {
+    private PosePluginAPI(Plugin plugin) {
+        this.plugin = plugin;
         this.playerMap = new P3Map();
         this.tickManager = new TickModuleManager();
         this.nameTagHider = new NameTagHider();
@@ -59,13 +49,11 @@ public class PosePluginAPI
         this.debugger = new Debugger();
     }
 
-    /**PoopCode starts*/
-    private @Getter Plugin plugin;
+    private final @Getter Plugin plugin;
 
-    public void init(Plugin plugin){
-        this.plugin = plugin;
-        /*PoopCode ends(i hope)*/
+    private void init(){
         this.armorHider = new ArmorHider();
+        Bukkit.getServer().getPluginManager().registerEvents(armorHider, plugin);
         this.tickingBundle = new TickingBundle();
         //Init nms-factory and player-hider
         if(PaperLib.isPaper()) coreWrapper = new PaperCoreWrapper(plugin);
@@ -77,7 +65,6 @@ public class PosePluginAPI
         playerHider = PlayerHider.createNew();
 
         //Foreach online players
-
         Bukkit.getOnlinePlayers().forEach(playerMap::addPlayer);
         //Register main events
         Bukkit.getServer().getPluginManager().registerEvents(new EventListener(),plugin);
@@ -85,26 +72,25 @@ public class PosePluginAPI
         Bukkit.getServer().getPluginManager().registerEvents(new PersonalEventDispatcher(),plugin);
     }
 
-    public void shutdown(){
+    public Logger getLogger(){
+        return plugin.getLogger();
+    }
+
+    public void shutdown() {
         getPlayerMap().forEach(p -> p.getPose().stop());
     }
 
     public static PosePluginAPI getAPI() {
-        return api;
+        return API;
     }
 
-    public Logger getLogger(){
-        return getPlugin().getLogger();
+    public static void initialize(Plugin plugin){
+        PosePluginAPI ppapi = new PosePluginAPI(plugin);
+        API = ppapi;
+        ppapi.init();
     }
 
-    @SneakyThrows
-    public static void setEnabled(boolean enabled){
-        Method m = JavaPlugin.class.getDeclaredMethod("setEnabled", boolean.class);
-        m.setAccessible(true);
-        m.invoke(getAPI().getPlugin(), enabled);
-    }
-
-    public void registerListener(Listener listener){
-        Bukkit.getPluginManager().registerEvents(listener, getPlugin());
+    public void registerListener(Listener listener) {
+        Bukkit.getServer().getPluginManager().registerEvents(listener, plugin);
     }
 }

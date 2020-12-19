@@ -4,6 +4,7 @@ import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.util.PacketContainer;
@@ -35,7 +36,10 @@ public class FakePlayerUpdaterImpl implements FakePlayerSynchronizer {
         PacketPlayOutEntityEquipment[] eq = Arrays.stream(EnumItemSlot.values()).
                 map(slot->{
                     ItemStack itemStack = getEquipmentBySlot(equipment, slot);
-                    if( slot != EnumItemSlot.MAINHAND && slot != EnumItemSlot.OFFHAND ) PosePluginAPI.pluginTagClear.pushThrough(itemStack);
+                    if( slot != EnumItemSlot.MAINHAND && slot != EnumItemSlot.OFFHAND ) {
+                        //PosePluginAPI.pluginTagClear.pushThrough(itemStack);
+                        NBTModifier.remove(itemStack, PosePluginAPI.NBT_TAG);
+                    }
                     return new PacketPlayOutEntityEquipment(id, slot, CraftItemStack.asNMSCopy(itemStack));
                 }).
                 toArray(PacketPlayOutEntityEquipment[]::new);

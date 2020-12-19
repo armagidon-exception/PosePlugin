@@ -3,6 +3,7 @@ package ru.armagidon.poseplugin.api.utils.npc.v1_16_R3;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayerSynchronizer;
@@ -32,7 +33,8 @@ public class FakePlayerSynchronizerImpl implements FakePlayerSynchronizer {
                 Arrays.stream(EnumItemSlot.values()).map(slot-> {
                     if( !slot.equals(EnumItemSlot.MAINHAND) && !slot.equals(EnumItemSlot.OFFHAND) ) {
                         org.bukkit.inventory.ItemStack i = getEquipmentBySlot(npc.getParent().getEquipment(), slot);
-                        PosePluginAPI.pluginTagClear.pushThrough(i);
+                        NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
+                        //PosePluginAPI.pluginTagClear.pushThrough(i);
                         return Pair.of(slot, CraftItemStack.asNMSCopy(i));
                     } else {
                         return Pair.of(slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(npc.getParent().getEquipment(), slot)));
