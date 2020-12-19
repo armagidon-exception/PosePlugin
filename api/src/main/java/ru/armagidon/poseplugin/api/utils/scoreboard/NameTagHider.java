@@ -1,9 +1,11 @@
-package ru.armagidon.poseplugin.api.utils;
+package ru.armagidon.poseplugin.api.utils.scoreboard;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import ru.armagidon.poseplugin.api.PosePluginAPI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +15,7 @@ public class NameTagHider
     private final Scoreboard scoreboard;
     private final Map<Player, Team> teamMap;
     private final Map<Player, Team> cached;
+    private final Map<Player, ScoreboardUtil> utils = new HashMap<>();
 
 
     public NameTagHider() {
@@ -23,7 +26,12 @@ public class NameTagHider
     }
 
     public void hideTag(Player player){
-        String NAME = player.getName();
+        ScoreboardUtil util = new ScoreboardUtil(player);
+        PosePluginAPI.getAPI().registerListener(util);
+        utils.put(player, util);
+
+
+        /*String NAME = player.getName();
 
         Team.OptionStatus option = Team.OptionStatus.FOR_OWN_TEAM;
         if(scoreboard.getEntryTeam(NAME)!=null){
@@ -45,12 +53,18 @@ public class NameTagHider
         teamMap.put(player, team);
         if(player.getScoreboard() != Bukkit.getScoreboardManager().getMainScoreboard()){
             player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-        }
+        }*/
 
     }
 
     public void showTag(Player player){
-        if(teamMap.containsKey(player)) {
+
+        if (utils.containsKey(player)){
+            ScoreboardUtil util = utils.remove(player);
+            HandlerList.unregisterAll(util);
+        }
+
+        /*if(teamMap.containsKey(player)) {
             Team team = teamMap.remove(player);
             if (team != null) {
                 team.removeEntry(player.getName());
@@ -59,6 +73,6 @@ public class NameTagHider
             if (cached.containsKey(player)) {
                 cached.get(player).addEntry(player.getName());
             }
-        }
+        }*/
     }
 }
