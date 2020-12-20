@@ -18,7 +18,7 @@ public class TeamManager
 
         team.apply();
 
-        Object scoreboardTeam = team.getHandle();
+        Object scoreboardTeam = team.getScoreboardTeam();
 
         Constructor<?> creationConstr = getNmsClass(PACKET_NAME).getDeclaredConstructor(getNmsClass(TEAM_CLASS), int.class);
 
@@ -32,7 +32,7 @@ public class TeamManager
 
         Constructor<?> creationConstr = getNmsClass(PACKET_NAME).getDeclaredConstructor(getNmsClass(TEAM_CLASS), int.class);
 
-        return creationConstr.newInstance(team.getHandle(), 1);
+        return creationConstr.newInstance(team.getScoreboardTeam(), 1);
     }
 
     public static Object mergeTeam(TeamWrapper team) throws Exception {
@@ -40,7 +40,7 @@ public class TeamManager
 
         Constructor<?> creationConstr = getNmsClass(PACKET_NAME).getDeclaredConstructor(getNmsClass(TEAM_CLASS), int.class);
 
-        return creationConstr.newInstance(team.getHandle(), 2);
+        return creationConstr.newInstance(team.getScoreboardTeam(), 2);
     }
 
     public static Object addPlayerToTeam(TeamWrapper team, Player player) throws Exception {
@@ -48,7 +48,7 @@ public class TeamManager
 
         Constructor<?> additionConstr = getNmsClass(PACKET_NAME).getDeclaredConstructor(getNmsClass(TEAM_CLASS), Collection.class, int.class);
 
-        return additionConstr.newInstance(team.getHandle(), Collections.singletonList(player.getName()), 3);
+        return additionConstr.newInstance(team.getScoreboardTeam(), Collections.singletonList(player.getName()), 3);
     }
 
 
@@ -56,7 +56,7 @@ public class TeamManager
         team.apply();
         Constructor<?> additionConstr = getNmsClass(PACKET_NAME).getDeclaredConstructor(getNmsClass(TEAM_CLASS), Collection.class, int.class);
 
-        return additionConstr.newInstance(team.getHandle(), Collections.singletonList(player.getName()), 4);
+        return additionConstr.newInstance(team.getScoreboardTeam(), Collections.singletonList(player.getName()), 4);
     }
 
 

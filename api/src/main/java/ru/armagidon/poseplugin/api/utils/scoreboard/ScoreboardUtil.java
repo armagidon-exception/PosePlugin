@@ -23,52 +23,61 @@ public class ScoreboardUtil implements Listener {
         if (scoreboard.getEntryTeam(player.getName()) == null){
             putToOwnTeam();
         } else {
-            Team team = scoreboard.getEntryTeam(player.getName());
-            mergeTeamSettings(team.getName(), team.getOption(Team.Option.NAME_TAG_VISIBILITY), team.getOption(Team.Option.COLLISION_RULE));
+            mergeTeamSettings(scoreboard.getEntryTeam(player.getName()));
         }
     }
 
     public void showTag() {
-        injector.eject(player);
         try {
+
+            Team team = player.getScoreboard().getEntryTeam(player.getName());
+            if (team != null) {
+                injector.sendAndByPassPacket(this.player, TeamManager.addPlayerToTeam(new TeamWrapper(team.getName()), player));
+                NMSUtils.sendPacket(this.player, TeamManager.mergeTeam(new TeamWrapper(team)));
+            }
+
+            injector.eject(player);
+
             //Remove team
             NMSUtils.sendPacket(this.player, TeamManager.removeTeam(new TeamWrapper(player.getName())));
-/*            //Resend scoreboard
-            Object vanillaPlayer = NMSUtils.asNMSCopy(player);
-            Object mcServer = vanillaPlayer.getClass().getDeclaredField("server").get(vanillaPlayer);
-            Object playerList = mcServer.getClass().getDeclaredMethod("getPlayerList").invoke(mcServer);
-
-            Method sendScoreboard = ReflectionTools.getNmsClass("PlayerList").getDeclaredMethod("sendScoreboard",
-                    ReflectionTools.getNmsClass("ScoreboardServer"), vanillaPlayer.getClass());
-
-            Scoreboard scoreboard = player.getScoreboard();
-            Object vanillaScoreboard = scoreboard.getClass().getDeclaredMethod("getHandle").invoke(scoreboard);
-
-            sendScoreboard.invoke(playerList, vanillaScoreboard, vanillaPlayer);*/
-
         } catch (Exception e){
             e.printStackTrace();
         }
     }
 
     @EventHandler
-    public synchronized void onScoreboardChange(EntryScoreboardChangeEvent event){
+    public void onScoreboardChange(EntryScoreboardChangeEvent event){
         if (event.getPlayer().equals(player)){
             if (event.getMode() == EntryScoreboardChangeEvent.Mode.REMOVE){
                 putToOwnTeam();
             } else if (event.getMode() == EntryScoreboardChangeEvent.Mode.ADD){
-                mergeTeamSettings(event.getTeamName(), event.getNameTagVisibility(), event.getCollisionRule());
+                Scoreboard scoreboard = player.getScoreboard();
+                Team team = scoreboard.getEntryTeam(player.getName());
+                if (team != null) {
+                    mergeTeamSettings(team);
+                } else {
+                    try {
+                        injector.sendAndByPassPacket(this.player, TeamManager.addPlayerToTeam(new TeamWrapper(player.getName()), player));
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
             }
 
         }
     }
 
-    private synchronized void mergeTeamSettings(String teamName, Team.OptionStatus nameTagVisibility, Team.OptionStatus collisionRule) {
-        TeamWrapper team = new TeamWrapper(teamName);
+    private void mergeTeamSettings(Team t) {
+        TeamWrapper team = new TeamWrapper(t);
+
+        Team.OptionStatus collisionRule = t.getOption(Team.Option.COLLISION_RULE);
+
         if (collisionRule.equals(Team.OptionStatus.FOR_OTHER_TEAMS))
             team.setCollisionRule(Team.OptionStatus.NEVER);
         else if(collisionRule.equals(Team.OptionStatus.ALWAYS))
             team.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);
+
+        Team.OptionStatus nameTagVisibility = t.getOption(Team.Option.NAME_TAG_VISIBILITY);
 
         if (nameTagVisibility.equals(Team.OptionStatus.FOR_OTHER_TEAMS))
             team.setCollisionRule(Team.OptionStatus.NEVER);
@@ -90,7 +99,7 @@ public class ScoreboardUtil implements Listener {
 
     }
 
-    private synchronized void putToOwnTeam(){
+    private void putToOwnTeam(){
 
         TeamWrapper team = new TeamWrapper(this.player.getName());
         team.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);
