@@ -23,4 +23,14 @@ public class ReflectionTools
     public static Class<Enum<?>> getEnum(String name) {
         return (Class<Enum<?>>) getNmsClass(name);
     }
+
+    @SuppressWarnings("unchecked")
+    public static Class<Enum<?>> getNestedEnum(Class<?> owner, String name) throws ClassNotFoundException {
+        return (Class<Enum<?>>) getNestedClass(owner, name);
+    }
+
+    public static Class<?> getNestedClass(Class<?> owner, String name) throws ClassNotFoundException {
+        String path = String.format("%s$%s", owner.getTypeName(), name);
+        return Class.forName(path);
+    }
 }
