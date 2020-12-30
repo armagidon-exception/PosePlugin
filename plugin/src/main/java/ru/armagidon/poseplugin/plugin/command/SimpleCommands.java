@@ -10,7 +10,7 @@ import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PoseBuilder;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
-import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 
 public class SimpleCommands extends PosePluginCommand
 {
@@ -23,7 +23,7 @@ public class SimpleCommands extends PosePluginCommand
     protected boolean execute(Player sender, String label, String[] args) {
 
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(sender.getName());
-        if(!VectorUtils.onGround(p.getHandle())){
+        if(!BlockPositionUtils.onGround(p.getHandle())){
             PosePlugin.getInstance().messages().send(sender, "in-air");
             return true;
         }
