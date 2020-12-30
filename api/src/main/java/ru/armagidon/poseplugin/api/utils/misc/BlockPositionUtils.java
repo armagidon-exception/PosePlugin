@@ -13,12 +13,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class VectorUtils
+public final class BlockPositionUtils
 {
-    public static Block getDirBlock(Location plocation){
-        Block cur = getBlockOnLoc(plocation);
-        BlockFace face = yawToFace(plocation.getYaw());
-        if(face==null) return cur;
+    public static Block getDirBlock(Location playerLocation){
+        Block cur = getBlockOnLoc(playerLocation);
+        BlockFace face = yawToFace(playerLocation.getYaw());
+        if(face == null) return cur;
         return cur.getRelative(face);
     }
 
@@ -30,12 +30,14 @@ public final class VectorUtils
 
     public static Set<Player> getNear(double radius, Player player) {
         Set<Player> players = new HashSet<>();
-        Bukkit.getOnlinePlayers().stream().filter((other) -> player.getWorld().equals(other.getWorld())).filter((other) -> player.getLocation().distance(other.getLocation()) <= radius).forEach(players::add);
+        Bukkit.getOnlinePlayers().stream().filter((other) -> player.getWorld().equals(other.getWorld())).
+                filter((other) -> player.getLocation().distance(other.getLocation()) <= radius).forEach(players::add);
         return players;
     }
 
-    public static Set<Player> getNearSquared(int radius, Player soruce){
-        return Bukkit.getOnlinePlayers().stream().filter((other) -> soruce.getWorld().equals(other.getWorld())).filter((other) -> soruce.getLocation().distanceSquared(other.getLocation()) <= radius).collect(Collectors.toSet());
+    public static Set<Player> getNearSquared(int radius, Player source){
+        return Bukkit.getOnlinePlayers().stream().filter((other) -> source.getWorld().equals(other.getWorld())).
+                filter((other) -> source.getLocation().distanceSquared(other.getLocation()) <= radius).collect(Collectors.toSet());
     }
 
     public static Block getRoundedBlock(Location location){
@@ -54,15 +56,15 @@ public final class VectorUtils
 
     public static boolean onGround(Player player){
         Location location = player.getLocation();
-        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR)&&player.isOnGround();
+        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR) && player.isOnGround();
     }
 
     public static int round(double source){
         final float rounder = 0.5F;
         final int stripped_value = (int) source;
-        final int incremented_stripped_value = stripped_value+1;
+        final int incremented_stripped_value = stripped_value + 1;
 
-        return source+rounder>=incremented_stripped_value?incremented_stripped_value:stripped_value;
+        return source + rounder >= incremented_stripped_value ? incremented_stripped_value : stripped_value;
     }
 
 }
