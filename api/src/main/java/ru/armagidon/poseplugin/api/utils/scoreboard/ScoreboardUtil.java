@@ -1,11 +1,13 @@
 package ru.armagidon.poseplugin.api.utils.scoreboard;
 
+import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+
+import java.util.Collections;
 
 public class ScoreboardUtil implements Listener {
 
@@ -17,106 +19,132 @@ public class ScoreboardUtil implements Listener {
         this.injector = new ScoreboardEventPipelineInjector();
     }
 
-    public void hideTag(){
+    public void hideTag() {
         injector.inject(player);
-        Scoreboard scoreboard = player.getScoreboard();
-        if (scoreboard.getEntryTeam(player.getName()) == null){
-            putToOwnTeam();
+        Team playersTeam = player.getScoreboard().getEntryTeam(player.getName());
+
+        if (playersTeam == null) {
+            putPlayerToFakeTeam();
         } else {
-            mergeTeamSettings(scoreboard.getEntryTeam(player.getName()));
+            mergeTeamSettings(playersTeam);
         }
     }
 
     public void showTag() {
         try {
-
-            Team team = player.getScoreboard().getEntryTeam(player.getName());
-            if (team != null) {
-                injector.sendAndByPassPacket(this.player, TeamManager.addPlayerToTeam(new TeamWrapper(team.getName()), player));
-                NMSUtils.sendPacket(this.player, TeamManager.mergeTeam(new TeamWrapper(team)));
-            }
-
             injector.eject(player);
+            Team playersTeam = player.getScoreboard().getEntryTeam(player.getName());
+            if (playersTeam == null) {
+                WrapperScoreboardTeamPacket removePacket = new WrapperScoreboardTeamPacket();
+                removePacket.setName(player.getName());
+                removePacket.setMode(WrapperScoreboardTeamPacket.Mode.REMOVE_TEAM);
+                NMSUtils.sendPacket(this.player, removePacket.getHandle());
+            } else {
+                playersTeam.addEntry(player.getName());
 
-            //Remove team
-            NMSUtils.sendPacket(this.player, TeamManager.removeTeam(new TeamWrapper(player.getName())));
-        } catch (Exception e){
+                for (Team.Option option : Team.Option.values()) {
+                    playersTeam.setOption(option, playersTeam.getOption(option));
+                }
+
+                playersTeam.setCanSeeFriendlyInvisibles(playersTeam.canSeeFriendlyInvisibles());
+                playersTeam.setAllowFriendlyFire(playersTeam.allowFriendlyFire());
+
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @EventHandler
-    public void onScoreboardChange(EntryScoreboardChangeEvent event){
-        if (event.getPlayer().equals(player)){
-            if (event.getMode() == EntryScoreboardChangeEvent.Mode.REMOVE){
-                putToOwnTeam();
-            } else if (event.getMode() == EntryScoreboardChangeEvent.Mode.ADD){
-                Scoreboard scoreboard = player.getScoreboard();
-                Team team = scoreboard.getEntryTeam(player.getName());
-                if (team != null) {
-                    mergeTeamSettings(team);
-                } else {
-                    try {
-                        injector.sendAndByPassPacket(this.player, TeamManager.addPlayerToTeam(new TeamWrapper(player.getName()), player));
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-            }
+    public void onScoreboardEvent(ScoreboardTeamChangeEvent event) {
+        if (!event.getPlayer().equals(player)) return;
 
+        if (event.getMode().equals(WrapperScoreboardTeamPacket.Mode.ADD_PLAYER)) {
+            //merge team settings
+            mergeTeamSettings(player.getScoreboard().getEntryTeam(player.getName()));
+        } else if(event.getMode().equals(WrapperScoreboardTeamPacket.Mode.REMOVE_PLAYER)){
+            //Put to fake team
+            putPlayerToFakeTeam();
+        } else if (event.getMode().equals(WrapperScoreboardTeamPacket.Mode.UPDATE_TEAM)){
+            //fixing team's settings
+            event.setPacket(mergeTeamSettings(event.getPacket(), event.getNameTagVisibility(), event.getCollisionRule()));
         }
     }
 
-    private void mergeTeamSettings(Team t) {
-        TeamWrapper team = new TeamWrapper(t);
+    private void mergeTeamSettings(Team team) {
+        WrapperScoreboardTeamPacket packetWrapper = new WrapperScoreboardTeamPacket(team);
 
-        Team.OptionStatus collisionRule = t.getOption(Team.Option.COLLISION_RULE);
+        if (team.getOption(Team.Option.NAME_TAG_VISIBILITY) == Team.OptionStatus.ALWAYS) {
+            packetWrapper.setNameTagVisibility(Team.OptionStatus.FOR_OWN_TEAM);
+        } else if (team.getOption(Team.Option.NAME_TAG_VISIBILITY) == Team.OptionStatus.FOR_OTHER_TEAMS) {
+            packetWrapper.setNameTagVisibility(Team.OptionStatus.NEVER);
+        }
 
-        if (collisionRule.equals(Team.OptionStatus.FOR_OTHER_TEAMS))
-            team.setCollisionRule(Team.OptionStatus.NEVER);
-        else if(collisionRule.equals(Team.OptionStatus.ALWAYS))
-            team.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);
+        if (team.getOption(Team.Option.COLLISION_RULE) == Team.OptionStatus.ALWAYS) {
+            packetWrapper.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);
+        } else if (team.getOption(Team.Option.COLLISION_RULE) == Team.OptionStatus.FOR_OTHER_TEAMS) {
+            packetWrapper.setCollisionRule(Team.OptionStatus.NEVER);
+        }
 
-        Team.OptionStatus nameTagVisibility = t.getOption(Team.Option.NAME_TAG_VISIBILITY);
+        packetWrapper.setCanSeePlayersInvisibles(false);
 
-        if (nameTagVisibility.equals(Team.OptionStatus.FOR_OTHER_TEAMS))
-            team.setCollisionRule(Team.OptionStatus.NEVER);
-        else if(nameTagVisibility.equals(Team.OptionStatus.ALWAYS))
-            team.setVisibility(Team.OptionStatus.FOR_OWN_TEAM);
+        NMSUtils.sendPacket(this.player, packetWrapper.getHandle());
+    }
 
-        team.setAllowSeeInvisible(false);
+    private Object mergeTeamSettings(Object packet, Team.OptionStatus ntvisibility, Team.OptionStatus collisionRule){
+        WrapperScoreboardTeamPacket packetWrapper = new WrapperScoreboardTeamPacket(packet);
 
-        try {
-            NMSUtils.sendPacket(this.player, TeamManager.removeTeam(team));
-            NMSUtils.sendPacket(this.player, TeamManager.createTeam(team));
+        if (ntvisibility == Team.OptionStatus.ALWAYS) {
+            packetWrapper.setNameTagVisibility(Team.OptionStatus.FOR_OWN_TEAM);
+        } else if (ntvisibility == Team.OptionStatus.FOR_OTHER_TEAMS) {
+            packetWrapper.setNameTagVisibility(Team.OptionStatus.NEVER);
+        }
 
-            injector.sendAndByPassPacket(this.player, TeamManager.addPlayerToTeam(team, player));
+        if (collisionRule == Team.OptionStatus.ALWAYS) {
+            packetWrapper.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);
+        } else if (collisionRule == Team.OptionStatus.FOR_OTHER_TEAMS) {
+            packetWrapper.setCollisionRule(Team.OptionStatus.NEVER);
+        }
 
-            NMSUtils.sendPacket(this.player, TeamManager.mergeTeam(team));
-        } catch (Exception e){
-            e.printStackTrace();
+        packetWrapper.setCanSeePlayersInvisibles(false);
+
+        return packetWrapper.getHandle();
+    }
+
+    @SneakyThrows
+    private void putPlayerToFakeTeam() {
+        {
+            //Remove old team
+            WrapperScoreboardTeamPacket removePacket = new WrapperScoreboardTeamPacket();
+            removePacket.setName(player.getName());
+            removePacket.setMode(WrapperScoreboardTeamPacket.Mode.REMOVE_TEAM);
+            NMSUtils.sendPacket(this.player, removePacket.getHandle());
+        }
+        {
+            //Create new team
+            WrapperScoreboardTeamPacket creationPacket = new WrapperScoreboardTeamPacket();
+            creationPacket.setMode(WrapperScoreboardTeamPacket.Mode.CREATE_TEAM);
+            creationPacket.setName(player.getName());
+            NMSUtils.sendPacket(this.player, creationPacket.getHandle());
+        }
+        {
+            //Add player to fake team
+            WrapperScoreboardTeamPacket additionPacket = new WrapperScoreboardTeamPacket();
+            additionPacket.setName(player.getName());
+            additionPacket.setMode(WrapperScoreboardTeamPacket.Mode.ADD_PLAYER);
+            additionPacket.setTeamMateList(Collections.singletonList(player.getName()));
+            NMSUtils.sendPacket(this.player, additionPacket.getHandle());
+        }
+        {
+            //Setup team's settings
+            WrapperScoreboardTeamPacket updatePacket = new WrapperScoreboardTeamPacket();
+            updatePacket.setMode(WrapperScoreboardTeamPacket.Mode.UPDATE_TEAM);
+            updatePacket.setName(player.getName());
+            updatePacket.setNameTagVisibility(Team.OptionStatus.FOR_OWN_TEAM);
+            updatePacket.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);
+            updatePacket.setCanSeePlayersInvisibles(false);
+            NMSUtils.sendPacket(this.player, updatePacket.getHandle());
         }
 
     }
-
-    private void putToOwnTeam(){
-
-        TeamWrapper team = new TeamWrapper(this.player.getName());
-        team.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);
-        team.setVisibility(Team.OptionStatus.FOR_OWN_TEAM);
-        team.setAllowSeeInvisible(false);
-
-        try {
-            NMSUtils.sendPacket(this.player, TeamManager.removeTeam(team));
-            NMSUtils.sendPacket(this.player, TeamManager.createTeam(team));
-
-            injector.sendAndByPassPacket(this.player, TeamManager.addPlayerToTeam(team, player));
-
-            NMSUtils.sendPacket(this.player, TeamManager.mergeTeam(team));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-
 }
