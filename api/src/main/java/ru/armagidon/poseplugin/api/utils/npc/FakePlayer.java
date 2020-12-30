@@ -11,13 +11,15 @@ import org.bukkit.event.Listener;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
-import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.toBedLocation;
 
 
 public abstract class FakePlayer implements Tickable, Listener
@@ -69,7 +71,7 @@ public abstract class FakePlayer implements Tickable, Listener
         //Register this NPC object as ticker.
         PosePluginAPI.getAPI().getTickingBundle().addToTickingBundle(getClass(), this);
         //Add all players nearby to trackers list
-        trackers.addAll(VectorUtils.getNear(getViewDistance(), parent));
+        trackers.addAll(BlockPositionUtils.getNear(getViewDistance(), parent));
     }
 
     //Destroy method. Uses to fully delete NPC from server
@@ -113,7 +115,7 @@ public abstract class FakePlayer implements Tickable, Listener
             broadCastSpawn();
     }
 
-    public abstract void setPosition(double x, double y, double z);
+    public void teleport(Location destination) {}
 
     @SneakyThrows
     public static FakePlayer createNew(Player parent, Pose pose){

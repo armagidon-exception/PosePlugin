@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.sendPacket;
-import static ru.armagidon.poseplugin.api.utils.npc.v1_16_R2.FakePlayer.FakePlayerStaff.getEquipmentBySlot;
-import static ru.armagidon.poseplugin.api.utils.npc.v1_16_R2.FakePlayer.FakePlayerStaff.getFixedRotation;
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.getEquipmentBySlot;
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.getFixedRotation;
 
 public class FakePlayerSynchronizerImpl implements FakePlayerSynchronizer {
 

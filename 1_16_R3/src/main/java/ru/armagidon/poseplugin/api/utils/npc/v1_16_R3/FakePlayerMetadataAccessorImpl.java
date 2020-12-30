@@ -10,7 +10,7 @@ import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 import java.util.Optional;
 
-import static ru.armagidon.poseplugin.api.utils.npc.v1_16_R3.FakePlayer.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.*;
 
 public class FakePlayerMetadataAccessorImpl implements FakePlayerMetadataAccessor
 {
@@ -30,7 +30,7 @@ public class FakePlayerMetadataAccessorImpl implements FakePlayerMetadataAccesso
 
     @Override
     public void showPlayer(Player receiver) {
-        if(metadata!=null){
+        if(metadata != null){
             NMSUtils.sendPacket(receiver, metadata);
         }
     }
@@ -43,12 +43,12 @@ public class FakePlayerMetadataAccessorImpl implements FakePlayerMetadataAccesso
     @Override
     public void setBedPosition(Location location) {
         Location bedLoc = location.clone().toVector().setY(0).toLocation(npc.getParent().getWorld());
-        npc.getWatcher().set(DataWatcherRegistry.m.a(13), Optional.of(toBlockPosition(bedLoc)));
+        npc.getWatcher().set(DataWatcherRegistry.m.a(13), Optional.of((BlockPosition) toBlockPosition(bedLoc)));
     }
 
     @Override
     public void setInvisible(boolean flag) {
-        if(this.invisible!=flag) {
+        if(this.invisible != flag) {
             byte value = ((EntityPlayer) NMSUtils.asNMSCopy(npc.getParent())).getDataWatcher().get(BYTE.a(0));
             npc.getWatcher().set(BYTE.a(0), setBit(value, 5,flag));
             this.invisible = flag;
@@ -100,7 +100,7 @@ public class FakePlayerMetadataAccessorImpl implements FakePlayerMetadataAccesso
 
     @Override
     public void setMainHand(boolean right) {
-        npc.getWatcher().set(BYTE.a(17),(byte)(right?127:0));
+        npc.getWatcher().set(BYTE.a(17),(byte)(right ? 127 : 0));
     }
 
     @Override

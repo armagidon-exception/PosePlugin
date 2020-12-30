@@ -12,6 +12,8 @@ import ru.armagidon.poseplugin.api.utils.npc.FakePlayerCustomEquipmentManager;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.adaptToItemSlot;
+
 public class CustomEquipmentManagerImpl implements FakePlayerCustomEquipmentManager
 {
     private final FakePlayer npc;
@@ -30,38 +32,19 @@ public class CustomEquipmentManagerImpl implements FakePlayerCustomEquipmentMana
 
     @Override
     public void setPieceOfEquipment(EquipmentSlot slotType, org.bukkit.inventory.ItemStack hand) {
-        if(hand==null) return;
+        if(hand == null) return;
         ItemStack vanillaStack = CraftItemStack.asNMSCopy(hand);
-        customEquipment.put(adaptToItemSlot(slotType), vanillaStack);
+        customEquipment.put((EnumItemSlot) adaptToItemSlot(slotType), vanillaStack);
         mergeCustomEquipmentPacket();
     }
 
     @Override
     public void removePieceOfEquipment(EquipmentSlot slot) {
-        if(slot==null) return;
-        EnumItemSlot itemSlot = adaptToItemSlot(slot);
+        if(slot == null) return;
+        EnumItemSlot itemSlot = (EnumItemSlot) adaptToItemSlot(slot);
         if(!customEquipment.containsKey(itemSlot)) return;
         customEquipment.remove(itemSlot);
         mergeCustomEquipmentPacket();
-    }
-
-    public EnumItemSlot adaptToItemSlot(EquipmentSlot slotType){
-        switch (slotType){
-            case HAND:
-                return EnumItemSlot.MAINHAND;
-            case OFF_HAND:
-                return EnumItemSlot.OFFHAND;
-            case FEET:
-                return EnumItemSlot.FEET;
-            case LEGS:
-                return EnumItemSlot.LEGS;
-            case CHEST:
-                return EnumItemSlot.CHEST;
-            case HEAD:
-                return EnumItemSlot.HEAD;
-            default:
-                throw new IllegalStateException("Unexpected value: " + slotType);
-        }
     }
 
     private void mergeCustomEquipmentPacket() {

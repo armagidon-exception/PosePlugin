@@ -10,7 +10,7 @@ import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
 import java.util.Optional;
 
-import static ru.armagidon.poseplugin.api.utils.npc.v1_15_R1.FakePlayer.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.*;
 
 public class MetadataAccessorImpl implements FakePlayerMetadataAccessor
 {
@@ -27,7 +27,7 @@ public class MetadataAccessorImpl implements FakePlayerMetadataAccessor
 
     @Override
     public void showPlayer(Player receiver) {
-        if(metadata!=null){
+        if(metadata != null){
             NMSUtils.sendPacket(receiver, metadata);
         }
     }
@@ -40,7 +40,7 @@ public class MetadataAccessorImpl implements FakePlayerMetadataAccessor
     @Override
     public void setBedPosition(Location location) {
         Location bedLoc = location.clone().toVector().setY(0).toLocation(npc.getParent().getWorld());
-        npc.getWatcher().set(DataWatcherRegistry.m.a(13), Optional.of(toBlockPosition(bedLoc)));
+        npc.getWatcher().set(DataWatcherRegistry.m.a(13), Optional.of((BlockPosition) toBlockPosition(bedLoc)));
     }
 
     @Override

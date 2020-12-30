@@ -10,10 +10,9 @@ import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import org.bukkit.inventory.EntityEquipment;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
-import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
@@ -23,7 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.npc.v1_16_R1.FakePlayer.FakePlayerStaff.*;
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.*;
 
 public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
 {
@@ -42,9 +41,9 @@ public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
     private final @Getter DataWatcher watcher;
 
     /**Packets*/
-    private final PacketPlayOutBlockChange fakeBedPacket;
+    private PacketPlayOutBlockChange fakeBedPacket;
     private final PacketPlayOutPlayerInfo addNPC;
-    private final PacketPlayOutNamedEntitySpawn spawner;
+    private PacketPlayOutNamedEntitySpawn spawner;
     private final PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook movePacket;
     private final PacketPlayOutEntityDestroy destroy;
 
@@ -55,7 +54,7 @@ public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
         this.fake = createNPC(parent);
 
         //Get Location of fake bed
-        this.bedLoc = parent.getLocation().clone().toVector().setY(0).toLocation(parent.getWorld());
+        this.bedLoc = toBedLocation(parent.getLocation());
         //Cache original type of block
         this.cache = new BlockCache(bedLoc.getBlock().getBlockData(), bedLoc);
 
@@ -64,10 +63,10 @@ public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
         //Create instance of move packet to pop up npc a little
         this.movePacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short)2,(short)0,(byte)0,(byte)0, true);
 
-        EnumDirection direction = getDirection(parent.getLocation().clone().getYaw());
+        EnumDirection direction = (EnumDirection) getDirection(parent.getLocation().clone().getYaw());
 
         //Create packet instance of fake bed(could've used sendBlockChange but im crazy and it will recreate copies of the same packet)
-        this.fakeBedPacket = new PacketPlayOutBlockChange(fakeBed(direction), toBlockPosition(bedLoc));
+        this.fakeBedPacket = new PacketPlayOutBlockChange(fakeBed(direction), (BlockPosition) toBlockPosition(bedLoc));
         //Create packet instance of NPC 's data
         this.addNPC = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
 
@@ -137,7 +136,7 @@ public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
     @Override
     public void tick() {
         //Get players nearby
-        Set<Player> detectedPlayers = VectorUtils.getNear(getViewDistance(), parent);
+        Set<Player> detectedPlayers = BlockPositionUtils.getNear(getViewDistance(), parent);
 
         //Check if some of them aren't trackers
         for (Player detectedPlayer : detectedPlayers) {
@@ -176,11 +175,6 @@ public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
         npcUpdater.syncEquipment();
     }
 
-    @Override
-    public void setPosition(double x, double y, double z) {
-        fake.setPosition(x, y, z);
-    }
-
     public void swingHand(boolean mainHand) {
         if(isSwingAnimationEnabled()) {
             PacketPlayOutAnimation animation = new PacketPlayOutAnimation(fake, mainHand ? 0 : 3);
@@ -205,144 +199,97 @@ public class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.FakePlayer
         updateNPC();
         activeHand = type;
     }
-    static class FakePlayerStaff {
 
-        static byte getFixedRotation(float var1){
-            return (byte) MathHelper.d(var1 * 256.0F / 360.0F);
-        }
+    @Override
+    public void teleport(Location destination) {
+        getTrackers().forEach(t -> cache.restore(t));
+        Location bedLoc = toBedLocation(destination);
 
-        static boolean isKthBitSet(int n, int k)
-        {
-            return  ((n & (1 << (k - 1))) == 1);
-        }
+        cache.setLocation(bedLoc);
+        cache.setData(bedLoc.getBlock().getBlockData());
 
-        static org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot){
-            org.bukkit.inventory.ItemStack eq;
-            switch (slot){
-                case HEAD:
-                    eq = e.getHelmet();
-                    break;
-                case CHEST:
-                    eq = e.getChestplate();
-                    break;
-                case LEGS:
-                    eq = e.getLeggings();
-                    break;
-                case FEET:
-                    eq = e.getBoots();
-                    break;
-                case OFFHAND:
-                    eq = e.getItemInOffHand();
-                    break;
-                default:
-                    eq = e.getItemInMainHand();
-            }
-            return eq;
-        }
+        fakeBedPacket = new PacketPlayOutBlockChange(fakeBed((EnumDirection) getDirection(parent.getLocation().getYaw())),
+                (BlockPosition) toBlockPosition(bedLoc));
 
-        static DataWatcher cloneDataWatcher(Player parent, GameProfile profile){
-            EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(),toBlockPosition(parent.getLocation()), profile) {
-                @Override
-                public boolean isSpectator() {
-                    return false;
-                }
+        this.bedLoc.setX(destination.getX());
+        this.bedLoc.setY(destination.getY());
+        this.bedLoc.setZ(destination.getZ());
 
-                @Override
-                public boolean isCreative() {
-                    return false;
-                }
-            };
-            return human.getDataWatcher();
-        }
 
-        static IBlockAccess fakeBed(EnumDirection direction){
-            return new IBlockAccess() {
-                @Nullable
-                @Override
-                public TileEntity getTileEntity(BlockPosition blockPosition) {
-                    return null;
-                }
+        getMetadataAccessor().setBedPosition(bedLoc);
 
-                @Override
-                public IBlockData getType(BlockPosition blockPosition) {
-                    return Blocks.WHITE_BED.getBlockData().set(BlockBed.PART, BlockPropertyBedPart.HEAD).set(BlockBed.FACING, direction);
-                }
+        getMetadataAccessor().merge(true);
 
-                @Override
-                public Fluid getFluid(BlockPosition blockPosition) {
-                    return null;
-                }
-            };
-        }
+        fake.setPosition(destination.getX(), destination.getY(), destination.getZ());
 
-        static float transform(float rawYaw){
-            rawYaw = rawYaw < 0.0F ? 360.0F + rawYaw : rawYaw;
-            rawYaw = rawYaw % 360.0F;
-            return rawYaw;
-        }
+        spawner = new PacketPlayOutNamedEntitySpawn(fake);
 
-        static EnumDirection getDirection(float f) {
-            f = transform(f);
-            EnumDirection a = null;
-            if (f >= 315.0F || f <= 45.0F) {
-                a = EnumDirection.NORTH;
+        updateNPC();
+
+        getTrackers().forEach(t -> NMSUtils.sendPacket(t, movePacket));
+
+    }
+
+    private DataWatcher cloneDataWatcher(Player parent, GameProfile profile){
+        EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(), (BlockPosition) toBlockPosition(parent.getLocation()), profile) {
+            @Override
+            public boolean isSpectator() {
+                return false;
             }
 
-            if (f >= 45.0F && f <= 135.0F) {
-                a = EnumDirection.EAST;
+            @Override
+            public boolean isCreative() {
+                return false;
+            }
+        };
+        return human.getDataWatcher();
+    }
+
+    private IBlockAccess fakeBed(EnumDirection direction){
+        return new IBlockAccess() {
+            @Nullable
+            @Override
+            public TileEntity getTileEntity(BlockPosition blockPosition) {
+                return null;
             }
 
-            if (f >= 135.0F && f <= 225.0F) {
-                a = EnumDirection.SOUTH;
+            @Override
+            public IBlockData getType(BlockPosition blockPosition) {
+                return Blocks.WHITE_BED.getBlockData().set(BlockBed.PART, BlockPropertyBedPart.HEAD).set(BlockBed.FACING, direction);
             }
 
-            if (f >= 225.0F && f <= 315.0F) {
-                a = EnumDirection.WEST;
+            @Override
+            public Fluid getFluid(BlockPosition blockPosition) {
+                return null;
             }
+        };
+    }
 
-            return a;
-        }
+    private EntityPlayer createNPC(Player parent) {
+        CraftWorld world = (CraftWorld) parent.getWorld();
+        CraftServer server = (CraftServer) Bukkit.getServer();
+        EntityPlayer parentVanilla= (EntityPlayer) NMSUtils.asNMSCopy(parent);
+        GameProfile profile = new GameProfile(parent.getUniqueId(), parent.getName());
+        profile.getProperties().putAll(parentVanilla.getProfile().getProperties());
 
-        static EntityPlayer createNPC(Player parent) {
-            CraftWorld world = (CraftWorld) parent.getWorld();
-            CraftServer server = (CraftServer) Bukkit.getServer();
-            EntityPlayer parentVanilla= (EntityPlayer) NMSUtils.asNMSCopy(parent);
-            GameProfile profile = new GameProfile(parent.getUniqueId(), parent.getName());
-            profile.getProperties().putAll(parentVanilla.getProfile().getProperties());
+        return new EntityPlayer(server.getServer(), world.getHandle(), profile, new PlayerInteractManager(world.getHandle())){
 
-            return new EntityPlayer(server.getServer(), world.getHandle(), profile, new PlayerInteractManager(world.getHandle())){
+            @Override
+            public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {}
 
-                @Override
-                public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {}
+            @Override
+            public void sendMessage(IChatBaseComponent[] iChatBaseComponents) {}
 
-                @Override
-                public void sendMessage(IChatBaseComponent[] iChatBaseComponents) {}
+            @Override
+            protected void collideNearby() {}
 
-                @Override
-                protected void collideNearby() {}
+            @Override
+            public void collide(Entity entity) {}
 
-                @Override
-                public void collide(Entity entity) {}
-
-                @Override
-                public boolean isCollidable() {
-                    return false;
-                }
-            };
-        }
-
-        static BlockPosition toBlockPosition(Location location){
-            return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        }
-
-        static byte setBit(byte input, int k, boolean flag){
-            byte output;
-            if(flag){
-                output = (byte) (input|(1<<k));
-            } else {
-                output = (byte) (input&~(1<<k));
+            @Override
+            public boolean isCollidable() {
+                return false;
             }
-            return output;
-        }
+        };
     }
 }
