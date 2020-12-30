@@ -1,13 +1,12 @@
 package ru.armagidon.poseplugin.api.poses.lay;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.MainHand;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
@@ -29,6 +28,9 @@ public class LayPose extends AbstractPose {
                 e.setCancelled(true);
                 a.pushBack();
             }
+        });
+        this.driver.setTeleport((event, seat) -> {
+            fakePlayer.teleport(getPlayer().getLocation());
         });
     }
 
@@ -54,7 +56,7 @@ public class LayPose extends AbstractPose {
 
     @Override
     public void play(Player receiver) {
-        if(receiver==null)
+        if(receiver == null)
             fakePlayer.broadCastSpawn();
         else fakePlayer.spawnToPlayer(receiver);
     }
@@ -80,12 +82,5 @@ public class LayPose extends AbstractPose {
         if(event.getPlayer().equals(getPlayer())){
             fakePlayer.swingHand(event.getPlayer().getMainHand().equals(MainHand.RIGHT));
         }
-    }
-
-    @PersonalEventHandler
-    public void onTeleport(PlayerTeleportEvent event) {
-        fakePlayer.remove();
-        fakePlayer.setPosition(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
-        fakePlayer.updateNPC();
     }
 }

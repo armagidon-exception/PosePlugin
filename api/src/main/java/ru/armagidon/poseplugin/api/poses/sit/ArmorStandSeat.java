@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.api.poses.sit;
 
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
@@ -9,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
@@ -20,8 +22,12 @@ public class ArmorStandSeat implements Listener, Tickable
 {
 
     private final BiConsumer<EntityDismountEvent, ArmorStandSeat> execute;
+    private @Setter BiConsumer<EntityDismountEvent, ArmorStand> teleport = (event, armorStandSeat) -> {};
     private ArmorStand seat;
     private final Player sitter;
+
+    private boolean handledTeleport = false;
+
 
     public ArmorStandSeat(Player sitter, BiConsumer<EntityDismountEvent, ArmorStandSeat> onDismount) {
         Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
@@ -44,8 +50,8 @@ public class ArmorStandSeat implements Listener, Tickable
 
     public void standUp() {
         HandlerList.unregisterAll(this);
-        //if(PosePluginAPI.getAPI().getPlugin().isEnabled()) seat.eject();
         sitter.eject();
+        seat.addScoreboardTag("PPGC");
         seat.remove();
         sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection()));
         if( PosePluginAPI.getAPI().getPlugin().isEnabled() ) {
@@ -56,7 +62,7 @@ public class ArmorStandSeat implements Listener, Tickable
     }
 
     public void pushBack(){
-        Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), ()-> seat.addPassenger(sitter), 3L);
+        Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), () -> seat.addPassenger(sitter), 3L);
     }
 
     @EventHandler
@@ -72,9 +78,26 @@ public class ArmorStandSeat implements Listener, Tickable
             ArmorStand stand = (ArmorStand) event.getDismounted();
             Player player = (Player) event.getEntity();
             if( player.getUniqueId().equals(sitter.getUniqueId()) && stand.equals(seat) ){
+                //If dismounting was caused by teleport, don't fire event
+                if (handledTeleport) {
+                    Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), () -> {
+                        seat.teleport(sitter.getLocation().clone().subtract(0, 0.2D, 0));
+                        pushBack();
+                        teleport.accept(event, seat);
+                    }, 1);
+                    handledTeleport = false;
+                    return;
+                }
                 //If player dismounted from seat, do stuff
                 execute.accept(event, this);
             }
+        }
+    }
+
+    @EventHandler
+    public void onTeleport(PlayerTeleportEvent event) {
+        if (event.getPlayer().equals(sitter) && event.getPlayer().getVehicle() != null && event.getPlayer().getVehicle().equals(seat)) {
+            handledTeleport = true;
         }
     }
 
@@ -92,7 +115,7 @@ public class ArmorStandSeat implements Listener, Tickable
     @Override
     public void tick(){
         rotate();
-        if( !seat.isDead() && !seat.getPassengers().contains(sitter) ){
+        if( !seat.isDead() && !seat.getPassengers().contains(sitter) && seat.getScoreboardTags().contains("PPGC")){
             seat.remove();
         }
     }
