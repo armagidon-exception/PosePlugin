@@ -81,7 +81,7 @@ public class MessagePrintingHandler implements Listener
         if( !PLAYERS_POSES.containsKey(player) ) return;
 
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(player);
-        boolean preventInvisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
+        boolean preventInvisible = PosePlugin.getInstance().getCfg().getBoolean("lay.prevent-use-when-invisible");
         if( !p.getPoseType().equals(EnumPose.LYING) ) return;
         if (preventInvisible) {
 

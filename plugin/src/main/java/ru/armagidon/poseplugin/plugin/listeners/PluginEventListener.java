@@ -20,7 +20,7 @@ import ru.armagidon.poseplugin.api.events.StopPosingEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
-import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.plugin.events.StopAnimationWithMessageEvent;
 
 import java.util.Set;
@@ -49,7 +49,7 @@ public class PluginEventListener implements Listener
         if(!PosePluginAPI.getAPI().getPlayerMap().containsPlayer(player)) return;
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(player.getName());
         if(!p.getPoseType().equals(EnumPose.LYING)) return;
-        boolean preventInvisible = PosePlugin.getInstance().getConfig().getBoolean("lay.prevent-use-when-invisible");
+        boolean preventInvisible = PosePlugin.getInstance().getCfg().getBoolean("lay.prevent-use-when-invisible");
         if( !preventInvisible ){
             if(event.getAction().equals(EntityPotionEffectEvent.Action.ADDED)){
                 if(event.getNewEffect() !=null && event.getNewEffect().getType().equals(PotionEffectType.INVISIBILITY))
@@ -86,7 +86,7 @@ public class PluginEventListener implements Listener
 
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
         if(player.getPoseType() == EnumPose.STANDING) return;
-        boolean standUpWhenDamaged = PosePlugin.getInstance().getConfig().getBoolean(player.getPoseType().getName() + ".stand-up-when-damaged");
+        boolean standUpWhenDamaged = PosePlugin.getInstance().getCfg().getBoolean(player.getPoseType().getName() + ".stand-up-when-damaged");
         if (standUpWhenDamaged) {
             Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(StopAnimationWithMessageEvent.StopCause.DAMAGE, player, player.getPoseType()));
             PLAYERS_POSES.remove(player.getHandle());
@@ -106,14 +106,18 @@ public class PluginEventListener implements Listener
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event){
-
+ 
         if ( !PLAYERS_POSES.containsKey(event.getPlayer()) ) return;
 
         if(event.getFrom().getWorld().equals(event.getTo().getWorld()))
             if(event.getFrom().clone().add(.5,0,.5).distance(event.getTo().clone().add(.5,0,.5)) < 1) return;
+
         if(!PosePluginAPI.getAPI().getPlayerMap().containsPlayer(event.getPlayer())) return;
+
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer());
+
         if(player.getPoseType().equals(EnumPose.STANDING)) return;
+
         if(event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
 
         player.resetCurrentPose();
@@ -123,8 +127,8 @@ public class PluginEventListener implements Listener
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public final void onBlockBreak(BlockBreakEvent event) {
 
-        VectorUtils.getNear(5,event.getPlayer()).forEach(near->{
-            Block under = VectorUtils.getBlockOnLoc(near.getLocation()).getRelative(BlockFace.DOWN);
+        BlockPositionUtils.getNear(5,event.getPlayer()).forEach(near->{
+            Block under = BlockPositionUtils.getBlockOnLoc(near.getLocation()).getRelative(BlockFace.DOWN);
             PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
             if(player.getPoseType().equals(EnumPose.STANDING)) return;
             if (event.getBlock().equals(under)) {
