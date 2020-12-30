@@ -3,11 +3,12 @@ package ru.armagidon.poseplugin.api.utils.nms;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.Method;
+
 public class ReflectionTools
 {
 
-    @SneakyThrows
-    public static Class<?> getNmsClass(String nmsClassName)  {
+    public static Class<?> getNmsClass(String nmsClassName) throws Exception {
         return Class.forName("net.minecraft.server." +nmsVersion() + "." + nmsClassName);
     }
 
@@ -20,7 +21,7 @@ public class ReflectionTools
     }
 
     @SuppressWarnings("unchecked")
-    public static Class<Enum<?>> getEnum(String name) {
+    public static Class<Enum<?>> getEnum(String name) throws Exception {
         return (Class<Enum<?>>) getNmsClass(name);
     }
 
@@ -32,5 +33,10 @@ public class ReflectionTools
     public static Class<?> getNestedClass(Class<?> owner, String name) throws ClassNotFoundException {
         String path = String.format("%s$%s", owner.getTypeName(), name);
         return Class.forName(path);
+    }
+
+    @SneakyThrows
+    public static Method getMethodSafely(Class<?> clazz, String name, Class<?>... argTypes){
+        return clazz.getDeclaredMethod(name, argTypes);
     }
 }
