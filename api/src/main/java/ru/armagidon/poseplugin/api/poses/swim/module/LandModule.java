@@ -22,7 +22,7 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
-import ru.armagidon.poseplugin.api.utils.misc.VectorUtils;
+import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 
 import java.util.Set;
@@ -77,18 +77,18 @@ public class LandModule extends SwimModule {
         } else {
             if(under){
                 getTarget().getHandle().setGliding(false);
-                under=false;
+                under = false;
             }
         }
     }
 
     private boolean canGoUnderBlock(Player target){
-        Block dir = VectorUtils.getDirBlock(getTarget().getHandle().getLocation());
+        Block dir = BlockPositionUtils.getDirBlock(getTarget().getHandle().getLocation());
         Location l = dir.getLocation().clone().add(.5,0,.5);
         Block aboveDir = dir.getRelative(BlockFace.UP);
-        boolean dirIsUnSolid =!dir.getType().isSolid();
+        boolean dirIsUnSolid = !dir.getType().isSolid();
         boolean aboveDirIsSolid = aboveDir.getType().isSolid();
-        boolean onTheEdge = getTarget().getHandle().getLocation().distance(l)<=0.9;
+        boolean onTheEdge = getTarget().getHandle().getLocation().distance(l) <= 0.9;
         boolean aboveIsUnSolid = !getAbove(target.getLocation()).getBlock().getType().isSolid();
         return dirIsUnSolid && aboveDirIsSolid && onTheEdge && aboveIsUnSolid;
     }
@@ -104,7 +104,7 @@ public class LandModule extends SwimModule {
             if (!above.getType().isSolid() || isUnSolidBlock(above.getBlockData()))
                 getTarget().getHandle().sendBlockChange(above.getLocation(), Material.BARRIER.createBlockData());
         }
-        previous=event.getTo();
+        previous = event.getTo();
     }
 
     @EventHandler
@@ -123,8 +123,8 @@ public class LandModule extends SwimModule {
     }
 
     public boolean compareLocations(Location first, Location second){
-        Location f = VectorUtils.getRoundedBlock(first).getLocation();
-        Location s = VectorUtils.getRoundedBlock(second).getLocation();
+        Location f = BlockPositionUtils.getRoundedBlock(first).getLocation();
+        Location s = BlockPositionUtils.getRoundedBlock(second).getLocation();
         return (f.getX() == s.getX() && f.getY() == s.getY() && f.getX() == s.getZ());
     }
 
@@ -154,6 +154,6 @@ public class LandModule extends SwimModule {
     }
 
     public Set<Player> getReceivers(){
-        return Bukkit.getOnlinePlayers().stream().filter(p->!p.getUniqueId().equals(getTarget().getHandle().getUniqueId())).collect(Collectors.toSet());
+        return Bukkit.getOnlinePlayers().stream().filter(p -> !p.getUniqueId().equals(getTarget().getHandle().getUniqueId())).collect(Collectors.toSet());
     }
 }
