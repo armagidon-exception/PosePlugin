@@ -1,4 +1,4 @@
-  <h1>PosePlugin [Minecraft 1.15.2-1.16.4]</h1>
+  <h1>PosePlugin [Minecraft 1.15.2-1.16.5]</h1>
   <h3>Choose your favorite pose</h3>
 
 [![Discord](https://img.shields.io/discord/720917120862519347?color=%237289DA&label=Discord&logo=discord&logoColor=white)](https://discord.io/stumpstudio)
