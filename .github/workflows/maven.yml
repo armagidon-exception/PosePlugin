@@ -18,9 +18,10 @@ jobs:
           uses: actions/setup-java@v1
           with:
             java-version: 1.8
+        - name: Debug
+          run: ls
         - name: Build with Maven
-        - run: ls -lah
-        - run: mvn -B package --file pom.xml
+          run: mvn -B package --file pom.xml
         - name: Checkout code
           uses: actions/checkout@v2
         - name: Create Release
