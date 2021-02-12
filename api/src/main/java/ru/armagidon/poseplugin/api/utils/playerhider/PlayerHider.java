@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
+import ru.armagidon.poseplugin.api.utils.npc.protocolized.New.NewPlayerHiderProtocolized;
 
 public abstract class PlayerHider implements Tickable
 {
@@ -14,7 +15,8 @@ public abstract class PlayerHider implements Tickable
 
     @SneakyThrows
     public static PlayerHider createNew(){
-        String path = String.format("ru.armagidon.poseplugin.api.utils.playerhider.%s.PlayerHiderImpl", ReflectionTools.nmsVersion());
-        return (PlayerHider) Class.forName(path).getDeclaredConstructor().newInstance();
+        /*String path = String.format("ru.armagidon.poseplugin.api.utils.playerhider.%s.PlayerHiderImpl", ReflectionTools.nmsVersion());
+        return (PlayerHider) Class.forName(path).getDeclaredConstructor().newInstance();*/
+        return new NewPlayerHiderProtocolized();
     }
 }

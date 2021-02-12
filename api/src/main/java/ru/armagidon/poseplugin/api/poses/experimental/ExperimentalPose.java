@@ -10,7 +10,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.armagidon.armagidonapi.itemutils.ItemBuilder;
 import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
-import ru.armagidon.armagidonapi.itemutils.nbtapi.NBTItem;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
@@ -121,9 +120,8 @@ public abstract class ExperimentalPose extends AbstractPose
     }
 
     protected static ItemStack addHideTag(ItemStack stack){
-        NBTItem item = new NBTItem(stack, true);
-        item.setString("PosePluginItem", stack.getType().name());
-        return item.getItem();
+        NBTModifier.setString(stack, "PosePluginItem", stack.getType().name());
+        return stack;
     }
 
 }

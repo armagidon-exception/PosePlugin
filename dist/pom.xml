@@ -22,7 +22,7 @@
             <artifactId>api</artifactId>
             <version>parent</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>ru.armagidon</groupId>
             <artifactId>1_15_R1</artifactId>
             <version>parent</version>
@@ -41,7 +41,7 @@
             <groupId>ru.armagidon</groupId>
             <artifactId>1_16_R3</artifactId>
             <version>parent</version>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>
@@ -62,12 +62,11 @@
                             <!--<minimizeJar>true</minimizeJar>-->
                             <artifactSet>
                                 <includes>
-                                    <include>ru.armagidon:1_15_R1</include>
+                                   <!-- <include>ru.armagidon:1_15_R1</include>
                                     <include>ru.armagidon:1_16_R1</include>
                                     <include>ru.armagidon:1_16_R2</include>
-                                    <include>ru.armagidon:1_16_R3</include>
+                                    <include>ru.armagidon:1_16_R3</include>-->
                                     <include>ru.armagidon:api</include>
-                                    <include>ru.armagidon:core</include>
                                     <include>ru.armagidon:ItemUtils</include>
                                     <include>io.papermc:paperlib</include>
                                 </includes>

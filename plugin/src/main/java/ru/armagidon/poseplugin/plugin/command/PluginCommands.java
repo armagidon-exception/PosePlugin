@@ -49,7 +49,6 @@ public class PluginCommands
 
     public void initCommands(){
         CommandMap map = PosePluginAPI.getAPI().getCoreWrapper().getCommandMap();
-        map.register("lay", "poseplugin", lay.getCommand());
         map.register("sit", "poseplugin", sit.getCommand());
         map.register("lay","poseplugin",lay.getCommand());
         map.register("ppreload","poseplugin",ppreload.getCommand());

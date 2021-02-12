@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.api.utils.npc;
 
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -13,6 +14,7 @@ import ru.armagidon.poseplugin.api.ticking.Tickable;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
+import ru.armagidon.poseplugin.api.utils.npc.protocolized.FakePlayerProtocolized;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,7 +104,12 @@ public abstract class FakePlayer implements Tickable, Listener
         return getMetadataAccessor().isHandActive();
     }
 
-    public abstract void setActiveHand(HandType mode);
+    public void setActiveHand(HandType type) {
+        metadataAccessor.setActiveHand(type.getHandModeFlag());
+        metadataAccessor.merge(true);
+        updateNPC();
+        activeHand = type;
+    }
 
     public final void disableHands(){
         getMetadataAccessor().disableHand();
@@ -117,9 +124,14 @@ public abstract class FakePlayer implements Tickable, Listener
 
     public void teleport(Location destination) {}
 
+    public abstract int getId();
+
+    public abstract WrappedDataWatcher getDataWatcher();
+
     @SneakyThrows
     public static FakePlayer createNew(Player parent, Pose pose){
-        String path = String.format("ru.armagidon.poseplugin.api.utils.npc.%s.FakePlayer", ReflectionTools.nmsVersion());
-        return (FakePlayer) Class.forName(path).getDeclaredConstructor(Player.class, Pose.class).newInstance(parent, pose);
+        /*String path = String.format("ru.armagidon.poseplugin.api.utils.npc.%s.FakePlayer", ReflectionTools.nmsVersion());
+        return (FakePlayer) Class.forName(path).getDeclaredConstructor(Player.class, Pose.class).newInstance(parent, pose);*/
+        return new FakePlayerProtocolized(parent, pose);
     }
 }
