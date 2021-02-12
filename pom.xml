@@ -89,12 +89,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>ru.armagidon</groupId>
-            <artifactId>ItemUtils</artifactId>
-            <version>1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
             <version>1.0.5</version>

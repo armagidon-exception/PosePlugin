@@ -1,6 +1,5 @@
 package ru.armagidon.armagidonapi.itemutils;
 
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -9,6 +8,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
 
 import java.util.List;
 import java.util.UUID;
@@ -51,18 +51,9 @@ public class ItemBuilder
         item.setAmount(amount);
         return this;
     }
-    public ItemBuilder addTags(String key, Object value){
-        asItemStack();
-        NBTItem nbtItem = new NBTItem(this.item, true);
-        nbtItem.setObject(key, value);
-        item = nbtItem.getItem();
-        item.setItemMeta(meta);
-        return this;
-    }
 
     public ItemBuilder addStringTag(String key, String value){
-        NBTItem nbtItem = new NBTItem(this.item, true);
-        nbtItem.setString(key, value);
+        NBTModifier.setString(this.item, key, value);
         return this;
     }
 
