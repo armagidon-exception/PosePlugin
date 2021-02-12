@@ -19,7 +19,7 @@ jobs:
           with:
             java-version: 1.8
         - name: Debug
-          run: ls
+          run: echo $(ls)
         - name: Build with Maven
           run: mvn -B package --file pom.xml
         - name: Checkout code
