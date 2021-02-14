@@ -1,38 +1,40 @@
 package ru.armagidon.poseplugin.api.utils.scoreboard;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableMap;
-import lombok.SneakyThrows;
 import org.bukkit.scoreboard.Team;
-import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
+import ru.armagidon.poseplugin.api.wrappers.WrapperPlayServerScoreboardTeam;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.*;
+import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.setBit;
 
 public class WrapperScoreboardTeamPacket
 {
-    private static final String PACKET_NAME = "PacketPlayOutScoreboardTeam";
 
-    private static final ImmutableMap<Team.OptionStatus, String> pushBukkitToNotch = ImmutableMap.<Team.OptionStatus, String>builder().
+    public static final ImmutableMap<Team.OptionStatus, String> pushBukkitToNotch = ImmutableMap.<Team.OptionStatus, String>builder().
             put(Team.OptionStatus.ALWAYS, "always").put(Team.OptionStatus.NEVER, "never").put(Team.OptionStatus.FOR_OTHER_TEAMS, "pushOtherTeams").
             put(Team.OptionStatus.FOR_OWN_TEAM, "pushOwnTeam").build();
 
-    private static final ImmutableMap<Team.OptionStatus, String> hideBukkitToNotch = ImmutableMap.<Team.OptionStatus, String>builder().
+    public static final ImmutableMap<Team.OptionStatus, String> hideBukkitToNotch = ImmutableMap.<Team.OptionStatus, String>builder().
             put(Team.OptionStatus.ALWAYS, "always").put(Team.OptionStatus.NEVER, "never").put(Team.OptionStatus.FOR_OTHER_TEAMS, "hideForOtherTeams").
             put(Team.OptionStatus.FOR_OWN_TEAM, "hideForOwnTeam").build();
 
     private static final byte marker = 66;
 
-    private final Object handle;
+    private final WrapperPlayServerScoreboardTeam handle;
 
     public WrapperScoreboardTeamPacket(Team team) {
         this.handle = createPacket(team);
         markPacket();
     }
 
-    public WrapperScoreboardTeamPacket(Object handle) {
+    public WrapperScoreboardTeamPacket(WrapperPlayServerScoreboardTeam handle) {
         this.handle = handle;
         markPacket();
     }
@@ -42,125 +44,83 @@ public class WrapperScoreboardTeamPacket
         markPacket();
     }
 
-    public void setNameTagVisibility(Team.OptionStatus nameTagVisibility) {
-        try {
-            Field nameTagVisibilityF = handle.getClass().getDeclaredField("e");
-            nameTagVisibilityF.setAccessible(true);
+    public Team.OptionStatus getNameTagVisibility() {
+        return invertMapParams(hideBukkitToNotch).get(handle.getNameTagVisibility());
+    }
 
-            nameTagVisibilityF.set(handle, hideBukkitToNotch.get(nameTagVisibility));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+    public Team.OptionStatus getCollisionRule() {
+        return invertMapParams(pushBukkitToNotch).get(handle.getCollisionRule());
+    }
+
+
+    public void setNameTagVisibility(Team.OptionStatus nameTagVisibility) {
+        handle.setNameTagVisibility(hideBukkitToNotch.get(nameTagVisibility));
     }
 
     public void setCollisionRule(Team.OptionStatus collisionRule) {
-        try {
-            Field collisionRuleF = handle.getClass().getDeclaredField("f");
-            collisionRuleF.setAccessible(true);
-
-            collisionRuleF.set(handle, pushBukkitToNotch.get(collisionRule));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+        handle.setCollisionRule(pushBukkitToNotch.get(collisionRule));
     }
 
     public void setCanSeePlayersInvisibles(boolean flag){
-        try {
-            Field optionsF = handle.getClass().getDeclaredField("j");
-            optionsF.setAccessible(true);
-            int curr = optionsF.getInt(handle);
-            optionsF.set(handle, (int) setBit((byte) curr, 1, flag));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+        int curr = handle.getPackOptionData();
+        handle.setPackOptionData(setBit((byte) curr, 1, flag));
     }
 
     public void setName(String name) {
-        try {
-            Field nameF = handle.getClass().getDeclaredField("a");
-            nameF.setAccessible(true);
-            nameF.set(handle, name);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+        handle.setName(name);
     }
 
-    public void setMode(Mode mode) {
-        try {
-            Field nameF = handle.getClass().getDeclaredField("i");
-            nameF.setAccessible(true);
-            nameF.set(handle, mode.ordinal());
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+    public void setMode(int mode) {
+        handle.setMode(mode);
     }
 
-    public void setTeamMateList(Collection<String> players){
-        try {
-            Field nameF = handle.getClass().getDeclaredField("h");
-            nameF.setAccessible(true);
-            nameF.set(handle, players);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+    public void setTeamMateList(List<String> players){
+        handle.setPlayers(players);
     }
 
-    private static byte setBit(byte input, int k, boolean flag){
-        byte output;
-        if(flag){
-            output = (byte) (input | (1 << k));
-        } else {
-            output = (byte) (input & ~(1 << k));
-        }
-        return output;
-    }
-
-    public Object getHandle() {
+    public WrapperPlayServerScoreboardTeam getHandle() {
         return handle;
     }
 
-    @SneakyThrows
-    private Object createPacket(Team team) {
-        Field teamF =  team.getClass().getDeclaredField("team");
-        teamF.setAccessible(true);
-        Object vanilla = teamF.get(team);
+    private WrapperPlayServerScoreboardTeam createPacket(Team team) {
+        Object vanilla;
+        try {
+            Field teamF = team.getClass().getDeclaredField("team");
+            teamF.setAccessible(true);
+            vanilla = teamF.get(team);
+        } catch (Exception e) {
+            return createEmptyPacket();
+        }
 
-        Constructor<?> creationConstr = getNmsClass(PACKET_NAME).getDeclaredConstructor(ReflectionTools.getNmsClass("ScoreboardTeam"), int.class);
-        creationConstr.setAccessible(true);
-        return creationConstr.newInstance(vanilla, 2);
+        PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacketConstructor(PacketType.Play.Server.SCOREBOARD_TEAM, vanilla, 2)
+                .createPacket(vanilla, 2);
+        return new WrapperPlayServerScoreboardTeam(packet);
     }
 
-    @SneakyThrows
-    private Object createEmptyPacket() {
-        Constructor<?> creationConstr = getNmsClass(PACKET_NAME).getDeclaredConstructor();
-        creationConstr.setAccessible(true);
-        return creationConstr.newInstance();
+    private WrapperPlayServerScoreboardTeam createEmptyPacket() {
+        return new WrapperPlayServerScoreboardTeam();
     }
 
-    @SneakyThrows
     public void markPacket() {
-        Field options = handle.getClass().getDeclaredField("j");
-        options.setAccessible(true);
-        int data = options.getInt(handle);
+        int data = handle.getPackOptionData();
 
         final int marker = 66;
-        data |= marker << 8;
+        data |= marker << 8;  //Shift marker 1 byte to the right
 
-        options.set(handle, data);
+        handle.setPackOptionData(data);
     }
 
-    @SneakyThrows
-    public static boolean isMarked(Object packet) {
-        Field optionsF = packet.getClass().getDeclaredField("j");
-        optionsF.setAccessible(true);
-        int options = optionsF.getInt(packet);
+    public static boolean isMarked(WrapperPlayServerScoreboardTeam packet) {
+        int options = packet.getPackOptionData();
 
-        byte rawData = (byte) (options >>> 8);
+        byte rawData = (byte) (options >>> 8); //Restore marker value and clear it out of any other markers
         return rawData == marker;
     }
 
-    public enum Mode {
-        CREATE_TEAM, REMOVE_TEAM, UPDATE_TEAM, ADD_PLAYER, REMOVE_PLAYER
+    private static <K, V> Map<V, K> invertMapParams(Map<K, V> map) {
+        Map<V, K> output = new HashMap<>();
+        map.forEach((key, value) -> output.put(value, key));
+        return output;
     }
 
 }
