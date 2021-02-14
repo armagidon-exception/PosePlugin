@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>1</build.number>
         <build.prefix></build.prefix>
-        <build.version>2.1</build.version>
+        <build.version>2.1.1</build.version>
         <plugin.version>${build.version}${build.prefix}</plugin.version>
     </properties>
     <repositories>
