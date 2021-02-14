@@ -44,7 +44,7 @@ public class PosePluginAPI
         this.plugin = plugin;
         this.playerMap = new P3Map();
         this.tickManager = new TickModuleManager();
-        this.nameTagHider = new NameTagHider();
+        this.nameTagHider = new NameTagHider(plugin);
         this.personalHandlerList = new PersonalHandlerList();
         this.debugger = new Debugger();
     }
