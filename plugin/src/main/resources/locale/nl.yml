@@ -1,0 +1,33 @@
+in-air: "§cJe kan dit niet doen in de lucht!"
+swim:
+  play: "§bJe bent aan eht zwemmen"
+  damage: "&cJe stond ineens op omdat je geraakt werd"
+  stop: "§aJe bent recht gaan staan"
+lay:
+  play: "§bJe bent gaan liggen"
+  damage: "§cJe stond ineens op omdat je geraakt werd"
+  prevent-use-when-invisible: "§cJe kunt niet de liggende pose aanhouden terwijl je onzichtbaar bent"
+  prevent-use-invisibility-when-use: "§cJe kunt geen onzichtbaarsheid potion gebruiken terwijl je in de lig pose zit"
+  stop: "§aJe bent recht gaan staan"
+sit:
+  play: "§bJe bent gaan zitten"
+  damage: "§cJe stond ineens op omdat je geraakt werd"
+  stop: "§aJe bent recht gaan staan"
+wave:
+  play: "§bJe bent begonnen met zwaaien met je hand"
+  damage: "§cJe stond ineens op omdat je geraakt werd"
+  handmode-change: "§aJe bent gewisseld van hand"
+  stop: "§aJe bent gestopt met zwaaien"
+  usage: "§9/wave [right/left/off]"
+point:
+  play: "§bJe bent begonnen met wijzen met je vinger"
+  damage: "§cJe stond ineens op omdat je geraakt werd"
+  handmode-change: "§aJe bent gewisseld van hand"
+  stop: "§aJe bent gestopt met wijzen"
+  usage: "§9/point [right/left/off]"
+handshake:
+  play: "§bJe bent begonnen met je hand te schudden."
+  damage: "§cJe stond ineens op omdat je geraakt werd"
+  handmode-change: "§aJe bent gewisseld van hand"
+  stop: "§aJe bent gestopt met je hand te schudden"
+  usage: "§9/handshake [right/left/off]"
