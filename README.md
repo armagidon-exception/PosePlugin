@@ -8,6 +8,9 @@
 <p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. <br> There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.</p>
 
 ## Video review about the plugin ##
+In English
+[![English review](https://img.youtube.com/vi/8ls495n5uY8/0.jpg)](https://www.youtube.com/watch?v=8ls495n5uY8)
+
 In Netherlands/Dutch languages
 
 [![Netherlands review](https://img.youtube.com/vi/VLg3LIp6QIY/0.jpg)](https://www.youtube.com/watch?v=VLg3LIp6QIY)
