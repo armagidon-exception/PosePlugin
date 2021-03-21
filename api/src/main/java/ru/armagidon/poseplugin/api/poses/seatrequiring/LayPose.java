@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.lay;
+package ru.armagidon.poseplugin.api.poses.sit;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
