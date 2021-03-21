@@ -14,6 +14,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
+import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
@@ -112,7 +113,7 @@ public abstract class ExperimentalPose extends AbstractPose
                 out = new ItemStack(Material.AIR);
                 break;
         }
-        return out !=null ? out : new ItemStack(Material.AIR);
+        return out != null ? out : new ItemStack(Material.AIR);
     }
 
     private void updateNPCsArmor(PlayerArmorChangeEvent.SlotType slotType, ItemStack stack){
@@ -124,4 +125,40 @@ public abstract class ExperimentalPose extends AbstractPose
         return stack;
     }
 
+    public static class HandShakePose extends ExperimentalPose
+    {
+        public HandShakePose(Player target) {
+            super(target, Material.SHIELD);
+        }
+
+        @Override
+        public EnumPose getType() {
+            return EnumPose.HANDSHAKING;
+        }
+    }
+
+    public static class PointPose extends ExperimentalPose {
+
+        public PointPose(Player target) {
+            super(target, Material.BOW);
+        }
+
+        @Override
+        public EnumPose getType() {
+            return EnumPose.POINTING;
+        }
+    }
+
+    public static class WavePose extends ExperimentalPose
+    {
+
+        public WavePose(Player target) {
+            super(target, Material.TRIDENT);
+        }
+
+        @Override
+        public EnumPose getType() {
+            return EnumPose.WAVING;
+        }
+    }
 }

@@ -154,9 +154,8 @@ public class PluginEventListener implements Listener
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onStop(StopPosingEvent event){
-
         if ( !PLAYERS_POSES.containsKey(event.getPlayer().getHandle()) ) return;
 
         Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(StopAnimationWithMessageEvent.StopCause.OTHER, event.getPlayer(), event.getPose()));

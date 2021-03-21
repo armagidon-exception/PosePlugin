@@ -1,6 +1,7 @@
 package ru.armagidon.poseplugin.api.utils.scoreboard;
 
 import lombok.SneakyThrows;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -108,6 +109,7 @@ public class ScoreboardUtil implements Listener {
             //Setup team's settings
             WrapperScoreboardTeamPacket updatePacket = new WrapperScoreboardTeamPacket();
             updatePacket.setMode(TEAM_UPDATED);
+            updatePacket.getHandle().setColor(ChatColor.RESET);
             updatePacket.setName(player.getName());
             updatePacket.setNameTagVisibility(Team.OptionStatus.FOR_OWN_TEAM);
             updatePacket.setCollisionRule(Team.OptionStatus.FOR_OWN_TEAM);

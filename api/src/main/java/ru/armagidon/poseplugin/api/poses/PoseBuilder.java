@@ -2,12 +2,10 @@ package ru.armagidon.poseplugin.api.poses;
 
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
-import ru.armagidon.poseplugin.api.poses.experimental.HandShakePose;
-import ru.armagidon.poseplugin.api.poses.experimental.PointPose;
-import ru.armagidon.poseplugin.api.poses.experimental.WavePose;
-import ru.armagidon.poseplugin.api.poses.lay.LayPose;
+import ru.armagidon.poseplugin.api.poses.experimental.ExperimentalPose;
+import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
-import ru.armagidon.poseplugin.api.poses.sit.SitPose;
+import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
 
 import java.util.HashMap;
@@ -23,9 +21,9 @@ public class PoseBuilder {
         put(EnumPose.SWIMMING, (player) -> new SwimPose(player));
         put(EnumPose.SITTING, (player) -> new SitPose(player));
         //Exp poses
-        put(EnumPose.WAVING, (player) -> new WavePose(player));
-        put(EnumPose.POINTING, (player) -> new PointPose(player));
-        put(EnumPose.HANDSHAKING, (player) -> new HandShakePose(player));
+        put(EnumPose.WAVING, (player) -> new ExperimentalPose.WavePose(player));
+        put(EnumPose.POINTING, (player) -> new ExperimentalPose.PointPose(player));
+        put(EnumPose.HANDSHAKING, (player) -> new ExperimentalPose.HandShakePose(player));
     }};
 
 

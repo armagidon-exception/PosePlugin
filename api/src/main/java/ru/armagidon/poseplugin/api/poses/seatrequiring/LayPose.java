@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.lay;
+package ru.armagidon.poseplugin.api.poses.seatrequiring;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
@@ -9,28 +9,19 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
-import ru.armagidon.poseplugin.api.poses.sit.ArmorStandSeat;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
-public class LayPose extends AbstractPose {
+import java.util.Timer;
+
+public class LayPose extends SeatRequiringPose {
 
     private final FakePlayer fakePlayer;
-    private final ArmorStandSeat driver;
 
     public LayPose(Player target) {
         super(target);
         this.fakePlayer = FakePlayer.createNew(target, Pose.SLEEPING);
         registerProperties();
-        this.driver = new ArmorStandSeat(target, (e,a)-> {
-            if(!getPosePluginPlayer().resetCurrentPose()) {
-                e.setCancelled(true);
-                a.pushBack();
-            }
-        });
-        this.driver.setTeleport((event, seat) -> {
-            fakePlayer.teleport(getPlayer().getLocation());
-        });
     }
 
     private void registerProperties(){
@@ -47,7 +38,6 @@ public class LayPose extends AbstractPose {
     public void initiate() {
         super.initiate();
         fakePlayer.initiate();
-        driver.takeASeat();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
@@ -55,6 +45,7 @@ public class LayPose extends AbstractPose {
 
     @Override
     public void play(Player receiver) {
+        super.play(receiver);
         if(receiver == null)
             fakePlayer.broadCastSpawn();
         else fakePlayer.spawnToPlayer(receiver);
@@ -65,7 +56,6 @@ public class LayPose extends AbstractPose {
         super.stop();
         fakePlayer.remove();
         fakePlayer.destroy();
-        driver.standUp();
         PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());
@@ -81,5 +71,10 @@ public class LayPose extends AbstractPose {
         if(event.getPlayer().equals(getPlayer())){
             fakePlayer.swingHand(event.getPlayer().getMainHand().equals(MainHand.RIGHT));
         }
+    }
+
+    @Override
+    public void handleTeleport(ArmorStandSeat seat) {
+        fakePlayer.teleport(getPlayer().getLocation());
     }
 }

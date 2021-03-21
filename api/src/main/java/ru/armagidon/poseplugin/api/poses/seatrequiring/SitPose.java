@@ -1,31 +1,22 @@
-package ru.armagidon.poseplugin.api.poses.sit;
+package ru.armagidon.poseplugin.api.poses.seatrequiring;
 
 import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 
-public class SitPose extends AbstractPose {
-
-    private final ArmorStandSeat driver;
+public class SitPose extends SeatRequiringPose {
 
     public SitPose(Player player) {
         super(player);
-        this.driver = new ArmorStandSeat(player, (e,s)-> {
-            if(!getPosePluginPlayer().resetCurrentPose()){
-                e.setCancelled(true);
-                s.pushBack();
-            }
-        });
     }
 
     public void play(Player receiver){
-        driver.takeASeat();
+        super.play(receiver);
     }
 
     @Override
     public void stop(){
         super.stop();
-        driver.standUp();
     }
 
     @Override
