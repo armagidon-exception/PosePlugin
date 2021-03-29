@@ -9,6 +9,7 @@
 
 ## Video review about the plugin ##
 In English
+
 [![English review](https://img.youtube.com/vi/8ls495n5uY8/0.jpg)](https://www.youtube.com/watch?v=8ls495n5uY8)
 
 In Netherlands/Dutch languages
