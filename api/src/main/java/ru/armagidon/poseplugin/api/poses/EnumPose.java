@@ -88,14 +88,17 @@ public interface EnumPose
         }
     };
 
-/*
-    STANDING("stand"),
-    SITTING("sit"),
-    LYING("lay"),
-    SWIMMING("swim"),
-    WAVING("wave"),
-    POINTING("point"),
-    HANDSHAKING("handshake");*/
+    EnumPose PRAYING = new EnumPose() {
+        @Override
+        public String getName() {
+            return "pray";
+        }
+
+        @Override
+        public EnumPoseOption<?>[] availableOptions() {
+            return new EnumPoseOption[] {EnumPoseOption.STEP};
+        }
+    };
 
     String getName();
     EnumPoseOption<?>[] availableOptions();

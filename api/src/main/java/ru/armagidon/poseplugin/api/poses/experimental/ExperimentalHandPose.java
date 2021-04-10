@@ -16,17 +16,18 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
+import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
-public abstract class ExperimentalPose extends AbstractPose
+public abstract class ExperimentalHandPose extends AbstractPose
 {
 
     private final ItemStack handItem;
     private final FakePlayer npc;
     private final Location to;
 
-    public ExperimentalPose(Player target, Material type) {
+    public ExperimentalHandPose(Player target, Material type) {
         super(target);
         this.handItem = addHideTag(ItemBuilder.create(type).asItemStack());
         this.npc = FakePlayer.createNew(target, Pose.STANDING);
@@ -125,7 +126,8 @@ public abstract class ExperimentalPose extends AbstractPose
         return stack;
     }
 
-    public static class HandShakePose extends ExperimentalPose
+    @PoseAvailabilitySince(version = "1.15")
+    public static class HandShakePose extends ExperimentalHandPose
     {
         public HandShakePose(Player target) {
             super(target, Material.SHIELD);
@@ -137,7 +139,8 @@ public abstract class ExperimentalPose extends AbstractPose
         }
     }
 
-    public static class PointPose extends ExperimentalPose {
+    @PoseAvailabilitySince(version = "1.15")
+    public static class PointPose extends ExperimentalHandPose {
 
         public PointPose(Player target) {
             super(target, Material.BOW);
@@ -149,7 +152,8 @@ public abstract class ExperimentalPose extends AbstractPose
         }
     }
 
-    public static class WavePose extends ExperimentalPose
+    @PoseAvailabilitySince(version = "1.15")
+    public static class WavePose extends ExperimentalHandPose
     {
 
         public WavePose(Player target) {

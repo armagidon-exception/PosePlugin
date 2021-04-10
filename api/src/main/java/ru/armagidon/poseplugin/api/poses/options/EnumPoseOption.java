@@ -122,6 +122,23 @@ public interface EnumPoseOption<T> {
             return 20;
         }
     };
+
+    EnumPoseOption<Float> STEP = new EnumPoseOption<Float>() {
+        @Override
+        public String mapper() {
+            return "step";
+        }
+
+        @Override
+        public Class<Float> getTypeClass() {
+            return Float.class;
+        }
+
+        @Override
+        public Float defaultValue() {
+            return 1f;
+        }
+    };
     
     String mapper();
 
