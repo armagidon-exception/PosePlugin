@@ -1,9 +1,10 @@
 package ru.armagidon.poseplugin.api.poses.seatrequiring;
 
 import org.bukkit.entity.Player;
-import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
+@PoseAvailabilitySince(version = "1.15")
 public class SitPose extends SeatRequiringPose {
 
     public SitPose(Player player) {

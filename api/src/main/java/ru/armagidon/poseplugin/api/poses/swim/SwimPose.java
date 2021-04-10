@@ -12,9 +12,11 @@ import ru.armagidon.poseplugin.api.poses.swim.module.LandModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.SwimModule;
 import ru.armagidon.poseplugin.api.poses.swim.module.WaterModule;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
+import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 
+@PoseAvailabilitySince(version = "1.15")
 public class SwimPose extends AbstractPose implements Tickable {
 
     private SwimModule module;
