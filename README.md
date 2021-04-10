@@ -5,7 +5,7 @@
 ![img](http://badge.henrya.org/spigot/downloads?id=76990&color=green)
 ![img2](https://img.shields.io/spiget/version/76990?color=blue&label=current%20version)
 
-<p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. <br> There are 6 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking.</p>
+<p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. <br> There are 7 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking and praying.</p>
 
 ## Video review about the plugin ##
 In English
