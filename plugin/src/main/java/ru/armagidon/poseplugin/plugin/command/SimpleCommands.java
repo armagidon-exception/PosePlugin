@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.plugin.command;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -8,6 +9,7 @@ import ru.armagidon.poseplugin.PosePlugin;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.IllegalMCVersionException;
 import ru.armagidon.poseplugin.api.poses.PoseBuilder;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
@@ -45,7 +47,12 @@ public class SimpleCommands extends PosePluginCommand
                         option(EnumPoseOption.VIEW_DISTANCE, cfg.getInt("lay.view-distance")).build(sender));
             } else if (getCommand().getName().equalsIgnoreCase("sit")) {
                 p.changePose(PoseBuilder.builder(EnumPose.SITTING).build(sender));
+            } else if (getCommand().getName().equalsIgnoreCase("pray")) {
+                p.changePose(PoseBuilder.builder(EnumPose.PRAYING).option(EnumPoseOption.STEP, (float) cfg.getDouble("pray.step")).build(sender));
             }
+        } catch (IllegalMCVersionException e) {
+            sender.sendMessage(ChatColor.RED + e.getMessage());
+            p.resetCurrentPose();
         } catch (IllegalArgumentException e){
             p.resetCurrentPose();
         }

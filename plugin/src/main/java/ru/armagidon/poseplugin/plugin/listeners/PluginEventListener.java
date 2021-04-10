@@ -71,6 +71,9 @@ public class PluginEventListener implements Listener
 
         if ( player.getPoseType() == SWIMMING ){
             if ( !event.getPlayer().isOnGround() ) return;
+        } else if ( player.getPoseType() == PRAYING ) {
+            player.resetCurrentPose();
+            return;
         } else {
             if ( !posesToCheck.contains(player.getPoseType()) ) return;
             if ( !PosePlugin.getInstance().getCfg().getBoolean(player.getPoseType().getName()+".disable-when-shift") ) return;

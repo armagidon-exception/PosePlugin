@@ -6,14 +6,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.inventory.MainHand;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
+import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
-import java.util.Timer;
-
+@PoseAvailabilitySince(version = "1.15")
 public class LayPose extends SeatRequiringPose {
 
     private final FakePlayer fakePlayer;

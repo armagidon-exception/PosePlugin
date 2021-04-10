@@ -8,10 +8,6 @@
     <artifactId>poseplugin</artifactId>
     <version>parent</version>
     <modules>
-        <!--<module>1_15_R1</module>
-        <module>1_16_R1</module>
-        <module>1_16_R2</module>
-        <module>1_16_R3</module>-->
         <module>plugin</module>
         <module>dist</module>
         <module>api</module>
@@ -24,8 +20,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.number>1</build.number>
-        <build.prefix></build.prefix>
-        <build.version>2.1.2</build.version>
+        <build.prefix>-experimental</build.prefix>
+        <build.version>2.2</build.version>
         <plugin.version>${build.version}${build.prefix}</plugin.version>
     </properties>
     <repositories>
