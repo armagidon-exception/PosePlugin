@@ -18,6 +18,7 @@ public class PluginCommands
     private final PosePluginCommand wave;
     private final PosePluginCommand point;
     private final PosePluginCommand handshake;
+    private final PosePluginCommand pray;
 
     public PluginCommands() {
         {
@@ -28,6 +29,7 @@ public class PluginCommands
             lay = new SimpleCommands("lay");
             swim = new SimpleCommands("swim");
             sit = new SimpleCommands("sit");
+            pray = new SimpleCommands("pray");
         }
         {
             wave = new ExperimentalPoseCommand("wave");
@@ -59,13 +61,13 @@ public class PluginCommands
             if (cfg.getBoolean("wave.enabled")) map.register("wave", "poseplugin", wave.getCommand());
             if (cfg.getBoolean("point.enabled")) map.register("point", "poseplugin", point.getCommand());
             if (cfg.getBoolean("handshake.enabled")) map.register("handshake", "poseplugin", handshake.getCommand());
+            if (cfg.getBoolean("pray.enabled")) map.register("pray", "poseplugin", pray.getCommand());
         }
     }
 
     public void unregisterAll(){
         CommandMap map = PosePluginAPI.getAPI().getCoreWrapper().getCommandMap();
-        Arrays.asList(sit,swim,lay,ppreload,wave,point,handshake).forEach(cmd-> {
-            cmd.getCommand().unregister(map);
-        });
+        Arrays.asList(sit,swim,lay,ppreload,wave,point,handshake,pray).forEach(cmd ->
+                cmd.getCommand().unregister(map));
     }
 }
