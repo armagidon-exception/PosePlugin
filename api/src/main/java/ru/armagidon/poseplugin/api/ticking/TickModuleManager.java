@@ -7,7 +7,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 
 import java.util.Map;
 
-public class TickModuleManager {
+public final class TickModuleManager {
 
     private final Map<Tickable, BukkitTask> tickers;
 
@@ -43,6 +43,27 @@ public class TickModuleManager {
             if(!t.isCancelled()) t.cancel();
             tickers.remove(tickable);
         }
+    }
+
+    public void registerTickModule(Tickable module, int delay, boolean async) {
+        Runnable task = () -> {
+            try {
+                module.tick();
+            } catch (Exception e) {
+                removeTickModule(module);
+                PosePluginAPI.getAPI().getLogger().severe("Error occurred while ticking: " + e.getMessage());
+                e.printStackTrace();
+            }
+        };
+
+        BukkitTask t;
+
+        if(!async) {
+            t = Bukkit.getScheduler().runTaskTimer(PosePluginAPI.getAPI().getPlugin(), task, 0, 1);
+        } else {
+            t = Bukkit.getScheduler().runTaskTimerAsynchronously(PosePluginAPI.getAPI().getPlugin(), task, delay,delay);
+        }
+        tickers.put(module,t);
     }
 
     public final void later(Tickable module, int delay){
