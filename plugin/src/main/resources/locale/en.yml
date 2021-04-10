@@ -6,8 +6,8 @@ swim:
 lay:
   play: "§bYou've laid down"
   damage: "§cYou suddenly stood up, because you got damaged"
-  prevent-use-when-invisible: "§cYou can't set lying pose being invisible"
-  prevent-use-invisibility-when-use: "§cYou can't use invisibility potion while using lay pose"
+  prevent-use-when-invisible: "§cYou can't lay while you are invisible"
+  prevent-use-invisibility-when-use: "§cDon't drink invisibility potions in horizontal position"
   stop: "§aYou stood up"
 sit:
   play: "§bYou've sat down"
@@ -31,3 +31,7 @@ handshake:
   handmode-change: "§aYou've changed your hand to handshake with"
   stop: "§aYou've stopped your handshake"
   usage: "§9/handshake [right/left/off]"
+pray:
+  play: "§bYou've started praying"
+  damage: "§cYou suddenly stood up, because you got damaged"
+  stop: "§aYou stood up"
