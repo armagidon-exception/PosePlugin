@@ -27,3 +27,6 @@ handshake:
   enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
+pray:
+  enabled: true
+  step: 3.0
