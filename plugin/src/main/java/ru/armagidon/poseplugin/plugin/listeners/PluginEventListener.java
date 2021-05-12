@@ -2,8 +2,6 @@ package ru.armagidon.poseplugin.plugin.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -69,16 +67,14 @@ public class PluginEventListener implements Listener
 
         Set<EnumPose> posesToCheck = Stream.of(WAVING, POINTING, HANDSHAKING).collect(Collectors.toSet());
 
-        if ( player.getPoseType() == SWIMMING ){
-            if ( !event.getPlayer().isOnGround() ) return;
-        } else if ( player.getPoseType() == PRAYING ) {
+
+        if (player.getPoseType().equals(CRAWLING) || player.getPoseType().equals(PRAYING)) {
             player.resetCurrentPose();
-            return;
-        } else {
-            if ( !posesToCheck.contains(player.getPoseType()) ) return;
-            if ( !PosePlugin.getInstance().getCfg().getBoolean(player.getPoseType().getName()+".disable-when-shift") ) return;
+        } else if(posesToCheck.contains(player.getPoseType())) {
+            if ( PosePlugin.getInstance().getCfg().getBoolean(player.getPoseType().getName()+".disable-when-shift") ) {
+                player.resetCurrentPose();
+            }
         }
-        player.resetCurrentPose();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -127,24 +123,23 @@ public class PluginEventListener implements Listener
 
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    /*@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public final void onBlockBreak(BlockBreakEvent event) {
 
         BlockPositionUtils.getNear(5,event.getPlayer()).forEach(near->{
-            Block under = BlockPositionUtils.getBlockOnLoc(near.getLocation()).getRelative(BlockFace.DOWN);
             PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
             if(player.getPoseType().equals(EnumPose.STANDING)) return;
-            if (event.getBlock().equals(under)) {
+            if (!BlockPositionUtils.getBelow(player.getHandle().getLocation()).getType().isAir()) {
                 player.resetCurrentPose();
             }
         });
-    }
+    }*/
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public final void onMove(PlayerMoveEvent event){
         if ( !PLAYERS_POSES.containsKey(event.getPlayer())) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer());
-        if (player.getPoseType() != SWIMMING) return;
+        if (player.getPoseType() != CRAWLING) return;
 
         boolean isSwimmingStatic = PosePlugin.getInstance().getCfg().getBoolean("swim.static");
         if (isSwimmingStatic){

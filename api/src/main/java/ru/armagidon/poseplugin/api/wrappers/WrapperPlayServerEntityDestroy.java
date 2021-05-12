@@ -60,7 +60,7 @@ public class WrapperPlayServerEntityDestroy extends AbstractPacket {
 	 * 
 	 * @param value - new value.
 	 */
-	public void setEntityIds(int[] value) {
+	public void setEntityIds(int... value) {
 		handle.getIntegerArrays().write(0, value);
 	}
 

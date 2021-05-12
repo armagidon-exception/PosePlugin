@@ -43,10 +43,10 @@ public interface EnumPose
                     EnumPoseOption.SWING_ANIMATION};
         }
     };
-    EnumPose SWIMMING = new EnumPose() {
+    EnumPose CRAWLING = new EnumPose() {
         @Override
         public String getName() {
-            return "swim";
+            return "crawl";
         }
 
         @Override

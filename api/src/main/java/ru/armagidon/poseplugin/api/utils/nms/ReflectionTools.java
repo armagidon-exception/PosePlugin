@@ -3,6 +3,7 @@ package ru.armagidon.poseplugin.api.utils.nms;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public class ReflectionTools
@@ -38,5 +39,10 @@ public class ReflectionTools
     @SneakyThrows
     public static Method getMethodSafely(Class<?> clazz, String name, Class<?>... argTypes){
         return clazz.getDeclaredMethod(name, argTypes);
+    }
+
+    @SuppressWarnings({"unchecked", "raw"})
+    public static Enum<?> getEnumValueOf(String value, Class enumClass) {
+        return Enum.valueOf(enumClass, value);
     }
 }

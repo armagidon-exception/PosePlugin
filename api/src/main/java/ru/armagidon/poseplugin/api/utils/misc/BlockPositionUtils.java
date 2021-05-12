@@ -56,7 +56,7 @@ public final class BlockPositionUtils
 
     public static boolean onGround(Player player){
         Location location = player.getLocation();
-        return !location.getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR) && player.isOnGround();
+        return !getBelow(location).getType().isAir() && player.isOnGround();
     }
 
     public static int round(double source){
@@ -65,6 +65,20 @@ public final class BlockPositionUtils
         final int incremented_stripped_value = stripped_value + 1;
 
         return source + rounder >= incremented_stripped_value ? incremented_stripped_value : stripped_value;
+    }
+
+    private static boolean isFraction(double num) {
+        int i = (int) num;
+        double d = Math.ceil(num);
+        return i < d;
+    }
+
+    public static Block getBelow(Location location) {
+        if (isFraction(location.getY())) {
+            return location.getBlock();
+        } else {
+            return location.getBlock().getRelative(BlockFace.DOWN);
+        }
     }
 
 }

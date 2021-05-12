@@ -34,9 +34,8 @@ public class SimpleCommands extends PosePluginCommand
 
         PosePlugin.PLAYERS_POSES.put(sender, p.getPoseType());
         try {
-            if (getCommand().getName().equalsIgnoreCase("swim")) {
-                p.changePose(PoseBuilder.builder(EnumPose.SWIMMING).build(sender));
-
+            if (getCommand().getName().equalsIgnoreCase("crawl")) {
+                p.changePose(PoseBuilder.builder(EnumPose.CRAWLING).build(sender));
             } else if (getCommand().getName().equalsIgnoreCase("lay")) {
                 p.changePose(PoseBuilder.builder(EnumPose.LYING).
                         option(EnumPoseOption.HEAD_ROTATION, cfg.getBoolean("lay.head-rotation")).
@@ -50,11 +49,10 @@ public class SimpleCommands extends PosePluginCommand
             } else if (getCommand().getName().equalsIgnoreCase("pray")) {
                 p.changePose(PoseBuilder.builder(EnumPose.PRAYING).option(EnumPoseOption.STEP, (float) cfg.getDouble("pray.step")).build(sender));
             }
-        } catch (IllegalMCVersionException e) {
+        } catch (IllegalMCVersionException | IllegalArgumentException e) {
             sender.sendMessage(ChatColor.RED + e.getMessage());
             p.resetCurrentPose();
-        } catch (IllegalArgumentException e){
-            p.resetCurrentPose();
+            e.printStackTrace();
         }
 
         return true;

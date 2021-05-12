@@ -73,6 +73,7 @@ public class MessagePrintingHandler implements Listener
 
     @EventHandler
     public void onUsePotionThrowable(PlayerInteractEvent e){
+        if (e.getItem() == null) return;
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
             handlePotion(e, e.getPlayer(), e.getItem());
     }
@@ -84,7 +85,6 @@ public class MessagePrintingHandler implements Listener
         boolean preventInvisible = PosePlugin.getInstance().getCfg().getBoolean("lay.prevent-use-when-invisible");
         if( !p.getPoseType().equals(EnumPose.LYING) ) return;
         if (preventInvisible) {
-
             if ( hand.getType() == Material.POTION || hand.getType() == Material.LINGERING_POTION || hand.getType() == Material.SPLASH_POTION ){
 
                 PotionMeta meta = (PotionMeta) hand.getItemMeta();
