@@ -7,7 +7,7 @@ import ru.armagidon.poseplugin.api.poses.experimental.PrayPose;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
-import ru.armagidon.poseplugin.api.poses.swim.SwimPose;
+import ru.armagidon.poseplugin.api.poses.swim.CrawlPose;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
 
@@ -21,7 +21,7 @@ public class PoseBuilder {
 
     private static Map<EnumPose, Function<Player, IPluginPose>> POSEBUILDER_REGISTRY = new HashMap<EnumPose, Function<Player, IPluginPose>>(){{
         put(EnumPose.LYING, (player) -> new LayPose(player));
-        put(EnumPose.SWIMMING, (player) -> new SwimPose(player));
+        put(EnumPose.CRAWLING, (player) -> new CrawlPose(player));
         put(EnumPose.SITTING, (player) -> new SitPose(player));
         //Exp poses
         put(EnumPose.WAVING, (player) -> new ExperimentalHandPose.WavePose(player));

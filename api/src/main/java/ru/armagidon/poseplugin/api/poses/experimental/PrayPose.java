@@ -29,7 +29,7 @@ public class PrayPose extends AbstractPose implements Tickable {
     @Override
     public void initiate() {
         super.initiate();
-        PosePluginAPI.getAPI().getTickManager().registerTickModule(this, false);
+        PosePluginAPI.getAPI().getTickingBundle().addToTickingBundle(PrayPose.class, this);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class PrayPose extends AbstractPose implements Tickable {
     @Override
     public void stop() {
         super.stop();
-        PosePluginAPI.getAPI().getTickManager().removeTickModule(this);
+        PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(PrayPose.class, this);
         getPlayer().setGliding(false);
     }
 

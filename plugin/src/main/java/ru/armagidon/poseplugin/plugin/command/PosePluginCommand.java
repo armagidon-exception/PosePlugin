@@ -31,7 +31,7 @@ public abstract class PosePluginCommand
             return ImmutableList.of();
         });
 
-        setPermission("poseplugin.command."+name.toLowerCase());
+        setPermission("poseplugin.command." + name.toLowerCase());
         setPermissionMessage("§cYou can't do this for some reason! Sorry :(");
     }
 

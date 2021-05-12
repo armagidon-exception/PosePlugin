@@ -14,11 +14,15 @@ public class TickingBundle
     private final Map<Class<? extends Tickable>, Bundle> tickingBundles = new HashMap<>();
 
     public void addToTickingBundle(Class<? extends Tickable> clazz, Tickable ticker){
+        addToTickingBundle(clazz,ticker, false);
+    }
+
+    public void addToTickingBundle(Class<? extends Tickable> clazz, Tickable ticker, boolean async) {
         Validate.notNull(clazz);
         Validate.notNull(ticker);
         tickingBundles.computeIfAbsent(clazz, (c)->{
             Bundle bundle = new Bundle();
-            PosePluginAPI.getAPI().getTickManager().registerTickModule(bundle.getTicker(), false);
+            PosePluginAPI.getAPI().getTickManager().registerTickModule(bundle.getTicker(), async);
             return bundle;
         }).getTickables().add(ticker);
     }
@@ -27,7 +31,7 @@ public class TickingBundle
         Validate.notNull(ticker);
         if(!tickingBundles.containsKey(clazz)) return;
         tickingBundles.get(clazz).getTickables().remove(ticker);
-        if(tickingBundles.get(clazz).getTickables().size()==0) {
+        if(tickingBundles.get(clazz).getTickables().size() == 0) {
             PosePluginAPI.getAPI().getTickManager().removeTickModule(tickingBundles.get(clazz).getTicker());
             tickingBundles.remove(clazz);
         }
@@ -39,7 +43,7 @@ public class TickingBundle
 
         public Bundle() {
             this.tickables = new HashSet<>();
-            this.ticker = ()->{
+            this.ticker = () -> {
                 if(tickables.size()==0) return;
                 tickables.forEach(Tickable::tick);
             };

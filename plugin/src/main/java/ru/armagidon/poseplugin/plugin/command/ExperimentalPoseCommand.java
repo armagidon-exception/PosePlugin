@@ -10,6 +10,7 @@ import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.PoseBuilder;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
+import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.npc.HandType;
 import ru.armagidon.poseplugin.plugin.events.HandTypeChangeEvent;
 
@@ -26,6 +27,11 @@ public class ExperimentalPoseCommand extends PosePluginCommand
 
     @Override
     protected boolean execute(Player player, String label, String[] args) {
+        if(!BlockPositionUtils.onGround(player)){
+            PosePlugin.getInstance().messages().send(player, "in-air");
+            return true;
+        }
+
         PosePluginPlayer p = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(player);
         if(args.length != 1) return false;
         String sub = args[0];

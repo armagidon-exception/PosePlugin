@@ -27,7 +27,7 @@ public class PluginCommands
         }
         {
             lay = new SimpleCommands("lay");
-            swim = new SimpleCommands("swim");
+            swim = new SimpleCommands("crawl");
             sit = new SimpleCommands("sit");
             pray = new SimpleCommands("pray");
         }
@@ -56,7 +56,7 @@ public class PluginCommands
         map.register("ppreload","poseplugin",ppreload.getCommand());
 
         Config cfg = PosePlugin.getInstance().getCfg();
-        if (cfg.getBoolean("swim.enabled") ) map.register("swim","poseplugin",swim.getCommand());
+        if (cfg.getBoolean("crawl.enabled") ) map.register("crawl","poseplugin",swim.getCommand());
         if (cfg.getBoolean("x-mode")) {
             if (cfg.getBoolean("wave.enabled")) map.register("wave", "poseplugin", wave.getCommand());
             if (cfg.getBoolean("point.enabled")) map.register("point", "poseplugin", point.getCommand());

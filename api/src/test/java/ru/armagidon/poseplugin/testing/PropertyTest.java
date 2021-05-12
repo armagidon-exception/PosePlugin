@@ -1,10 +1,8 @@
 package ru.armagidon.poseplugin.testing;
 
-import org.junit.Test;
-
 public class PropertyTest {
 
-    @Test
+
     public void testProperties(){
 /*        PropertyMap map = new PropertyMap();
         ChangingValueClass clazz = new ChangingValueClass(0, false, "STRING");

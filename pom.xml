@@ -19,9 +19,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <build.number>1</build.number>
-        <build.prefix>-experimental</build.prefix>
-        <build.version>2.2</build.version>
+        <build.number>3</build.number>
+        <build.prefix>-beta</build.prefix>
+        <build.version>3.1</build.version>
         <plugin.version>${build.version}${build.prefix}</plugin.version>
     </properties>
     <repositories>
@@ -52,13 +52,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <version>1.4.9</version>
@@ -85,16 +78,22 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>io.papermc</groupId>
-            <artifactId>paperlib</artifactId>
-            <version>1.0.5</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
             <version>4.6.0-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+            <version>1.0.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit-dep</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
