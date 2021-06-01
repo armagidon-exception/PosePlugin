@@ -1,4 +1,4 @@
-package ru.armagidon.armagidonapi.itemutils.nbt;
+package ru.armagidon.poseplugin.api.utils.misc;
 
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;

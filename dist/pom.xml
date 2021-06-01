@@ -39,12 +39,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!--<minimizeJar>true</minimizeJar>-->
                             <artifactSet>
                                 <includes>
                                     <include>io.papermc:paperlib</include>
                                     <include>ru.armagidon:api</include>
-                                    <include>ru.armagidon:ItemUtils</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

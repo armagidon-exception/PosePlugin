@@ -1,4 +1,4 @@
-package ru.armagidon.armagidonapi.itemutils;
+package ru.armagidon.poseplugin.api.utils.misc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
 
 import java.util.List;
 import java.util.UUID;

@@ -4,7 +4,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-import ru.armagidon.armagidonapi.itemutils.nbt.NBTModifier;
+import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayerSynchronizer;
