@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.poses.swim;
 
 import lombok.SneakyThrows;
-import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,8 +55,6 @@ abstract class PressingBlock
 
         private int id;
         private Object shulker;
-        //private EntityShulker shulker;
-        private DataWatcherObject<Optional<BlockPosition>> o;
 
         public ShulkerPressingBlock(Location location, Player player) {
             super(location, player);
