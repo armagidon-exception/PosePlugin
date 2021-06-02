@@ -44,7 +44,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.ow2.asm:asm-commons:9.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.ow2.asm:asm-tree:9.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.ow2.asm:asm-analysis:9.0" level="project" />
-    <orderEntry type="module" module-name="api" scope="PROVIDED" />
+    <orderEntry type="module" module-name="api" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.powermock:powermock-module-junit4:1.4.9" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: junit:junit:4.8.2" level="project" />

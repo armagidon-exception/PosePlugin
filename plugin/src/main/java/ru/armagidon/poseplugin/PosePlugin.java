@@ -13,6 +13,7 @@ import ru.armagidon.poseplugin.plugin.configuration.Messages;
 import ru.armagidon.poseplugin.plugin.listeners.MessagePrintingHandler;
 import ru.armagidon.poseplugin.plugin.listeners.PluginEventListener;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,17 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     @Override
     public void onEnable() {
+        try {
+            getLogger().info("Initializing api...");
+            PosePluginAPI.initialize(this);
+            getLogger().info("API initialized!");
+        } catch (Exception e){
+            getLogger().severe("Error occurred while initializing API.");
+            getLogger().severe(e.getMessage());
+            getLogger().severe(Arrays.toString(e.getStackTrace()));
+            setEnabled(false);
+        }
+
         getServer().getPluginManager().registerEvents(new PluginEventListener(),this);
         getServer().getPluginManager().registerEvents(new MessagePrintingHandler(),this);
         pcs = new PluginCommands();
