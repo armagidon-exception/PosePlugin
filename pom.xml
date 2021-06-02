@@ -9,7 +9,6 @@
     <version>parent</version>
     <modules>
         <module>plugin</module>
-        <module>dist</module>
         <module>api</module>
     </modules>
     <packaging>pom</packaging>
