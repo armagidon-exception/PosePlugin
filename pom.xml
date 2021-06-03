@@ -5,13 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.armagidon</groupId>
-    <artifactId>poseplugin</artifactId>
-    <version>parent</version>
+    <artifactId>PosePlugin</artifactId>
+    <version>3.1-beta</version>
     <modules>
-        <module>plugin</module>
-        <module>api</module>
+        <module>poseplugin</module>
+        <module>poseplugin-api</module>
     </modules>
+
     <packaging>pom</packaging>
+
     <name>PosePlugin</name>
     <description>Give you opportunity to change your pose</description>
 
@@ -21,6 +23,8 @@
         <build.prefix>-beta</build.prefix>
         <build.version>3.1</build.version>
         <plugin.version>${build.version}${build.prefix}</plugin.version>
+        <plugin.name>poseplugin</plugin.name>
+        <build.name>${plugin.name}${build.prefix}-${build.version}-b${build.number}</build.name>
     </properties>
     <repositories>
         <repository>
@@ -85,7 +89,7 @@
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
             <version>1.0.6</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -93,10 +97,15 @@
             <version>4.8.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.destroystokyo.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -108,4 +117,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
