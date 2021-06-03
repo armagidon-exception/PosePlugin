@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 import ru.armagidon.poseplugin.api.utils.npc.protocolized.New.NewPlayerHiderProtocolized;
-import ru.armagidon.poseplugin.api.utils.npc.protocolized.old.OldPlayerHiderProtocolized;
+import ru.armagidon.poseplugin.api.utils.npc.protocolized.Old.OldPlayerHiderProtocolized;
 
 public abstract class PlayerHider implements Tickable
 {

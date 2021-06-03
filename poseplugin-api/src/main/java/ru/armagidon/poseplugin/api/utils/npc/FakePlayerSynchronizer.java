@@ -2,7 +2,7 @@ package ru.armagidon.poseplugin.api.utils.npc;
 
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 import ru.armagidon.poseplugin.api.utils.npc.protocolized.New.NewFakePlayerSynchronizer;
-import ru.armagidon.poseplugin.api.utils.npc.protocolized.old.OldFakePlayerSynchronizer;
+import ru.armagidon.poseplugin.api.utils.npc.protocolized.Old.OldFakePlayerSynchronizer;
 
 public interface FakePlayerSynchronizer
 {

@@ -5,7 +5,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 import ru.armagidon.poseplugin.api.utils.npc.protocolized.New.NewEquipmentManager;
-import ru.armagidon.poseplugin.api.utils.npc.protocolized.old.OldCustomEquipmentManager;
+import ru.armagidon.poseplugin.api.utils.npc.protocolized.Old.OldCustomEquipmentManager;
 
 public interface FakePlayerCustomEquipmentManager
 {
