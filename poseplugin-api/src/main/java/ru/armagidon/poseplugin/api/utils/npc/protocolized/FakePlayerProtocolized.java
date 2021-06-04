@@ -83,7 +83,7 @@ public class FakePlayerProtocolized extends FakePlayer
         setMetadata();
 
         this.destroy = new WrapperPlayServerEntityDestroy();
-        destroy.setEntityIds(new int[] {id});
+        destroy.setEntityIds(id);
 
     }
 

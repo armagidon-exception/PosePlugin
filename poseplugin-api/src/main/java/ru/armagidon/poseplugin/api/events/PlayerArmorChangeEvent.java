@@ -31,6 +31,6 @@ public class PlayerArmorChangeEvent extends Event
     }
 
     public enum SlotType{
-        HEAD, CHEST, LEGS, FEET;
+        HEAD, CHEST, LEGS, FEET
     }
 }
