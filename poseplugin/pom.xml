@@ -12,7 +12,6 @@
 
     <artifactId>poseplugin</artifactId>
     <packaging>jar</packaging>
-    <version>parent</version>
 
     <dependencies>
         <dependency>
