@@ -74,6 +74,6 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     @Override
     public void reloadConfig() {
-        cfg.reload();
+        super.reloadConfig();
     }
 }
