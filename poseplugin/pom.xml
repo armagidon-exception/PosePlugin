@@ -18,7 +18,7 @@
             <groupId>ru.armagidon</groupId>
             <artifactId>poseplugin-api</artifactId>
             <version>3.1-beta</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
