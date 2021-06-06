@@ -48,7 +48,7 @@
                             <artifactSet>
                                 <includes>
                                     <include>io.papermc:paperlib</include>
-                                    <include>ru.armagidon:api</include>
+                                    <include>ru.armagidon:poseplugin-api</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
