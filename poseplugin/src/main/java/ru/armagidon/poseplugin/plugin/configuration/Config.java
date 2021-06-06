@@ -15,11 +15,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Config
 {
-    private final File file;
-    private FileConfiguration configuration;
+    private final FileConfiguration configuration;
+    private final Plugin plugin;
 
     public Config(Plugin plugin) {
-        this.file = new File(plugin.getDataFolder(), "config.yml");
+        this.plugin = plugin;
+        plugin.saveDefaultConfig();
+        this.configuration = plugin.getConfig();
         reload();
     }
 
@@ -28,13 +30,7 @@ public class Config
     }
 
     public void reload(){
-        if (!file.exists()){
-            if (!file.getParentFile().exists())
-                file.getParentFile().mkdirs();
-            loadFromJar();
-        }
-        configuration = YamlConfiguration.loadConfiguration(file);
-        repair(YamlConfiguration.loadConfiguration(new InputStreamReader(Config.class.getClassLoader().getResourceAsStream("/config.yml"))));
+        repair(YamlConfiguration.loadConfiguration(new InputStreamReader(Config.class.getClassLoader().getResourceAsStream("config.yml"))));
     }
 
     private void repair(YamlConfiguration defaults) {
@@ -49,20 +45,7 @@ public class Config
             }
         });
         if(integer.get() != 0){
-            try {
-                configuration.save(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void loadFromJar(){
-        BufferedInputStream fileInput = new BufferedInputStream(Config.class.getClassLoader().getResourceAsStream("/config.yml"));
-        try {
-            Files.copy(fileInput, file.toPath());
-        } catch (IOException e) {
-            PosePlugin.getInstance().getLogger().severe("Failed to create config file!");
+            plugin.saveConfig();
         }
     }
 
