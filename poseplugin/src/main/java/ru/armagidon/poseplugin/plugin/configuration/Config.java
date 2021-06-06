@@ -34,7 +34,7 @@ public class Config
             loadFromJar();
         }
         configuration = YamlConfiguration.loadConfiguration(file);
-        repair(YamlConfiguration.loadConfiguration(new InputStreamReader(Config.class.getResourceAsStream("/config.yml"))));
+        repair(YamlConfiguration.loadConfiguration(new InputStreamReader(Config.class.getClassLoader().getResourceAsStream("/config.yml"))));
     }
 
     private void repair(YamlConfiguration defaults) {
@@ -58,7 +58,7 @@ public class Config
     }
 
     private void loadFromJar(){
-        BufferedInputStream fileInput = new BufferedInputStream(Config.class.getResourceAsStream("/config.yml"));
+        BufferedInputStream fileInput = new BufferedInputStream(Config.class.getClassLoader().getResourceAsStream("/config.yml"));
         try {
             Files.copy(fileInput, file.toPath());
         } catch (IOException e) {
