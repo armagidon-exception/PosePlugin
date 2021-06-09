@@ -168,6 +168,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     public static boolean onGround(Player player){
         Location location = player.getLocation();
+        System.out.println(BlockPositionUtils.getBelow(location).getType());
         return !BlockPositionUtils.getBelow(location).getType().isAir();
     }
 }
