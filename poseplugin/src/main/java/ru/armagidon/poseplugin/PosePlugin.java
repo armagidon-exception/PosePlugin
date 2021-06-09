@@ -155,7 +155,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
     }
 
     private boolean performChecks(Class<? extends IPluginPose> poseClazz, Player player) {
-        if (onGround(player)) {
+        if (!onGround(player)) {
             messages().send(player, "in-air");
             return false;
         }
@@ -168,7 +168,6 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     public static boolean onGround(Player player){
         Location location = player.getLocation();
-        System.out.println(BlockPositionUtils.getBelow(location).getType());
-        return !BlockPositionUtils.getBelow(location).getType().isAir();
+        return !BlockPositionUtils.getBelow(location).getType().isAir() && player.isOnGround();
     }
 }
