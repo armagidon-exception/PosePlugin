@@ -5,5 +5,5 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 public interface SeatObserver
 {
     void handleTeleport(ArmorStandSeat seat);
-    void handleStandup(EntityDismountEvent event, ArmorStandSeat seat);
+    void handleDismounting(EntityDismountEvent event, ArmorStandSeat seat);
 }

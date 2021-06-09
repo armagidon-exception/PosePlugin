@@ -31,7 +31,7 @@ public abstract class SeatRequiringPose extends AbstractPose implements SeatObse
     }
 
     @Override
-    public void handleStandup(EntityDismountEvent e, ArmorStandSeat seat) {
+    public void handleDismounting(EntityDismountEvent e, ArmorStandSeat seat) {
         if(!getPosePluginPlayer().resetCurrentPose()){
             seat.pushBack();
         }

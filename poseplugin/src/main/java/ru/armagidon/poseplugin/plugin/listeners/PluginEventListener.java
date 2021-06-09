@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.*;
@@ -18,7 +17,6 @@ import ru.armagidon.poseplugin.api.events.StopPosingEvent;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
-import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.plugin.events.StopAnimationWithMessageEvent;
 
 import java.util.Set;
@@ -81,7 +79,7 @@ public class PluginEventListener implements Listener
     public void onDamage(EntityDamageEvent event){
         if(!(event.getEntity() instanceof Player)) return;
 
-        if ( !PLAYERS_POSES.containsKey(event.getEntity()) ) return;
+        if ( !PLAYERS_POSES.containsKey((Player) event.getEntity()) ) return;
 
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getEntity().getName());
         if(player.getPoseType() == EnumPose.STANDING) return;

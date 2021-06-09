@@ -1,6 +1,8 @@
 package ru.armagidon.poseplugin.api.utils.versions;
 
 import com.google.common.collect.ImmutableMap;
+import ru.armagidon.poseplugin.api.poses.IPluginPose;
+import ru.armagidon.poseplugin.api.poses.IllegalMCVersionException;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 
 public class VersionControl
@@ -19,5 +21,17 @@ public class VersionControl
 
     public static int getVersionPriority(String version) {
         return versionPriorities.getOrDefault(version, -1);
+    }
+
+    public static boolean isAvailable(Class<? extends IPluginPose> clazz) {
+        if (clazz.isAnnotationPresent(PoseAvailabilitySince.class)) {
+            int currentVersion = VersionControl.getMCVersion();
+            PoseAvailabilitySince ann = clazz.getAnnotation(PoseAvailabilitySince.class);
+            int allowedVersion = VersionControl.getVersionPriority(ann.version());
+            if (currentVersion == -1)
+                return false;
+            return allowedVersion <= currentVersion;
+        }
+        return true;
     }
 }

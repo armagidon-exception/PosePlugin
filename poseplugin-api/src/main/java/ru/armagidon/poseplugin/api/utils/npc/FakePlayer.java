@@ -7,21 +7,21 @@ import lombok.SneakyThrows;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.inventory.MainHand;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
-import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 import ru.armagidon.poseplugin.api.utils.npc.protocolized.FakePlayerProtocolized;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils.toBedLocation;
 
 
 public abstract class FakePlayer implements Tickable, Listener
@@ -129,9 +129,14 @@ public abstract class FakePlayer implements Tickable, Listener
     public abstract WrappedDataWatcher getDataWatcher();
 
     @SneakyThrows
-    public static FakePlayer createNew(Player parent, Pose pose){
-        /*String path = String.format("ru.armagidon.poseplugin.api.utils.npc.%s.FakePlayer", ReflectionTools.nmsVersion());
-        return (FakePlayer) Class.forName(path).getDeclaredConstructor(Player.class, Pose.class).newInstance(parent, pose);*/
+    public static FakePlayer createNew(Player parent, Pose pose) {
         return new FakePlayerProtocolized(parent, pose);
+    }
+
+    @EventHandler
+    public void onArmSwing(PlayerAnimationEvent event){
+        if(event.getPlayer().equals(parent)){
+            swingHand(event.getPlayer().getMainHand().equals(MainHand.RIGHT));
+        }
     }
 }

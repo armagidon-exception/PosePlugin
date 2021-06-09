@@ -54,11 +54,6 @@ public final class BlockPositionUtils
         return location.getWorld().getBlockAt(x,y,z);
     }
 
-    public static boolean onGround(Player player){
-        Location location = player.getLocation();
-        return !getBelow(location).getType().isAir() && player.isOnGround();
-    }
-
     public static int round(double source){
         final float rounder = 0.5F;
         final int stripped_value = (int) source;

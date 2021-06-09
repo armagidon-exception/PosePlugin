@@ -2,15 +2,12 @@ package ru.armagidon.poseplugin.api.poses.seatrequiring;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.inventory.MainHand;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
-import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
+import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
 @PoseAvailabilitySince(version = "1.15")
 public class LayPose extends SeatRequiringPose {
@@ -63,13 +60,6 @@ public class LayPose extends SeatRequiringPose {
     @Override
     public EnumPose getType() {
         return EnumPose.LYING;
-    }
-
-    @EventHandler
-    public void onArmSwing(PlayerAnimationEvent event){
-        if(event.getPlayer().equals(getPlayer())){
-            fakePlayer.swingHand(event.getPlayer().getMainHand().equals(MainHand.RIGHT));
-        }
     }
 
     @Override

@@ -60,4 +60,8 @@ public class Config
     public String getString(String path){
         return getCfg().getString(path);
     }
+
+    public float getFloat(String path) {
+        return (float) getCfg().getDouble(path);
+    }
 }

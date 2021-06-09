@@ -10,9 +10,9 @@ lay:
   stand-up-when-damaged: true
   head-rotation: true
   swing-animation: true
-  update-equipment: true
+  sync-equipment: true
   prevent-use-when-invisible: true
-  update-overlays: true
+  sync-overlays: true
 sit:
   stand-up-when-damaged: true
 wave:

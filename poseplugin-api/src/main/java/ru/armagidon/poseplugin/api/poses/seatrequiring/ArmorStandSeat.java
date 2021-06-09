@@ -15,9 +15,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
-import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
@@ -91,7 +89,7 @@ public class ArmorStandSeat implements Listener, Tickable
                 }
 
                 //If player dismounted from seat, do stuff
-                seatObservers.forEach(observer -> observer.handleStandup(event, this));
+                seatObservers.forEach(observer -> observer.handleDismounting(event, this));
             }
         }
     }
