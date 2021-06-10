@@ -52,7 +52,7 @@ public class NewFakePlayerSynchronizer implements FakePlayerSynchronizer {
         if(overlays != pOverlays){
             pOverlays = overlays;
             npc.getMetadataAccessor().setOverlays(pOverlays);
-            npc.getMetadataAccessor().merge(true);
+            npc.getMetadataAccessor().merge(false);
             npc.getTrackers().forEach(p -> npc.getMetadataAccessor().showPlayer(p));
         }
     }
