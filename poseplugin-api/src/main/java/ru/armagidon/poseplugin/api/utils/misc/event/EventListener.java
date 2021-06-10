@@ -26,6 +26,8 @@ public class EventListener implements Listener
         if(containsPlayer(event.getPlayer())) {
             PosePluginPlayer ppp = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
 
+            event.getPlayer().teleport(event.getPlayer().getLocation());
+
             ppp.stopCurrentPose();
 
             //Remove player from playerlist
