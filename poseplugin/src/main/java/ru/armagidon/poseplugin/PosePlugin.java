@@ -123,8 +123,8 @@ public final class PosePlugin extends JavaPlugin implements Listener
                         return true;
                 }
                 PosePluginPlayer pluginInstance = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(sender);
-                pluginInstance.changePose(pose);
                 PLAYERS_POSES.put(sender, pose.getType());
+                pluginInstance.changePose(pose);
             } catch (IllegalArgumentException ignored) {}
             return true;
         };
@@ -171,8 +171,8 @@ public final class PosePlugin extends JavaPlugin implements Listener
             } else {
                 IPluginPose pose = PoseBuilder.builder(poseType).option(EnumPoseOption.HANDTYPE, HandType.RIGHT).build(sender);
                 if (!performChecks(pose.getClass(), sender)) return true;
-                player.changePose(pose);
                 PLAYERS_POSES.put(sender, pose.getType());
+                player.changePose(pose);
             }
             return true;
         };
@@ -201,8 +201,8 @@ public final class PosePlugin extends JavaPlugin implements Listener
             } else {
                 IPluginPose pose = PoseBuilder.builder(poseType).option(EnumPoseOption.HANDTYPE, HandType.LEFT).build(sender);
                 if (!performChecks(pose.getClass(), sender)) return true;
-                player.changePose(pose);
                 PLAYERS_POSES.put(sender, pose.getType());
+                player.changePose(pose);
             }
             return true;
         };
