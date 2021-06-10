@@ -15,6 +15,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class SimpleCommand
@@ -144,6 +145,12 @@ public class SimpleCommand
         public Builder subCommand(String sub, Executor executor) {
             subCommands.put(sub, executor);
             return this;
+        }
+
+        public void registerIf(Predicate<String> predicate) {
+            if (predicate.test(name)) {
+                register();
+            }
         }
 
         public void register() {

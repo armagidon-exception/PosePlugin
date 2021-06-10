@@ -222,37 +222,43 @@ public final class PosePlugin extends JavaPlugin implements Listener
                 .permission("poseplugin.commands.crawl")
                 .permissionMessage(Bukkit.getPermissionMessage())
                 .usage(messages.getColorized("crawl.usage"))
-                .executor(simpleExecutor).register();
-        SimpleCommand.builder("pray")
-                .permission("poseplugin.commands.pray")
-                .permissionMessage(Bukkit.getPermissionMessage())
-                .usage(messages.getColorized("pray.usage"))
-                .executor(simpleExecutor).register();
+                .executor(simpleExecutor)
+                .registerIf(label -> cfg.getBoolean(label + ".enabled"));
 
-        SimpleCommand.builder("wave")
-                .permission("poseplugin.commands.wave")
-                .permissionMessage(Bukkit.getPermissionMessage())
-                .usage(messages.getColorized("wave.usage"))
-                .subCommand("off", turnOff)
-                .subCommand("right", switchRight)
-                .subCommand("left", switchLeft)
-                .register();
-        SimpleCommand.builder("point")
-                .permission("poseplugin.commands.point")
-                .permissionMessage(Bukkit.getPermissionMessage())
-                .usage(messages.getColorized("point.usage"))
-                .subCommand("off", turnOff)
-                .subCommand("right", switchRight)
-                .subCommand("left", switchLeft)
-                .register();
-        SimpleCommand.builder("handshake")
-                .permission("poseplugin.commands.handshake")
-                .permissionMessage(Bukkit.getPermissionMessage())
-                .usage(messages.getColorized("handshake.usage"))
-                .subCommand("off", turnOff)
-                .subCommand("right", switchRight)
-                .subCommand("left", switchLeft)
-                .register();
+        if (cfg.getBoolean("x-mode")) {
+            SimpleCommand.builder("pray")
+                    .permission("poseplugin.commands.pray")
+                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .usage(messages.getColorized("pray.usage"))
+                    .executor(simpleExecutor).registerIf(label -> cfg.getBoolean(label + ".enabled"));
+
+            SimpleCommand.builder("wave")
+                    .permission("poseplugin.commands.wave")
+                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .usage(messages.getColorized("wave.usage"))
+                    .subCommand("off", turnOff)
+                    .subCommand("right", switchRight)
+                    .subCommand("left", switchLeft)
+                    .registerIf(label -> cfg.getBoolean(label + ".enabled"));
+
+            SimpleCommand.builder("point")
+                    .permission("poseplugin.commands.point")
+                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .usage(messages.getColorized("point.usage"))
+                    .subCommand("off", turnOff)
+                    .subCommand("right", switchRight)
+                    .subCommand("left", switchLeft)
+                    .registerIf(label -> cfg.getBoolean(label + ".enabled"));
+
+            SimpleCommand.builder("handshake")
+                    .permission("poseplugin.commands.handshake")
+                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .usage(messages.getColorized("handshake.usage"))
+                    .subCommand("off", turnOff)
+                    .subCommand("right", switchRight)
+                    .subCommand("left", switchLeft)
+                    .registerIf(label -> cfg.getBoolean(label + ".enabled"));
+        }
 
     }
 
