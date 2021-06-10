@@ -70,7 +70,7 @@ public class PosePluginPlayer
         if ( getPoseType().equals(EnumPose.STANDING) ) return true;
         StopPosingEvent stopEvent = new StopPosingEvent(getPoseType(), this);
         Bukkit.getPluginManager().callEvent(stopEvent);
-        if ( stopEvent.isCancelled() ) return false;
+        if ( getHandle().isOnline() && stopEvent.isCancelled() ) return false;
         getPose().stop();
         setPose(AbstractPose.STANDING);
         return true;
