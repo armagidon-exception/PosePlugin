@@ -119,8 +119,6 @@ public final class PosePlugin extends JavaPlugin implements Listener
                                 .option(EnumPoseOption.STEP, getCfg().getFloat("pray.step"))
                                 .build(sender);
                         break;
-                    default:
-                        return true;
                 }
                 PosePluginPlayer pluginInstance = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(sender);
                 PLAYERS_POSES.put(sender, pose.getType());
