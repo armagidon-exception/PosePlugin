@@ -65,7 +65,7 @@ public class PosePluginPlayer
      * Stops player posing with throwing StopPosingEvent
      * @return Whether the pose-resetting has been done
      */
-    public boolean resetCurrentPose()
+    public boolean stopCurrentPose()
     {
         if ( getPoseType().equals(EnumPose.STANDING) ) return true;
         StopPosingEvent stopEvent = new StopPosingEvent(getPoseType(), this);
@@ -76,14 +76,26 @@ public class PosePluginPlayer
         return true;
     }
 
+    @Deprecated
+    public boolean resetCurrentPose() {
+        return stopCurrentPose();
+    }
+
     /*
      * Stops player posing without throwing StopPosingEvent
      */
-
     public void stopPosingSilently(){
         if ( getPoseType().equals(EnumPose.STANDING) ) return;
         getPose().stop();
         setPose(AbstractPose.STANDING);
+    }
+
+    public boolean stopGivenPose(EnumPose pose) {
+        if (getPose().getType().equals(pose)) {
+            stopCurrentPose();
+            return true;
+        }
+        return false;
     }
 
     public IPluginPose getPose() {

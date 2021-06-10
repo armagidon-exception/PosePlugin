@@ -67,10 +67,10 @@ public class PluginEventListener implements Listener
 
 
         if (player.getPoseType().equals(CRAWLING) || player.getPoseType().equals(PRAYING)) {
-            player.resetCurrentPose();
+            player.stopCurrentPose();
         } else if(posesToCheck.contains(player.getPoseType())) {
             if ( PosePlugin.getInstance().getCfg().getBoolean(player.getPoseType().getName()+".disable-when-shift") ) {
-                player.resetCurrentPose();
+                player.stopCurrentPose();
             }
         }
     }
@@ -87,7 +87,7 @@ public class PluginEventListener implements Listener
         if (standUpWhenDamaged) {
             Bukkit.getPluginManager().callEvent(new StopAnimationWithMessageEvent(StopAnimationWithMessageEvent.StopCause.DAMAGE, player, player.getPoseType()));
             PLAYERS_POSES.remove(player.getHandle());
-            player.resetCurrentPose();
+            player.stopCurrentPose();
         }
     }
 
@@ -98,7 +98,7 @@ public class PluginEventListener implements Listener
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
         if(player.getPoseType().equals(EnumPose.STANDING)) return;
         if(event.getNewGameMode().equals(GameMode.SPECTATOR))
-            player.resetCurrentPose();
+            player.stopCurrentPose();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -117,7 +117,7 @@ public class PluginEventListener implements Listener
 
         if(event.getCause().equals(PlayerTeleportEvent.TeleportCause.PLUGIN)) return;
 
-        player.resetCurrentPose();
+        player.stopCurrentPose();
 
     }
 

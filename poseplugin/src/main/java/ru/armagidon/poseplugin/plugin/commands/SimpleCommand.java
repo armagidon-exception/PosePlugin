@@ -37,9 +37,13 @@ public class SimpleCommand
                 if (subCommands.size() == 0) {
                     return executor.execute(player,label, args);
                 } else {
-                    Optional<Executor> actionOptional = Optional.ofNullable(subCommands.get(args[0].toLowerCase(Locale.ROOT)));
-                    actionOptional.ifPresent(action -> action.execute(player, label, args));
-                    return actionOptional.isPresent();
+                    if (args.length == 0) {
+                        return false;
+                    } else {
+                        Optional<Executor> actionOptional = Optional.ofNullable(subCommands.get(args[0].toLowerCase(Locale.ROOT)));
+                        actionOptional.ifPresent(action -> action.execute(player, label, Arrays.copyOfRange(args, 1, args.length)));
+                        return actionOptional.isPresent();
+                    }
                 }
             } else {
                 return false;
@@ -94,7 +98,8 @@ public class SimpleCommand
 
     @FunctionalInterface
     public interface Executor {
-        boolean execute(Player player, String label, String[] args);
+        Executor EMPTY = (sender, label, args) -> false;
+        boolean execute(Player sender, String label, String[] args);
     }
 
     @FunctionalInterface
@@ -106,7 +111,7 @@ public class SimpleCommand
     public static class Builder {
 
         private String permission, permissionMessage, usage;
-        private Executor executor;
+        private Executor executor = Executor.EMPTY;
 
         private final Map<String, Executor> subCommands = new HashMap<>();
 

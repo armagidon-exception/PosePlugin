@@ -52,7 +52,7 @@ public class CrawlPose extends AbstractPose implements Tickable {
     @EventHandler
     public void onMount(EntityMountEvent event){
         if(event.getEntity().equals(getPlayer())){
-            getPosePluginPlayer().resetCurrentPose();
+            getPosePluginPlayer().stopCurrentPose();
         }
     }
 

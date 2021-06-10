@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
@@ -19,6 +18,7 @@ import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.CrawlPose;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
+import ru.armagidon.poseplugin.api.utils.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
 import ru.armagidon.poseplugin.plugin.UpdateChecker;
 import ru.armagidon.poseplugin.plugin.commands.SimpleCommand;
@@ -119,14 +119,89 @@ public final class PosePlugin extends JavaPlugin implements Listener
                                 .option(EnumPoseOption.STEP, getCfg().getFloat("pray.step"))
                                 .build(player);
                         break;
-
-
                 }
                 PosePluginPlayer pluginInstance = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(player);
                 pluginInstance.changePose(pose);
             } catch (IllegalArgumentException ignored) {}
             return true;
         };
+
+        SimpleCommand.Executor turnOff = (sender, label, args) -> {
+            EnumPose pose = null;
+            switch (label) {
+                case "wave":
+                    pose = EnumPose.WAVING;
+                    break;
+                case "point":
+                    pose = EnumPose.POINTING;
+                    break;
+                case "handshake":
+                    pose = EnumPose.HANDSHAKING;
+                    break;
+            }
+            PosePluginPlayer player = PosePluginAPI.getAPI().getPlayer(sender);
+            player.stopGivenPose(pose);
+            return true;
+        };
+
+        SimpleCommand.Executor switchRight = (sender, label, args) -> {
+            EnumPose poseType = null;
+            switch (label) {
+                case "wave":
+                    poseType = EnumPose.WAVING;
+                    break;
+                case "point":
+                    poseType = EnumPose.POINTING;
+                    break;
+                case "handshake":
+                    poseType = EnumPose.HANDSHAKING;
+                    break;
+            }
+            PosePluginPlayer player = PosePluginAPI.getAPI().getPlayer(sender);
+            if (player.getPose().getType().equals(poseType)) {
+                HandType currentHand = player.getPose().getProperty(EnumPoseOption.HANDTYPE).getValue();
+                if (currentHand.equals(HandType.LEFT)) {
+                    player.getPose().setProperty(EnumPoseOption.HANDTYPE, HandType.RIGHT);
+                    messages().send(player.getHandle(), label + ".handmode-change");
+                    return true;
+                }
+            } else {
+                IPluginPose pose = PoseBuilder.builder(poseType).option(EnumPoseOption.HANDTYPE, HandType.RIGHT).build(sender);
+                if (!performChecks(pose.getClass(), sender)) return true;
+                player.changePose(pose);
+            }
+            return true;
+        };
+
+        SimpleCommand.Executor switchLeft = (sender, label, args) -> {
+            EnumPose poseType = null;
+            switch (label) {
+                case "wave":
+                    poseType = EnumPose.WAVING;
+                    break;
+                case "point":
+                    poseType = EnumPose.POINTING;
+                    break;
+                case "handshake":
+                    poseType = EnumPose.HANDSHAKING;
+                    break;
+            }
+            PosePluginPlayer player = PosePluginAPI.getAPI().getPlayer(sender);
+            if (player.getPose().getType().equals(poseType)) {
+                HandType currentHand = player.getPose().getProperty(EnumPoseOption.HANDTYPE).getValue();
+                if (currentHand.equals(HandType.RIGHT)) {
+                    player.getPose().setProperty(EnumPoseOption.HANDTYPE, HandType.LEFT);
+                    messages().send(player.getHandle(), label + ".handmode-change");
+                    return true;
+                }
+            } else {
+                IPluginPose pose = PoseBuilder.builder(poseType).option(EnumPoseOption.HANDTYPE, HandType.LEFT).build(sender);
+                if (!performChecks(pose.getClass(), sender)) return true;
+                player.changePose(pose);
+            }
+            return true;
+        };
+
 
         SimpleCommand.builder("sit")
                 .permission("poseplugin.commands.sit")
@@ -151,6 +226,30 @@ public final class PosePlugin extends JavaPlugin implements Listener
                 .usage(messages.getColorized("pray.usage"))
                 .executor(simpleExecutor).register();
 
+        SimpleCommand.builder("wave")
+                .permission("poseplugin.commands.wave")
+                .permissionMessage(Bukkit.getPermissionMessage())
+                .usage(messages.getColorized("wave.usage"))
+                .subCommand("off", turnOff)
+                .subCommand("right", switchRight)
+                .subCommand("left", switchLeft)
+                .register();
+        SimpleCommand.builder("point")
+                .permission("poseplugin.commands.point")
+                .permissionMessage(Bukkit.getPermissionMessage())
+                .usage(messages.getColorized("point.usage"))
+                .subCommand("off", turnOff)
+                .subCommand("right", switchRight)
+                .subCommand("left", switchLeft)
+                .register();
+        SimpleCommand.builder("handshake")
+                .permission("poseplugin.commands.handshake")
+                .permissionMessage(Bukkit.getPermissionMessage())
+                .usage(messages.getColorized("handshake.usage"))
+                .subCommand("off", turnOff)
+                .subCommand("right", switchRight)
+                .subCommand("left", switchLeft)
+                .register();
 
     }
 
