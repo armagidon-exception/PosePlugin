@@ -90,38 +90,41 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
     private void initCommands() {
 
-        SimpleCommand.Executor simpleExecutor = (player, label, args) -> {
+        SimpleCommand.Executor simpleExecutor = (sender, label, args) -> {
             try {
                 IPluginPose pose = null;
                 switch (label) {
                     case "sit":
-                        if (!performChecks(SitPose.class, player)) return true;
-                        pose = PoseBuilder.builder(EnumPose.SITTING).build(player);
+                        if (!performChecks(SitPose.class, sender)) return true;
+                        pose = PoseBuilder.builder(EnumPose.SITTING).build(sender);
                         break;
                     case "crawl":
-                        if (!performChecks(CrawlPose.class, player)) return true;
-                        pose = PoseBuilder.builder(EnumPose.CRAWLING).build(player);
+                        if (!performChecks(CrawlPose.class, sender)) return true;
+                        pose = PoseBuilder.builder(EnumPose.CRAWLING).build(sender);
                         break;
                     case "lay":
-                        if (!performChecks(LayPose.class, player)) return true;
+                        if (!performChecks(LayPose.class, sender)) return true;
                         pose = PoseBuilder.builder(EnumPose.LYING)
-                        .option(EnumPoseOption.INVISIBLE, player.hasPotionEffect(PotionEffectType.INVISIBILITY))
+                        .option(EnumPoseOption.INVISIBLE, sender.hasPotionEffect(PotionEffectType.INVISIBILITY))
                         .option(EnumPoseOption.HEAD_ROTATION, getCfg().getBoolean("lay.head-rotation"))
                         .option(EnumPoseOption.SWING_ANIMATION, getCfg().getBoolean("lay.swing-animation"))
                         .option(EnumPoseOption.SYNC_EQUIPMENT, getCfg().getBoolean("lay.sync-equipment"))
                         .option(EnumPoseOption.VIEW_DISTANCE, getCfg().getInt("lay.view-distance"))
                         .option(EnumPoseOption.SYNC_OVERLAYS, getCfg().getBoolean("lay.sync-overlays"))
-                        .build(player);
+                        .build(sender);
                         break;
                     case "pray":
-                        if (!performChecks(PrayPose.class, player)) return true;
+                        if (!performChecks(PrayPose.class, sender)) return true;
                         pose = PoseBuilder.builder(EnumPose.PRAYING)
                                 .option(EnumPoseOption.STEP, getCfg().getFloat("pray.step"))
-                                .build(player);
+                                .build(sender);
                         break;
+                    default:
+                        return true;
                 }
-                PosePluginPlayer pluginInstance = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(player);
+                PosePluginPlayer pluginInstance = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(sender);
                 pluginInstance.changePose(pose);
+                PLAYERS_POSES.put(sender, pose.getType());
             } catch (IllegalArgumentException ignored) {}
             return true;
         };
@@ -169,6 +172,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
                 IPluginPose pose = PoseBuilder.builder(poseType).option(EnumPoseOption.HANDTYPE, HandType.RIGHT).build(sender);
                 if (!performChecks(pose.getClass(), sender)) return true;
                 player.changePose(pose);
+                PLAYERS_POSES.put(sender, pose.getType());
             }
             return true;
         };
@@ -198,6 +202,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
                 IPluginPose pose = PoseBuilder.builder(poseType).option(EnumPoseOption.HANDTYPE, HandType.LEFT).build(sender);
                 if (!performChecks(pose.getClass(), sender)) return true;
                 player.changePose(pose);
+                PLAYERS_POSES.put(sender, pose.getType());
             }
             return true;
         };
