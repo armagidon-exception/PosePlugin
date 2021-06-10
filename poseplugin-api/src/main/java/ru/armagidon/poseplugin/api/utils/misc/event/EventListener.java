@@ -25,7 +25,6 @@ public class EventListener implements Listener
         //Stop current animation
         if(containsPlayer(event.getPlayer())) {
             PosePluginPlayer ppp = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
-            //ppp.leave();
 
             ppp.stopCurrentPose();
 

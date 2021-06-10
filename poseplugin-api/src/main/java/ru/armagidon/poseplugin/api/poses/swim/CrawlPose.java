@@ -40,8 +40,8 @@ public class CrawlPose extends AbstractPose implements Tickable {
     @Override
     public void stop() {
         super.stop();
-        handler.disable();
         PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(CrawlPose.class, this);
+        handler.disable();
     }
 
     @Override
