@@ -64,7 +64,7 @@ public class MetadataAccessorProtocolized implements FakePlayerMetadataAccessor
 
     @Override
     public void setOverlays(byte overlays) {
-        watcher.setObject(16, BYTE, overlays);
+        watcher.setObject(16, BYTE, overlays, false);
     }
 
     @Override
