@@ -4,6 +4,8 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import net.kyori.adventure.text.BlockNBTComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
@@ -18,6 +20,7 @@ import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.npc.protocolized.FakePlayerProtocolized;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -130,6 +133,12 @@ public abstract class FakePlayer implements Tickable, Listener
 
     @SneakyThrows
     public static FakePlayer createNew(Player parent, Pose pose) {
+        if (Bukkit.getVersion().contains("1.17")) {
+            Class<?> clazz = Class.forName("ru.armagidon.poseplugin.api.utils.npc.v1_17_R1.FakePlayer");
+            Constructor<?> constructor = clazz.getDeclaredConstructor(Player.class, Pose.class);
+            constructor.setAccessible(true);
+            return (FakePlayer) constructor.newInstance(parent, pose);
+        } else
         return new FakePlayerProtocolized(parent, pose);
     }
 

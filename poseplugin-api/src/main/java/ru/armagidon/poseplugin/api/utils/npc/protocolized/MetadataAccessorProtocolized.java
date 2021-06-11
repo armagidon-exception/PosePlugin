@@ -101,9 +101,6 @@ public class MetadataAccessorProtocolized implements FakePlayerMetadataAccessor
         metadata = new WrapperPlayServerEntityMetadata();
         metadata.setMetadata(watcher.getWatchableObjects());
         metadata.setEntityID(npc.getId());
-        if (resend) {
-            metadata.getMetadata().forEach(obj -> obj.setDirtyState(true));
-        }
         //metadata = new PacketPlayOutEntityMetadata(npc.getFake().getId(), this.watcher, resend);
     }
 

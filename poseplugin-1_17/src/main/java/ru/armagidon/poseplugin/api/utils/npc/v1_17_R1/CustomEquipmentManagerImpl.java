@@ -1,10 +1,10 @@
 package ru.armagidon.poseplugin.api.utils.npc.v1_17_R1;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.server.v1_16_R3.EnumItemSlot;
-import net.minecraft.server.v1_16_R3.ItemStack;
-import net.minecraft.server.v1_16_R3.PacketPlayOutEntityEquipment;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
+import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.world.item.ItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
@@ -29,7 +29,7 @@ public class CustomEquipmentManagerImpl implements FakePlayerCustomEquipmentMana
 
     public void showEquipment(Player receiver){
         if(!customEquipment.isEmpty())
-            NMSUtils.sendPacket(receiver, customEquipmentPacket);
+            FakePlayer.sendPacket(receiver, customEquipmentPacket);
     }
 
     @Override

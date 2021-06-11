@@ -11,6 +11,7 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
+import ru.armagidon.poseplugin.api.poses.IllegalMCVersionException;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
 import ru.armagidon.poseplugin.api.ticking.TickingBundle;
 import ru.armagidon.poseplugin.api.utils.ArmorHider;
@@ -54,6 +55,12 @@ public class PosePluginAPI
     private final @Getter Plugin plugin;
 
     private void init(){
+        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") == null) {
+            if (!Bukkit.getVersion().contains("1.17")) {
+                throw new IllegalMCVersionException("ProtocolLib was not found. Disabling...");
+            }
+        }
+
         this.armorHider = new ArmorHider();
         Bukkit.getServer().getPluginManager().registerEvents(armorHider, plugin);
         this.tickingBundle = new TickingBundle();

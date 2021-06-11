@@ -1,6 +1,12 @@
 package ru.armagidon.poseplugin.api.utils.npc.v1_17_R1;
 
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
+import net.minecraft.network.syncher.DataWatcher;
+import net.minecraft.network.syncher.DataWatcherRegistry;
+import net.minecraft.network.syncher.DataWatcherSerializer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.EntityPose;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
@@ -31,7 +37,7 @@ public class FakePlayerMetadataAccessorImpl implements FakePlayerMetadataAccesso
     @Override
     public void showPlayer(Player receiver) {
         if(metadata != null){
-            NMSUtils.sendPacket(receiver, metadata);
+            FakePlayer.sendPacket(receiver, metadata);
         }
     }
 

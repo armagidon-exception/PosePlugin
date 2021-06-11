@@ -2,22 +2,31 @@ package ru.armagidon.poseplugin.api.utils.npc.v1_17_R1;
 
 import com.mojang.authlib.GameProfile;
 import lombok.Getter;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.core.EnumDirection;
+import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.DataWatcher;
+import net.minecraft.network.syncher.DataWatcherRegistry;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.Material;
+import org.bukkit.block.data.type.Bed;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
-import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
-import ru.armagidon.poseplugin.api.utils.npc.FakePlayerUtils;
 import ru.armagidon.poseplugin.api.utils.npc.HandType;
 
-import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,9 +48,10 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
 
     /**Data**/
     private final @Getter DataWatcher watcher;
+    private final Bed bedData;
 
     /**Packets*/
-    private PacketPlayOutBlockChange fakeBedPacket;
+    //TODO change it with sendBlockUpdate
     private final PacketPlayOutPlayerInfo addNPC;
     private PacketPlayOutNamedEntitySpawn spawner;
     private final PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook movePacket;
@@ -49,6 +59,7 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
 
     public FakePlayer(Player parent, Pose pose) {
         super(parent, pose);
+
 
         //Create EntityPlayer instance
         this.fake = createNPC(parent);
@@ -63,12 +74,15 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
         //Create instance of move packet to pop up npc a little
         this.movePacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short)2,(short)0,(byte)0,(byte)0, true);
 
-        EnumDirection direction = (EnumDirection) FakePlayerUtils.getDirection(parent.getLocation().clone().getYaw());
+        EnumDirection direction = (EnumDirection) getDirection(parent.getLocation().clone().getYaw());
+
+        bedData = (Bed) Bukkit.createBlockData(Material.WHITE_BED);
+        bedData.setFacing(CraftBlock.notchToBlockFace(direction));
+        bedData.setPart(Bed.Part.HEAD);
 
         //Create packet instance of fake bed(could've used sendBlockChange but im crazy and it will recreate copies of the same packet)
-        this.fakeBedPacket = new PacketPlayOutBlockChange(fakeBed(direction), (BlockPosition) toBlockPosition(bedLoc));
         //Create packet instance of NPC 's data
-        this.addNPC = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, fake);
+        this.addNPC = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, fake);
 
         //Set location of NPC
         Location parentLocation = parent.getLocation().clone();
@@ -96,16 +110,16 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
         Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p -> p.getWorld().equals(parent.getWorld()))
                 .filter(p -> p.getLocation().distanceSquared(parent.getLocation()) <= Math.pow(viewDistance,2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
-        Bukkit.getOnlinePlayers().forEach(receiver -> NMSUtils.sendPacket(receiver, addNPC));
+        Bukkit.getOnlinePlayers().forEach(receiver -> sendPacket(receiver, addNPC));
         trackers.forEach(this::spawnToPlayer);
     }
 
     public void spawnToPlayer(Player receiver){
-        NMSUtils.sendPacket(receiver, spawner);
-        NMSUtils.sendPacket(receiver, fakeBedPacket);
+        sendPacket(receiver, spawner);
+        fakeBed();
         customEquipmentManager.showEquipment(receiver);
         metadataAccessor.showPlayer(receiver);
-        NMSUtils.sendPacket(receiver, movePacket);
+        sendPacket(receiver, movePacket);
         if(isHeadRotationEnabled()) {
             setHeadRotationEnabled(false);
             PosePluginAPI.getAPI().getTickManager().later(() ->
@@ -115,13 +129,13 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
 
     //Remove methods
     public void removeToPlayer(Player player){
-        NMSUtils.sendPacket(player, destroy);
+        sendPacket(player, destroy);
         cache.restore(player);
     }
 
     private void setMetadata(){
         //Save current overlay bit mask
-        byte overlays = ((EntityPlayer)asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
+        byte overlays = ((EntityPlayer) asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
         //Set pose to the NPC
         metadataAccessor.setPose(pose);
         //Set current overlays to the NPC
@@ -160,7 +174,7 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
 
         trackers.forEach(tracker->{
             //Send fake bed
-            NMSUtils.sendPacket(tracker, fakeBedPacket);
+            fakeBed();
         });
     }
 
@@ -179,13 +193,13 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
     public void swingHand(boolean mainHand) {
         if(isSwingAnimationEnabled()) {
             PacketPlayOutAnimation animation = new PacketPlayOutAnimation(fake, mainHand ? 0 : 3);
-            trackers.forEach(p -> NMSUtils.sendPacket(p, animation));
+            trackers.forEach(p -> sendPacket(p, animation));
         }
     }
 
     public void animation(byte id){
         PacketPlayOutEntityStatus status = new PacketPlayOutEntityStatus(fake, id);
-        trackers.forEach(p-> NMSUtils.sendPacket(p,status));
+        trackers.forEach(p-> sendPacket(p,status));
     }
 
     @Override
@@ -209,9 +223,6 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
         cache.setLocation(bedLoc);
         cache.setData(bedLoc.getBlock().getBlockData());
 
-        fakeBedPacket = new PacketPlayOutBlockChange(fakeBed((EnumDirection) getDirection(parent.getLocation().getYaw())),
-                (BlockPosition) toBlockPosition(bedLoc));
-
         this.bedLoc.setX(destination.getX());
         this.bedLoc.setY(destination.getY());
         this.bedLoc.setZ(destination.getZ());
@@ -227,7 +238,7 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
 
         updateNPC();
 
-        getTrackers().forEach(t -> NMSUtils.sendPacket(t, movePacket));
+        getTrackers().forEach(t -> sendPacket(t, movePacket));
 
     }
 
@@ -246,34 +257,18 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
         return human.getDataWatcher();
     }
 
-    private IBlockAccess fakeBed(EnumDirection direction){
-        return new IBlockAccess() {
-            @Nullable
-            @Override
-            public TileEntity getTileEntity(BlockPosition blockPosition) {
-                return null;
-            }
-
-            @Override
-            public IBlockData getType(BlockPosition blockPosition) {
-                return Blocks.WHITE_BED.getBlockData().set(BlockBed.PART, BlockPropertyBedPart.HEAD).set(BlockBed.FACING, direction);
-            }
-
-            @Override
-            public Fluid getFluid(BlockPosition blockPosition) {
-                return null;
-            }
-        };
+    private void fakeBed(){
+        parent.sendBlockChange(cache.getLocation(), bedData);
     }
 
     private EntityPlayer createNPC(Player parent) {
         CraftWorld world = (CraftWorld) parent.getWorld();
         CraftServer server = (CraftServer) Bukkit.getServer();
-        EntityPlayer parentVanilla= (EntityPlayer) NMSUtils.asNMSCopy(parent);
+        EntityPlayer parentVanilla= (EntityPlayer) asNMSCopy(parent);
         GameProfile profile = new GameProfile(parent.getUniqueId(), parent.getName());
         profile.getProperties().putAll(parentVanilla.getProfile().getProperties());
 
-        return new EntityPlayer(server.getServer(), world.getHandle(), profile, new PlayerInteractManager(world.getHandle())){
+        return new EntityPlayer(server.getServer(), world.getHandle(), profile){
 
             @Override
             public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {}
@@ -289,5 +284,9 @@ public abstract class FakePlayer extends ru.armagidon.poseplugin.api.utils.npc.F
                 return false;
             }
         };
+    }
+    
+    public static void sendPacket(Player receiver, Packet<?> packet) {
+        ((CraftPlayer)receiver).getHandle().b.sendPacket(packet);
     }
 }

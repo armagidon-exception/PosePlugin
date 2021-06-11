@@ -3,10 +3,15 @@ package ru.armagidon.poseplugin.api.utils.playerhider.v1_17_R1;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.world.item.ItemStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.EntityEquipment;
@@ -71,7 +76,7 @@ public final class PlayerHiderImpl extends PlayerHider implements Listener {
 
 
         PacketPlayOutEntityEquipment eq = resetEquipment(en.getId(), player.getEquipment());
-        PacketPlayOutEntityMetadata metadata = resetInvisible(en);
+        PacketPlayOutEntityMetadata metadata = resetInvisible(player);
 
         Bukkit.getOnlinePlayers().forEach(online->{
             NMSUtils.sendPacket(online, metadata);
@@ -100,27 +105,14 @@ public final class PlayerHiderImpl extends PlayerHider implements Listener {
         }));
     }
     private org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, EnumItemSlot slot){
-        org.bukkit.inventory.ItemStack eq;
-        switch (slot){
-            case HEAD:
-                eq = e.getHelmet();
-                break;
-            case CHEST:
-                eq = e.getChestplate();
-                break;
-            case LEGS:
-                eq = e.getLeggings();
-                break;
-            case FEET:
-                eq = e.getBoots();
-                break;
-            case OFFHAND:
-                eq = e.getItemInOffHand();
-                break;
-            default:
-                eq = e.getItemInMainHand();
-        }
-        return eq;
+        return switch (slot) {
+            case f -> e.getHelmet();
+            case e -> e.getChestplate();
+            case d -> e.getLeggings();
+            case c -> e.getBoots();
+            case b -> e.getItemInOffHand();
+            default -> e.getItemInMainHand();
+        };
     }
 
     private PacketPlayOutEntityEquipment resetEquipment(int id, EntityEquipment equipment){
@@ -129,8 +121,9 @@ public final class PlayerHiderImpl extends PlayerHider implements Listener {
         return new PacketPlayOutEntityEquipment(id, slots);
     }
 
-    private PacketPlayOutEntityMetadata resetInvisible(EntityPlayer en){
-        en.setInvisible(en.hasEffect(MobEffects.INVISIBILITY));
+    private PacketPlayOutEntityMetadata resetInvisible(Player player){
+        EntityPlayer en = (EntityPlayer) NMSUtils.asNMSCopy(player);
+        en.setInvisible(player.hasPotionEffect(PotionEffectType.INVISIBILITY));
         return new PacketPlayOutEntityMetadata(en.getId(), en.getDataWatcher(), true);
     }
 }

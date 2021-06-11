@@ -10,6 +10,7 @@
     <modules>
         <module>poseplugin</module>
         <module>poseplugin-api</module>
+        <module>poseplugin-1_17</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -111,8 +112,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
         </plugins>
