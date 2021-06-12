@@ -142,11 +142,11 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
 
     private void setMetadata(){
         //Save current overlay bit mask
-        byte overlays = ((EntityPlayer) asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.a.a(16));
+        int overlays = ((EntityPlayer) asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.b.a(16));
         //Set pose to the NPC
         metadataAccessor.setPose(pose);
         //Set current overlays to the NPC
-        metadataAccessor.setOverlays(overlays);
+        metadataAccessor.setOverlays((byte) overlays);
         //Set BedLocation to NPC if its pose is SLEEPING
         if(metadataAccessor.getPose().equals(Pose.SLEEPING))
             metadataAccessor.setBedPosition(bedLoc);
