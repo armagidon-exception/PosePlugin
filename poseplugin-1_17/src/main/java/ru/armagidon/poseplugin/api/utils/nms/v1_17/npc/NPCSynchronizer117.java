@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
+import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCMetadataEditor117.OVERLAYS;
 
 
 public class NPCSynchronizer117 extends NPCSynchronizer<DataWatcher> {
@@ -30,7 +31,7 @@ public class NPCSynchronizer117 extends NPCSynchronizer<DataWatcher> {
 
     public NPCSynchronizer117(FakePlayer117 npc) {
         super(npc);
-        this.pOverlays = ((EntityPlayer)asNMSCopy(npc.getParent())).getDataWatcher().get(DataWatcherRegistry.a.a(16));
+        this.pOverlays = ((EntityPlayer)asNMSCopy(npc.getParent())).getDataWatcher().get(OVERLAYS);
     }
 
     public void syncEquipment(){
