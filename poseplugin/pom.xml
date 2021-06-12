@@ -49,6 +49,7 @@
                                     <include>io.papermc:paperlib</include>
                                     <include>ru.armagidon:poseplugin-api</include>
                                     <include>org.reflections:reflections</include>
+                                    <include>org.javassist:javassist</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
