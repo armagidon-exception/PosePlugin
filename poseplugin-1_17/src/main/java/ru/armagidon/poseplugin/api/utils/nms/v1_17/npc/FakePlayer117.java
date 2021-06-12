@@ -31,6 +31,7 @@ import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
+import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -308,25 +309,12 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
 
     @SneakyThrows
     private static EnumDirection getDirection(float angle) {
-        //angle = unsignAngle(angle);
-
         return CraftBlock.blockFaceToNotch(BlockPositionUtils.yawToFace(angle));
-
-        /*Class ENUM_DIRECTION = ReflectionTools.getEnum("EnumDirection");
-
-        if (angle >= 315.0F || angle <= 45.0F) {
-            return EnumDirection.c;
-        } else if (angle >= 45.0F && angle <= 135.0F) {
-            //a = EnumDirection.EAST;
-            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "EAST");
-        } else if (angle >= 135.0F && angle <= 225.0F) {
-            //a = EnumDirection.SOUTH;
-            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "SOUTH");
-        } else if (angle >= 225.0F && angle <= 315.0F) {
-            //a = EnumDirection.WEST;
-            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "WEST");
-        } else {
-            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "NORTH");
-        }*/
     }
+
+    @SneakyThrows
+    public static BlockPosition toBlockPosition(Location location) {
+        return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
 }
