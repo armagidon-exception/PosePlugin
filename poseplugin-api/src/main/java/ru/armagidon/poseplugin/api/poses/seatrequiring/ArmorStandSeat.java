@@ -18,6 +18,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -111,6 +112,15 @@ public class ArmorStandSeat implements Listener, Tickable
             Object vanillaStand = seat.getClass().getMethod("getHandle").invoke(seat);
             Field yawF = vanillaStand.getClass().getField("yaw");
             yawF.set(vanillaStand, sitter.getLocation().getYaw());
+        } catch (NoSuchFieldException e) {
+            try {
+                Object vanillaStand = seat.getClass().getMethod("getHandle").invoke(seat);
+                Method setYRot = vanillaStand.getClass().getMethod("setYRot", float.class);
+                setYRot.setAccessible(true);
+                setYRot.invoke(vanillaStand, sitter.getLocation().getYaw());
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
