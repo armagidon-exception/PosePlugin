@@ -60,7 +60,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
         } catch (Exception e){
             getLogger().severe("Error occurred while initializing API.");
             getLogger().severe(e.getMessage());
-            getLogger().severe(Arrays.toString(e.getStackTrace()));
+            e.printStackTrace();
             setEnabled(false);
         }
 

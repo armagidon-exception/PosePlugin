@@ -10,6 +10,8 @@ import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
+import static org.bukkit.entity.Pose.SLEEPING;
+
 @PoseAvailabilitySince(version = "1.15")
 public class LayPose extends SeatRequiringPose {
 
@@ -17,7 +19,7 @@ public class LayPose extends SeatRequiringPose {
 
     public LayPose(Player target) {
         super(target);
-        this.fakePlayer = ToolFactory.create(FakePlayer.class, target, Pose.SLEEPING);
+        this.fakePlayer = ToolFactory.create(FakePlayer.class,new Class[]{Player.class, Pose.class}, target, SLEEPING);
         registerProperties();
     }
 

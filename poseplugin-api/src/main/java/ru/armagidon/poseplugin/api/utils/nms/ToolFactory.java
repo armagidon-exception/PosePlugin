@@ -52,10 +52,20 @@ public class ToolFactory
     @Nullable
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T> T create(Class<T> clazz, Object... params) {
+    public static <T> T create(Class<T> clazz, Class<?> types[], Object... params) {
         if (!toolPackages.containsKey(clazz)) return null;
         Class<?> packageClass = toolPackages.get(clazz);
-        Constructor<?> constructor = packageClass.getDeclaredConstructor(Arrays.stream(params).map(Object::getClass).toArray((IntFunction<Class<?>[]>) value -> new Class[0]));
+        //TODO REMOVE THIS PIECE OF SHIT
+
+        /*Set<Class<?>[]> clazzes = Arrays.stream(packageClass.getDeclaredConstructors()).map(Constructor::getParameterTypes).collect(Collectors.toSet());
+        clazzes.forEach(a -> {
+            for (Class<?> aClass : a) {
+                System.out.println(aClass.getSimpleName());
+            }
+        });*/
+        //Arrays.stream(types).map(Class::getSimpleName).forEach(System.out::println);
+
+        Constructor<?> constructor = packageClass.getDeclaredConstructor(types);
         constructor.setAccessible(true);
         return (T) constructor.newInstance(params);
     }

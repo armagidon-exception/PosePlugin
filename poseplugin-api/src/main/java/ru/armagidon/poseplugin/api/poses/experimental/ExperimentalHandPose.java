@@ -31,7 +31,7 @@ public abstract class ExperimentalHandPose extends AbstractPose
     public ExperimentalHandPose(Player target, Material type) {
         super(target);
         this.handItem = addHideTag(ItemBuilder.create(type).asItemStack());
-        this.npc = ToolFactory.create(FakePlayer.class, target, STANDING);
+        this.npc = ToolFactory.create(FakePlayer.class,new Class[]{Player.class, Pose.class}, target, STANDING);
 
         getProperties().registerProperty(EnumPoseOption.HANDTYPE.mapper(), new Property<>(npc::getActiveHand, npc::setActiveHand));
         getProperties().register();

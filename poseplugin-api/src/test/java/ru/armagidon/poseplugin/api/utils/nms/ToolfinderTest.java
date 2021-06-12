@@ -4,8 +4,8 @@ import net.minecraft.server.v1_17_R1.MockedServer;
 import org.bukkit.Bukkit;
 import org.junit.Test;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.utils.nms.v1_17.MarkedSuperClass;
 import ru.armagidon.poseplugin.api.utils.nms.classes.MockedPlugin;
+import ru.armagidon.poseplugin.api.utils.nms.v1_17.MarkedSuperClass;
 
 import static org.junit.Assert.assertNotNull;
 

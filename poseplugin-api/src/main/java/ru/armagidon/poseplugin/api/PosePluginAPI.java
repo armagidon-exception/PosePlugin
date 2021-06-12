@@ -92,7 +92,7 @@ public class PosePluginAPI
     private void initTools() {
         this.playerMap = new P3Map();
         this.tickManager = new TickModuleManager();
-        this.nameTagHider = ToolFactory.create(NameTagHider.class, plugin);
+        this.nameTagHider = ToolFactory.create(NameTagHider.class,new Class[]{Plugin.class}, plugin);
         this.personalHandlerList = new PersonalHandlerList();
         this.armorHider = new ArmorHider();
     }
