@@ -9,6 +9,7 @@ import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
+import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
@@ -30,6 +31,7 @@ import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -137,9 +139,12 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
         cache.restore(player);
     }
 
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
     private void setMetadata(){
+
         //Save current overlay bit mask
-        int overlays = ((EntityPlayer) asNMSCopy(parent)).getDataWatcher().get(DataWatcherRegistry.b.a(16));
+        int overlays = ((EntityPlayer) asNMSCopy(parent)).getDataWatcher().get(NPCMetadataEditor117.OVERLAYS);
         //Set pose to the NPC
         metadataAccessor.setPose(pose);
         //Set current overlays to the NPC

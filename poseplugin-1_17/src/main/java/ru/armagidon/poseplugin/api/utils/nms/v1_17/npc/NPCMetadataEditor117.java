@@ -1,11 +1,16 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
+import net.minecraft.core.BlockPosition;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
 import net.minecraft.network.syncher.DataWatcher;
+import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.network.syncher.DataWatcherSerializer;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.EntityPose;
+import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
@@ -13,6 +18,7 @@ import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.toBlockPosition;
@@ -25,7 +31,41 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<DataWatcher>
     private boolean invisible;
 
     //Constants
-    private final DataWatcherSerializer<Byte> BYTE = DataWatcherRegistry.a;
+    private static final DataWatcherSerializer<Byte> BYTE = DataWatcherRegistry.a;
+    public static DataWatcherObject<Byte> DISPLAYING;
+    public static DataWatcherObject<Byte> OVERLAYS;
+    public static DataWatcherObject<EntityPose> POSE;
+    public static DataWatcherObject<Byte> ACTIVATE_HAND;
+    public static DataWatcherObject<Optional<BlockPosition>> BED_POSITION;
+
+    static {
+        try {
+            Field overlaysF = EntityHuman.class.getDeclaredField("bP");
+            overlaysF.setAccessible(true);
+            OVERLAYS = (DataWatcherObject<Byte>) overlaysF.get(null);
+
+            Field poseF = Entity.class.getDeclaredField("ad");
+            poseF.setAccessible(true);
+            POSE = (DataWatcherObject<EntityPose>) poseF.get(null);
+
+            Field activeHandF = EntityHuman.class.getDeclaredField("bQ");
+            activeHandF.setAccessible(true);
+            ACTIVATE_HAND = BYTE.a(7);
+
+            Field bedPosF = EntityLiving.class.getDeclaredField("bO");
+            bedPosF.setAccessible(true);
+            BED_POSITION = (DataWatcherObject<Optional<BlockPosition>>) bedPosF.get(null);
+
+            Field displayingF = Entity.class.getDeclaredField("Z");
+            displayingF.setAccessible(true);
+            DISPLAYING = (DataWatcherObject<Byte>) displayingF.get(null);
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public NPCMetadataEditor117(FakePlayer117 npc) {
         super(npc);
@@ -40,49 +80,49 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<DataWatcher>
 
     @Override
     public void setPose(Pose pose) {
-        fakePlayer.getDataWatcher().set(DataWatcherRegistry.s.a(6), EntityPose.values()[pose.ordinal()]);
+        fakePlayer.getDataWatcher().set(POSE, EntityPose.values()[pose.ordinal()]);
     }
 
     @Override
     public void setBedPosition(Location location) {
         Location bedLoc = location.clone().toVector().setY(0).toLocation(fakePlayer.getParent().getWorld());
-        fakePlayer.getDataWatcher().set(DataWatcherRegistry.m.a(13), Optional.of(toBlockPosition(bedLoc)));
+        fakePlayer.getDataWatcher().set(BED_POSITION, Optional.of(toBlockPosition(bedLoc)));
     }
 
     @Override
     public void setInvisible(boolean flag) {
         if(this.invisible != flag) {
-            byte value = ((EntityPlayer) NMSUtils.asNMSCopy(fakePlayer.getParent())).getDataWatcher().get(BYTE.a(0));
-            fakePlayer.getDataWatcher().set(BYTE.a(0), setBit(value, 5,flag));
+            byte value = ((EntityPlayer) NMSUtils.asNMSCopy(fakePlayer.getParent())).getDataWatcher().get(DISPLAYING);
+            fakePlayer.getDataWatcher().set(DISPLAYING, setBit(value, 5,flag));
             this.invisible = flag;
         }
     }
 
     @Override
     public void setOverlays(byte overlays) {
-        fakePlayer.getDataWatcher().set(DataWatcherRegistry.a.a(16), overlays);
+        fakePlayer.getDataWatcher().set(OVERLAYS, overlays);
     }
 
     @Override
     public void setActiveHand(boolean main) {
         setMainHand(main);
-        byte data = fakePlayer.getDataWatcher().get(BYTE.a(7));
+        byte data = fakePlayer.getDataWatcher().get(ACTIVATE_HAND);
         if(!isHandActive()){
             data = setBit(data, 0,true);
         }
-        fakePlayer.getDataWatcher().set(BYTE.a(7),setBit(data,1,false));
+        fakePlayer.getDataWatcher().set(ACTIVATE_HAND, setBit(data,1,false));
     }
 
     @Override
     public void disableHand() {
         byte data = fakePlayer.getDataWatcher().get(DataWatcherRegistry.a.a(7));
         if(!isHandActive()) return;
-        fakePlayer.getDataWatcher().set(DataWatcherRegistry.a.a(7),setBit(data, 0, false));
+        fakePlayer.getDataWatcher().set(ACTIVATE_HAND,setBit(data, 0, false));
     }
 
     @Override
     public Pose getPose() {
-        return Pose.values()[fakePlayer.getDataWatcher().get(DataWatcherRegistry.s.a(6)).ordinal()];
+        return Pose.values()[fakePlayer.getDataWatcher().get(POSE).ordinal()];
     }
 
     @Override
@@ -97,7 +137,7 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<DataWatcher>
 
     @Override
     public boolean isHandActive() {
-        byte data = fakePlayer.getDataWatcher().get(DataWatcherRegistry.a.a(7));
+        byte data = fakePlayer.getDataWatcher().get(ACTIVATE_HAND);
         return isKthBitSet(data, 1);
     }
 
