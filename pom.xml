@@ -11,6 +11,7 @@
         <module>poseplugin</module>
         <module>poseplugin-api</module>
         <module>poseplugin-1_17</module>
+        <module>poseplugin-protocolized</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -81,12 +82,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.comphenix.protocol</groupId>
-            <artifactId>ProtocolLib</artifactId>
-            <version>4.6.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
             <version>1.0.6</version>
@@ -103,6 +98,12 @@
             <artifactId>paper-api</artifactId>
             <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.12</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

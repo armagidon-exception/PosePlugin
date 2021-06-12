@@ -16,21 +16,22 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
+import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
-import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
+import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 
 public abstract class ExperimentalHandPose extends AbstractPose
 {
 
     private final ItemStack handItem;
-    private final FakePlayer npc;
+    private final FakePlayer<?> npc;
     private final Location to;
 
     public ExperimentalHandPose(Player target, Material type) {
         super(target);
         this.handItem = addHideTag(ItemBuilder.create(type).asItemStack());
-        this.npc = FakePlayer.createNew(target, Pose.STANDING);
+        this.npc = ToolFactory.create(FakePlayer.class, target, STANDING);
 
         getProperties().registerProperty(EnumPoseOption.HANDTYPE.mapper(), new Property<>(npc::getActiveHand, npc::setActiveHand));
         getProperties().register();

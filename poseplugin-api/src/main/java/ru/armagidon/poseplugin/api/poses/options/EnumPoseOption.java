@@ -1,6 +1,6 @@
 package ru.armagidon.poseplugin.api.poses.options;
 
-import ru.armagidon.poseplugin.api.utils.npc.HandType;
+import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
 public interface EnumPoseOption<T> {
 

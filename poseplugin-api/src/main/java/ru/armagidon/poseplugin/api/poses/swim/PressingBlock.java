@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
-import ru.armagidon.poseplugin.api.wrappers.WrapperPlayServerEntityDestroy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -144,9 +143,10 @@ abstract class PressingBlock
         @Override
         public void hide0() {
             //shulker.remove();
-            WrapperPlayServerEntityDestroy destroy = new WrapperPlayServerEntityDestroy();
-            destroy.setEntityIds(id);
-            destroy.sendPacket(player);
+            //TODO implement protocolized crawl
+            //WrapperPlayServerEntityDestroy destroy = new WrapperPlayServerEntityDestroy();
+            //destroy.setEntityIds(id);
+            //destroy.sendPacket(player);
 
             /*PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(id);
             NMSUtils.sendPacket(player, destroy);*/

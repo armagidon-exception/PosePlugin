@@ -8,7 +8,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.api.utils.npc.HandType;
+import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
 public class HandTypeChangeEvent extends Event implements Cancellable
 {

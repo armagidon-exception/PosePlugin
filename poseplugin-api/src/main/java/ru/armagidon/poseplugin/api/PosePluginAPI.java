@@ -1,6 +1,5 @@
 package ru.armagidon.poseplugin.api;
 
-import io.papermc.lib.PaperLib;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
@@ -11,18 +10,15 @@ import ru.armagidon.poseplugin.api.personalListener.PersonalEventDispatcher;
 import ru.armagidon.poseplugin.api.personalListener.PersonalHandlerList;
 import ru.armagidon.poseplugin.api.player.P3Map;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
-import ru.armagidon.poseplugin.api.poses.IllegalMCVersionException;
 import ru.armagidon.poseplugin.api.ticking.TickModuleManager;
 import ru.armagidon.poseplugin.api.ticking.TickingBundle;
 import ru.armagidon.poseplugin.api.utils.ArmorHider;
-import ru.armagidon.poseplugin.api.utils.scoreboard.NameTagHider;
-import ru.armagidon.poseplugin.api.utils.corewrapper.CoreWrapper;
-import ru.armagidon.poseplugin.api.utils.corewrapper.PaperCoreWrapper;
-import ru.armagidon.poseplugin.api.utils.corewrapper.SpigotCoreWrapper;
-import ru.armagidon.poseplugin.api.utils.misc.Debugger;
 import ru.armagidon.poseplugin.api.utils.misc.event.EventListener;
-import ru.armagidon.poseplugin.api.utils.playerhider.PlayerHider;
+import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
+import ru.armagidon.poseplugin.api.utils.nms.playerhider.PlayerHider;
+import ru.armagidon.poseplugin.api.utils.nms.scoreboard.NameTagHider;
 
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 public class PosePluginAPI
@@ -33,48 +29,34 @@ public class PosePluginAPI
 
 
     private @Getter PlayerHider playerHider;
-    private @Getter final P3Map playerMap;
-    private @Getter final TickModuleManager tickManager;
-    private @Getter final NameTagHider nameTagHider;
-    private @Getter final PersonalHandlerList personalHandlerList;
-    private @Getter final Debugger debugger;
+    private @Getter P3Map playerMap;
+    private @Getter TickModuleManager tickManager;
+    private @Getter NameTagHider nameTagHider;
+    private @Getter PersonalHandlerList personalHandlerList;
     private @Getter TickingBundle tickingBundle;
     private @Getter ArmorHider armorHider;
-    private @Getter CoreWrapper coreWrapper;
 
     @SneakyThrows
     private PosePluginAPI(Plugin plugin) {
         this.plugin = plugin;
-        this.playerMap = new P3Map();
-        this.tickManager = new TickModuleManager();
-        this.nameTagHider = new NameTagHider(plugin);
-        this.personalHandlerList = new PersonalHandlerList();
-        this.debugger = new Debugger();
+
     }
 
     private final @Getter Plugin plugin;
 
     private void init(){
-        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") == null) {
-            if (!Bukkit.getVersion().contains("1.17")) {
-                throw new IllegalMCVersionException("ProtocolLib was not found. Disabling...");
-            }
-        }
+        ToolFactory.scanTools();
 
-        this.armorHider = new ArmorHider();
+        initTools();
+
         Bukkit.getServer().getPluginManager().registerEvents(armorHider, plugin);
         this.tickingBundle = new TickingBundle();
         //Init nms-factory and player-hider
-        if(PaperLib.isPaper()) coreWrapper = new PaperCoreWrapper(plugin);
-        else {
-            coreWrapper = new SpigotCoreWrapper(plugin);
-            PaperLib.suggestPaper(plugin);
-        }
 
-        playerHider = PlayerHider.createNew();
+        //playerHider = PlayerHider.createNew();
 
         //Foreach online players
-        Bukkit.getOnlinePlayers().forEach(playerMap::addPlayer);
+        Bukkit.getOnlinePlayers().forEach((Consumer<Player>) player -> playerMap.addPlayer(player));
         //Register main events
         Bukkit.getServer().getPluginManager().registerEvents(new EventListener(),plugin);
         //Register PersonalEventDispatcher
@@ -105,5 +87,13 @@ public class PosePluginAPI
 
     public PosePluginPlayer getPlayer(Player bukkitInstance) {
         return playerMap.getPosePluginPlayer(bukkitInstance);
+    }
+
+    private void initTools() {
+        this.playerMap = new P3Map();
+        this.tickManager = new TickModuleManager();
+        this.nameTagHider = ToolFactory.create(NameTagHider.class, plugin);
+        this.personalHandlerList = new PersonalHandlerList();
+        this.armorHider = new ArmorHider();
     }
 }

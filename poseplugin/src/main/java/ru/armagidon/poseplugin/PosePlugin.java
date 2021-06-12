@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin;
 
+import io.papermc.lib.PaperLib;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -17,8 +18,11 @@ import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
 import ru.armagidon.poseplugin.api.poses.swim.CrawlPose;
+import ru.armagidon.poseplugin.plugin.commands.corewrapper.CoreWrapper;
+import ru.armagidon.poseplugin.plugin.commands.corewrapper.PaperCoreWrapper;
+import ru.armagidon.poseplugin.plugin.commands.corewrapper.SpigotCoreWrapper;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
-import ru.armagidon.poseplugin.api.utils.npc.HandType;
+import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
 import ru.armagidon.poseplugin.plugin.UpdateChecker;
 import ru.armagidon.poseplugin.plugin.commands.SimpleCommand;
@@ -33,10 +37,11 @@ import java.util.Map;
 
 public final class PosePlugin extends JavaPlugin implements Listener
 {
+    private @Getter final Config cfg;
+    private @Getter CoreWrapper coreWrapper;
     private @Getter static PosePlugin instance;
     public static Map<Player, EnumPose> PLAYERS_POSES = new HashMap<>();
     public static UpdateChecker checker;
-    private @Getter final Config cfg;
     private final Messages messages;
 
 
@@ -61,7 +66,6 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
         getServer().getPluginManager().registerEvents(new PluginEventListener(),this);
         getServer().getPluginManager().registerEvents(new MessagePrintingHandler(),this);
-        //TODO init commands
         initCommands();
         //Check for updates
         checkForUpdates();
@@ -89,7 +93,11 @@ public final class PosePlugin extends JavaPlugin implements Listener
     }
 
     private void initCommands() {
-
+        if(PaperLib.isPaper()) coreWrapper = new PaperCoreWrapper(this);
+        else {
+            coreWrapper = new SpigotCoreWrapper(this);
+            PaperLib.suggestPaper(this);
+        }
         SimpleCommand.Executor simpleExecutor = (sender, label, args) -> {
             try {
                 IPluginPose pose = null;

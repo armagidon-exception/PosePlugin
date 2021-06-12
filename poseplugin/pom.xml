@@ -23,7 +23,6 @@
     </dependencies>
 
     <build>
-        <!--<finalName>${build.name}</finalName>-->
         <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
@@ -49,6 +48,7 @@
                                 <includes>
                                     <include>io.papermc:paperlib</include>
                                     <include>ru.armagidon:poseplugin-api</include>
+                                    <include>org.reflections:reflections</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

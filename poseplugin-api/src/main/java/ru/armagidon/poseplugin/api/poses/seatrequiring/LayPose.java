@@ -5,18 +5,19 @@ import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
-import ru.armagidon.poseplugin.api.utils.npc.FakePlayer;
+import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
+import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
 @PoseAvailabilitySince(version = "1.15")
 public class LayPose extends SeatRequiringPose {
 
-    private final FakePlayer fakePlayer;
+    private final FakePlayer<?> fakePlayer;
 
     public LayPose(Player target) {
         super(target);
-        this.fakePlayer = FakePlayer.createNew(target, Pose.SLEEPING);
+        this.fakePlayer = ToolFactory.create(FakePlayer.class, target, Pose.SLEEPING);
         registerProperties();
     }
 

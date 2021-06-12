@@ -12,12 +12,20 @@ public class VersionControl
             put("1.16", 2).
             put("1.17", 3).build();
 
+    /*
+     * Gets minecraft version in version priority. The newer version it is, the higher the priority will be.
+     */
     public static int getMCVersion() {
+        return getVersionPriority(getMCVersionString());
+    }
+
+    public static String getMCVersionString() {
         String s = ReflectionTools.nmsVersion().replace("_", ".");
         int index = s.indexOf("R") - 2;
-        String version = ReflectionTools.nmsVersion().replace("_", ".").replace("v", "").substring(0, index).trim();
-        return getVersionPriority(version);
+        return s.replace("v", "").substring(0, index).trim();
     }
+
+
 
     public static int getVersionPriority(String version) {
         return versionPriorities.getOrDefault(version, -1);

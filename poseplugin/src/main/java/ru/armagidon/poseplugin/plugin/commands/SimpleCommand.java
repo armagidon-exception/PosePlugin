@@ -162,7 +162,7 @@ public class SimpleCommand
             command.usage(usage);
             command.executor(executor);
 
-            CommandMap commandMap = PosePluginAPI.getAPI().getCoreWrapper().getCommandMap();
+            CommandMap commandMap = PosePlugin.getInstance().getCoreWrapper().getCommandMap();
             commandMap.register(name, "poseplugin", command.getCommand());
 
         }
