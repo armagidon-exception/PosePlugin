@@ -20,6 +20,16 @@
             <version>3.1-beta</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>ru.armagidon</groupId>
+            <artifactId>poseplugin-protocolized</artifactId>
+            <version>3.1-beta</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.armagidon</groupId>
+            <artifactId>poseplugin-1_17</artifactId>
+            <version>3.1-beta</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -48,8 +58,8 @@
                                 <includes>
                                     <include>io.papermc:paperlib</include>
                                     <include>ru.armagidon:poseplugin-api</include>
-                                    <include>ru.armagidon:poseplugin-protocolized</include>
                                     <include>ru.armagidon:poseplugin-1_17</include>
+                                    <include>ru.armagidon:poseplugin-protocolized</include>
                                     <include>org.reflections:reflections</include>
                                     <include>org.javassist:javassist</include>
                                 </includes>
