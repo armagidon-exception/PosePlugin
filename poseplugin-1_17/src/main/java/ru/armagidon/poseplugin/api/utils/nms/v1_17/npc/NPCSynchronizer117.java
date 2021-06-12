@@ -51,7 +51,7 @@ public class NPCSynchronizer117 extends NPCSynchronizer<DataWatcher> {
     }
 
     public void syncOverlays(){
-        byte overlays = ((EntityPlayer) NMSUtils.asNMSCopy(fakePlayer.getParent())).getDataWatcher().get(DataWatcherRegistry.a.a(16));
+        byte overlays = ((EntityPlayer) NMSUtils.asNMSCopy(fakePlayer.getParent())).getDataWatcher().get(OVERLAYS);
         if(overlays != pOverlays){
             pOverlays = overlays;
             fakePlayer.getMetadataAccessor().setOverlays(pOverlays);
