@@ -95,5 +95,6 @@ public class PosePluginAPI
         this.nameTagHider = ToolFactory.create(NameTagHider.class,new Class[]{Plugin.class}, plugin);
         this.personalHandlerList = new PersonalHandlerList();
         this.armorHider = new ArmorHider();
+        this.playerHider = ToolFactory.create(PlayerHider.class, new Class[0]);
     }
 }
