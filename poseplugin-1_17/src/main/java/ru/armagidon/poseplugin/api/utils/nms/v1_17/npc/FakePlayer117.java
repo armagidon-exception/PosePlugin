@@ -2,6 +2,7 @@ package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
 import com.mojang.authlib.GameProfile;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.chat.IChatBaseComponent;
@@ -25,6 +26,7 @@ import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
+import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
@@ -78,7 +80,7 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
         //Create instance of move packet to pop up npc a little
         this.movePacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short)2,(short)0,(byte)0,(byte)0, true);
 
-        EnumDirection direction = (EnumDirection) getDirection(parent.getLocation().clone().getYaw());
+        EnumDirection direction = getDirection(parent.getLocation().clone().getYaw());
 
         bedData = (Bed) Bukkit.createBlockData(Material.WHITE_BED);
         bedData.setFacing(CraftBlock.notchToBlockFace(direction));
@@ -302,5 +304,29 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
     
     public static void sendPacket(Player receiver, Packet<?> packet) {
         ((CraftPlayer)receiver).getHandle().b.sendPacket(packet);
+    }
+
+    @SneakyThrows
+    private static EnumDirection getDirection(float angle) {
+        //angle = unsignAngle(angle);
+
+        return CraftBlock.blockFaceToNotch(BlockPositionUtils.yawToFace(angle));
+
+        /*Class ENUM_DIRECTION = ReflectionTools.getEnum("EnumDirection");
+
+        if (angle >= 315.0F || angle <= 45.0F) {
+            return EnumDirection.c;
+        } else if (angle >= 45.0F && angle <= 135.0F) {
+            //a = EnumDirection.EAST;
+            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "EAST");
+        } else if (angle >= 135.0F && angle <= 225.0F) {
+            //a = EnumDirection.SOUTH;
+            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "SOUTH");
+        } else if (angle >= 225.0F && angle <= 315.0F) {
+            //a = EnumDirection.WEST;
+            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "WEST");
+        } else {
+            return (Enum<?>) Enum.valueOf(ENUM_DIRECTION, "NORTH");
+        }*/
     }
 }
