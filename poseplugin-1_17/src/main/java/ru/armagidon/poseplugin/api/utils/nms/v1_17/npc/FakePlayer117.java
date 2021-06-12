@@ -26,18 +26,15 @@ import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
-import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
-import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.*;
 
 
 @ToolPackage(mcVersion = "1.17")
@@ -260,7 +257,7 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
     }
 
     private DataWatcher cloneDataWatcher(Player parent, GameProfile profile){
-        EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(), (BlockPosition) toBlockPosition(parent.getLocation()),0, profile) {
+        EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(), toBlockPosition(parent.getLocation()),0, profile) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -315,6 +312,10 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
     @SneakyThrows
     public static BlockPosition toBlockPosition(Location location) {
         return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
+    public static Location toBedLocation(Location location) {
+        return location.clone().toVector().setY(0).toLocation(location.getWorld());
     }
 
 }

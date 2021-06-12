@@ -1,6 +1,5 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
-import net.minecraft.core.BlockPosition;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherRegistry;
@@ -11,13 +10,12 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
-import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
-import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
+import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
 
 import java.util.Optional;
 
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.*;
+import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.toBlockPosition;
 
 
 public class NPCMetadataEditor117 extends NPCMetadataEditor<DataWatcher>
@@ -48,7 +46,7 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<DataWatcher>
     @Override
     public void setBedPosition(Location location) {
         Location bedLoc = location.clone().toVector().setY(0).toLocation(fakePlayer.getParent().getWorld());
-        fakePlayer.getDataWatcher().set(DataWatcherRegistry.m.a(13), Optional.of((BlockPosition) toBlockPosition(bedLoc)));
+        fakePlayer.getDataWatcher().set(DataWatcherRegistry.m.a(13), Optional.of(toBlockPosition(bedLoc)));
     }
 
     @Override
@@ -112,6 +110,21 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<DataWatcher>
     public HandType whatHandIsMain() {
         byte data = fakePlayer.getDataWatcher().get(BYTE.a(17));
         return data == 127 ? HandType.RIGHT : HandType.LEFT;
+    }
+
+    public static byte setBit(byte input, int k, boolean flag){
+        byte output;
+        if(flag){
+            output = (byte) (input | (1 << k));
+        } else {
+            output = (byte) (input & ~(1 << k));
+        }
+        return output;
+    }
+
+    public static boolean isKthBitSet(int n, int k)
+    {
+        return  ((n & (1 << (k - 1))) == 1);
     }
 
 }

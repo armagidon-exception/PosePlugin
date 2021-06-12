@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getFixedRotation;
+import static ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.FakePlayerUtils.getFixedRotation;
 
 public class NewNPCSynchronizer extends NPCSynchronizer<WrappedDataWatcher> {
 

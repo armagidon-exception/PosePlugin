@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.utils.nms.npc;
+package ru.armagidon.poseplugin.api.utils.nms.protocolized.npc;
 
 import lombok.SneakyThrows;
 import org.bukkit.Location;

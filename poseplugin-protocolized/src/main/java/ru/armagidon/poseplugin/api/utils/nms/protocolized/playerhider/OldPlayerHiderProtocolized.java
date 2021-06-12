@@ -10,7 +10,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils;
+import ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.FakePlayerUtils;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.PacketContainer;
 import ru.armagidon.poseplugin.api.utils.nms.playerhider.PlayerHider;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.wrappers.WrapperPlayServerEntityEquipment;

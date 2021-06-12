@@ -12,7 +12,7 @@ import org.bukkit.scoreboard.Team;
 import java.lang.reflect.Field;
 import java.util.Collection;
 
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.setBit;
+import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCMetadataEditor117.setBit;
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.scoreboard.WrapperScoreboardTeamPacket.*;
 
 @Getter

@@ -13,7 +13,6 @@ import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
-import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.wrappers.*;
 
 import java.util.ArrayList;

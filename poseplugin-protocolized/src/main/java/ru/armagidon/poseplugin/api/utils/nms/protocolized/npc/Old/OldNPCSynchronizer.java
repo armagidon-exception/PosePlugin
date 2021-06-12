@@ -15,7 +15,7 @@ import ru.armagidon.poseplugin.api.utils.nms.protocolized.wrappers.WrapperPlaySe
 
 import java.util.Arrays;
 
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getFixedRotation;
+import static ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.FakePlayerUtils.getFixedRotation;
 
 public class OldNPCSynchronizer extends NPCSynchronizer<WrappedDataWatcher> {
 

@@ -9,11 +9,12 @@ import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.item.ItemStack;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.inventory.EntityEquipment;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
-import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCSynchronizer;
 
 import java.util.Arrays;
@@ -21,8 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getEquipmentBySlot;
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getFixedRotation;
 
 
 public class NPCSynchronizer117 extends NPCSynchronizer<DataWatcher> {
@@ -67,5 +66,29 @@ public class NPCSynchronizer117 extends NPCSynchronizer<DataWatcher> {
             FakePlayer117.sendPacket(p, lookPacket);
             FakePlayer117.sendPacket(p, rotation);
         });
+    }
+
+    public static org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, Enum<?> slot){
+        org.bukkit.inventory.ItemStack item;
+        if (!slot.getDeclaringClass().getSimpleName().equalsIgnoreCase("EnumItemSlot"))
+            return new org.bukkit.inventory.ItemStack(Material.AIR);
+        item = switch (slot.name()) {
+            case "HEAD" -> e.getHelmet();
+            case "CHEST" -> e.getChestplate();
+            case "LEGS" -> e.getLeggings();
+            case "FEET" -> e.getBoots();
+            case "OFFHAND" -> e.getItemInOffHand();
+            default -> e.getItemInMainHand();
+        };
+        return item;
+    }
+
+    public static byte getFixedRotation(float var1){
+        return (byte) round(var1 * 256.0F / 360.0F);
+    }
+
+    private static float round(float input){
+        int output = (int)input;
+        return input < (float)output ? output - 1 : output;
     }
 }

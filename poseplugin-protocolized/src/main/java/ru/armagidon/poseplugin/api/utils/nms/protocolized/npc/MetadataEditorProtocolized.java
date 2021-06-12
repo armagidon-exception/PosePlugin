@@ -6,10 +6,8 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
-import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.wrappers.WrapperPlayServerEntityMetadata;
 
