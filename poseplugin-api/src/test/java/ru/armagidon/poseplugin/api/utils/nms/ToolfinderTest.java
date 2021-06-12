@@ -20,7 +20,7 @@ public class ToolfinderTest
         PosePluginAPI.initialize(new MockedPlugin(server, "PosePlugin"));
 
         ToolFactory.scanTools();
-        assertNotNull("ToolFactory didn't find any packages", ToolFactory.create(MarkedSuperClass.class));
+        assertNotNull("ToolFactory didn't find any packages", ToolFactory.create(MarkedSuperClass.class, new Class[0]));
     }
 
 
