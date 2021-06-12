@@ -6,4 +6,5 @@ import org.bukkit.event.Listener;
 public interface CoreWrapper extends Listener
 {
     CommandMap getCommandMap();
+    String getPermissionMessage();
 }

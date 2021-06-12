@@ -216,19 +216,19 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
         SimpleCommand.builder("sit")
                 .permission("poseplugin.commands.sit")
-                .permissionMessage(Bukkit.getPermissionMessage())
+                .permissionMessage(coreWrapper.getPermissionMessage())
                 .usage(messages.getColorized("sit.usage"))
                 .executor(simpleExecutor).register();
 
         SimpleCommand.builder("lay")
                 .permission("poseplugin.commands.lay")
-                .permissionMessage(Bukkit.getPermissionMessage())
+                .permissionMessage(coreWrapper.getPermissionMessage())
                 .usage(messages.getColorized("lay.usage"))
                 .executor(simpleExecutor).register();
 
         SimpleCommand.builder("crawl")
                 .permission("poseplugin.commands.crawl")
-                .permissionMessage(Bukkit.getPermissionMessage())
+                .permissionMessage(coreWrapper.getPermissionMessage())
                 .usage(messages.getColorized("crawl.usage"))
                 .executor(simpleExecutor)
                 .registerIf(label -> cfg.getBoolean(label + ".enabled"));
@@ -236,13 +236,13 @@ public final class PosePlugin extends JavaPlugin implements Listener
         if (cfg.getBoolean("x-mode")) {
             SimpleCommand.builder("pray")
                     .permission("poseplugin.commands.pray")
-                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .permissionMessage(coreWrapper.getPermissionMessage())
                     .usage(messages.getColorized("pray.usage"))
                     .executor(simpleExecutor).registerIf(label -> cfg.getBoolean(label + ".enabled"));
 
             SimpleCommand.builder("wave")
                     .permission("poseplugin.commands.wave")
-                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .permissionMessage(coreWrapper.getPermissionMessage())
                     .usage(messages.getColorized("wave.usage"))
                     .subCommand("off", turnOff)
                     .subCommand("right", switchRight)
@@ -251,7 +251,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
             SimpleCommand.builder("point")
                     .permission("poseplugin.commands.point")
-                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .permissionMessage(coreWrapper.getPermissionMessage())
                     .usage(messages.getColorized("point.usage"))
                     .subCommand("off", turnOff)
                     .subCommand("right", switchRight)
@@ -260,7 +260,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
 
             SimpleCommand.builder("handshake")
                     .permission("poseplugin.commands.handshake")
-                    .permissionMessage(Bukkit.getPermissionMessage())
+                    .permissionMessage(coreWrapper.getPermissionMessage())
                     .usage(messages.getColorized("handshake.usage"))
                     .subCommand("off", turnOff)
                     .subCommand("right", switchRight)

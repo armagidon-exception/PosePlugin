@@ -2,6 +2,7 @@ package ru.armagidon.poseplugin.plugin.commands.corewrapper;
 
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandMap;
 import org.bukkit.entity.Player;
@@ -36,6 +37,11 @@ public class SpigotCoreWrapper implements CoreWrapper, Tickable
         Field mapF = Bukkit.getServer().getClass().getDeclaredField("commandMap");
         mapF.setAccessible(true);
         return (CommandMap) mapF.get(Bukkit.getServer());
+    }
+
+    @Override
+    public String getPermissionMessage() {
+        return ChatColor.RED+"I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
     }
 
     @EventHandler

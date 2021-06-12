@@ -18,6 +18,11 @@ public class PaperCoreWrapper implements CoreWrapper
         return Bukkit.getCommandMap();
     }
 
+    @Override
+    public String getPermissionMessage() {
+        return Bukkit.getPermissionMessage();
+    }
+
     @EventHandler
     public void onEvent(PlayerArmorChangeEvent event){
         Bukkit.getPluginManager().callEvent(new ru.armagidon.poseplugin.api.events.
