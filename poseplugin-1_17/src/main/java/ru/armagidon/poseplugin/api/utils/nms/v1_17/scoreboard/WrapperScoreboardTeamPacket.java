@@ -11,7 +11,7 @@ import org.bukkit.scoreboard.Team;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.setBit;
+import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCMetadataEditor117.setBit;
 
 public class WrapperScoreboardTeamPacket
 {
