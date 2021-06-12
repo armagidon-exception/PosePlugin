@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.utils.nms.classes;
+package ru.armagidon.poseplugin.api.utils.nms.v1_17;
 
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 

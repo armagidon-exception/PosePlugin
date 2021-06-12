@@ -25,33 +25,26 @@ public class ToolFactory
         if (!initialized) {
             Plugin protocolLib = Bukkit.getPluginManager().getPlugin("ProtocolLib");
             Reflections reflections = new Reflections(new ConfigurationBuilder().addScanners(new TypeAnnotationsScanner()).forPackages("ru.armagidon.poseplugin.api.utils.nms"));
+            Set<Class<?>> classes;
             if (protocolLib != null && protocolLib.isEnabled()) {
                 PosePluginAPI.getAPI().getLogger().info("ProtocolLib is enabled! Running protocolized package");
-                Set<Class<?>> classes = reflections.getTypesAnnotatedWith(ToolPackage.class).stream().filter(clazz ->
+                classes = reflections.getTypesAnnotatedWith(ToolPackage.class).stream().filter(clazz ->
                         clazz.getAnnotation(ToolPackage.class).mcVersion().equalsIgnoreCase("protocolized")).collect(Collectors.toSet());
-                if (classes.isEmpty()) {
-                    throw new RuntimeException("Could not find any packages! Disabling...");
-                } else {
-                    classes.forEach(clazz -> PosePluginAPI.getAPI().getLogger().info("Loaded " + clazz.getSimpleName()));
-                }
-                classes.forEach(clazz -> toolPackages.put(clazz.getSuperclass(), clazz));
-
             } else {
                 PosePluginAPI.getAPI().getLogger().warning("ProtocolLib seems to be down. Using versioned package...");
-                Set<Class<?>> classes = reflections.getTypesAnnotatedWith(ToolPackage.class).stream().filter(clazz -> {
+                classes = reflections.getTypesAnnotatedWith(ToolPackage.class).stream().filter(clazz -> {
                     String v = clazz.getAnnotation(ToolPackage.class).mcVersion();
                     int priority = VersionControl.getVersionPriority(v);
                     return priority == VersionControl.getMCVersion();
                 }).collect(Collectors.toSet());
-
-                if (classes.isEmpty()) {
-                    throw new RuntimeException("Could not find any packages! Disabling...");
-                } else {
-                    classes.forEach(clazz -> PosePluginAPI.getAPI().getLogger().info("Loaded " + clazz.getSimpleName()));
-                }
-
-                classes.forEach(clazz -> toolPackages.put(clazz.getSuperclass(), clazz));
             }
+            if (classes.isEmpty()) {
+                throw new RuntimeException("Could not find any packages! Disabling...");
+            } else {
+                classes.forEach(clazz -> PosePluginAPI.getAPI().getLogger().info("Loaded " + clazz.getName()));
+            }
+
+            classes.forEach(clazz -> toolPackages.put(clazz.getSuperclass(), clazz));
             initialized = true;
         }
     }

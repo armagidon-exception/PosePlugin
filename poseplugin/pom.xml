@@ -48,6 +48,8 @@
                                 <includes>
                                     <include>io.papermc:paperlib</include>
                                     <include>ru.armagidon:poseplugin-api</include>
+                                    <include>ru.armagidon:poseplugin-protocolized</include>
+                                    <include>ru.armagidon:poseplugin-1_17</include>
                                     <include>org.reflections:reflections</include>
                                     <include>org.javassist:javassist</include>
                                 </includes>
