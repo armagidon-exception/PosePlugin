@@ -39,7 +39,7 @@ public class NPCSynchronizer117 extends NPCSynchronizer<DataWatcher> {
                 Arrays.stream(EnumItemSlot.values()).map(slot-> {
                     if( !slot.equals(EnumItemSlot.a) && !slot.equals(EnumItemSlot.b) ) {
                         org.bukkit.inventory.ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot);
-                        NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
+                        //TODO implement NBTModifier for 1.17 NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
                         //PosePluginAPI.pluginTagClear.pushThrough(i);
                         return Pair.of(slot, CraftItemStack.asNMSCopy(i));
                     } else {
