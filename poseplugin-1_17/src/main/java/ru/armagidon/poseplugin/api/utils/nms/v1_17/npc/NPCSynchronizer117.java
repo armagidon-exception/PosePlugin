@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.EntityEquipment;
+import ru.armagidon.poseplugin.api.PosePluginAPI;
+import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCSynchronizer;
 
@@ -36,7 +38,8 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
                 Arrays.stream(EquipmentSlot.values()).map(slot-> {
                     if( !slot.equals(EquipmentSlot.OFFHAND) && !slot.equals(EquipmentSlot.MAINHAND) ) {
                         org.bukkit.inventory.ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot);
-                        //TODO implement NBTModifier for 1.17 NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
+                        //TODO implement NBTModifier for 1.17
+                        NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
                         //PosePluginAPI.pluginTagClear.pushThrough(i);
                         return Pair.of(slot, CraftItemStack.asNMSCopy(i));
                     } else {
