@@ -34,7 +34,7 @@ public class NBTModifier
         } catch (Exception e){
             AS_BUKKIT = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asBukkitCopy", getNmsClass("ItemStack"));
             AS_NMS = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
-            GET_TAG = getMethodSafely(getNmsClass("ItemStack"), "getOrCreateTag");
+            GET_TAG = getMethodSafely(getNmsClass("world.item.ItemStack"), "getOrCreateTag");
             SET_STRING = getMethodSafely(getNmsClass("nbt."+COMPOUND_CLASS_NAME), "setString", String.class, String.class);
             GET_STRING = getMethodSafely(getNmsClass("nbt."+COMPOUND_CLASS_NAME), "getString", String.class);
             REMOVE_TAG = getMethodSafely(getNmsClass("nbt."+COMPOUND_CLASS_NAME), "remove", String.class);
