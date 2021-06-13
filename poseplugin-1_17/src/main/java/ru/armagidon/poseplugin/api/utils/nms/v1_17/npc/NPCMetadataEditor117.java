@@ -1,23 +1,15 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
-
-import java.lang.reflect.Field;
-import java.util.Optional;
 
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.toBlockPosition;
 
@@ -29,41 +21,11 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
     private boolean invisible;
 
     //Constants
-    private static final EntityDataSerializer<Byte> BYTE = EntityDataSerializers.BYTE;
     public static EntityDataAccessor<Byte> DISPLAYING;
     public static EntityDataAccessor<Byte> OVERLAYS;
     public static EntityDataAccessor<net.minecraft.world.entity.Pose> POSE;
     public static EntityDataAccessor<Byte> ACTIVATE_HAND;
-    public static EntityDataAccessor<Optional<BlockPos>> BED_POSITION;
-
-    static {
-        try {
-            Field overlaysF = net.minecraft.world.entity.player.Player.class.getDeclaredField("DATA_PLAYER_MODE_CUSTOMISATION");
-            overlaysF.setAccessible(true);
-            OVERLAYS = (EntityDataAccessor<Byte>) overlaysF.get(null);
-
-            Field poseF = Entity.class.getDeclaredField("ad");
-            poseF.setAccessible(true);
-            POSE = (EntityDataAccessor<net.minecraft.world.entity.Pose>) poseF.get(null);
-
-            Field activeHandF = net.minecraft.world.entity.player.Player.class.getDeclaredField("DATA_PLAYER_MAIN_HAND");
-            activeHandF.setAccessible(true);
-            ACTIVATE_HAND = BYTE.createAccessor(7);
-
-            Field bedPosF = LivingEntity.class.getDeclaredField("SLEEPING_POS_ID");
-            bedPosF.setAccessible(true);
-            BED_POSITION = (EntityDataAccessor<Optional<BlockPos>>) bedPosF.get(null);
-
-            Field displayingF = Entity.class.getDeclaredField("DATA_SHARED_FLAGS_ID");
-            displayingF.setAccessible(true);
-            DISPLAYING = (EntityDataAccessor<Byte>) displayingF.get(null);
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public static EntityDataAccessor<Byte> MAIN_HAND;
 
     public NPCMetadataEditor117(FakePlayer117 npc) {
         super(npc);
@@ -84,14 +46,13 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
     @Override
     public void setBedPosition(Location location) {
         Location bedLoc = location.clone().toVector().setY(0).toLocation(fakePlayer.getParent().getWorld());
-        fakePlayer.getDataWatcher().set(BED_POSITION, Optional.of(toBlockPosition(bedLoc)));
+        ((FakePlayer117) fakePlayer).getFake().setSleepingPos(toBlockPosition(bedLoc));
     }
 
     @Override
     public void setInvisible(boolean flag) {
         if(this.invisible != flag) {
-            byte value = ((ServerPlayer) NMSUtils.asNMSCopy(fakePlayer.getParent())).getEntityData().get(DISPLAYING);
-            fakePlayer.getDataWatcher().set(DISPLAYING, setBit(value, 5,flag));
+            ((FakePlayer117)fakePlayer).getFake().setSharedFlag(5, flag);
             this.invisible = flag;
         }
     }
@@ -141,12 +102,12 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
 
     @Override
     public void setMainHand(boolean right) {
-        fakePlayer.getDataWatcher().set(BYTE.createAccessor(17),(byte)(right ? 127 : 0));
+        fakePlayer.getDataWatcher().set(MAIN_HAND, (byte)(right ? 127 : 0));
     }
 
     @Override
     public HandType whatHandIsMain() {
-        byte data = fakePlayer.getDataWatcher().get(BYTE.createAccessor(17));
+        byte data = fakePlayer.getDataWatcher().get(MAIN_HAND);
         return data == 127 ? HandType.RIGHT : HandType.LEFT;
     }
 

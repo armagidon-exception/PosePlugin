@@ -20,6 +20,7 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
@@ -259,6 +260,13 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
 
     private SynchedEntityData cloneDataWatcher(Player parent, GameProfile profile){
         net.minecraft.world.entity.player.Player human = new net.minecraft.world.entity.player.Player(((CraftPlayer)parent).getHandle().getLevel(), toBlockPosition(parent.getLocation()),0, profile) {
+            static {
+                NPCMetadataEditor117.POSE = DATA_POSE;
+                NPCMetadataEditor117.DISPLAYING = DATA_PLAYER_MODE_CUSTOMISATION;
+                NPCMetadataEditor117.MAIN_HAND = DATA_PLAYER_MAIN_HAND;
+                NPCMetadataEditor117.ACTIVATE_HAND = DATA_LIVING_ENTITY_FLAGS;
+            }
+
             @Override
             public boolean isSpectator() {
                 return false;
