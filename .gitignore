@@ -113,5 +113,6 @@ buildNumber.properties
 run/
 
 *.sh
+ROADMAP.md
 
 /old/
