@@ -3,17 +3,15 @@ package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 import com.mojang.authlib.GameProfile;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
-import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
-import net.minecraft.network.syncher.DataWatcher;
-import net.minecraft.network.syncher.DataWatcherObject;
-import net.minecraft.network.syncher.DataWatcherRegistry;
-import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,7 +29,6 @@ import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
-import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,7 +37,7 @@ import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
 
 
 @ToolPackage(mcVersion = "1.17")
-public class FakePlayer117 extends FakePlayer<DataWatcher>
+public class FakePlayer117 extends FakePlayer<SynchedEntityData>
 {
     /*Scheme
       on startup - initiate - load some data, executes once
@@ -50,18 +47,18 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
       */
 
     /**Main data*/
-    private @Getter final EntityPlayer fake;
+    private @Getter final ServerPlayer fake;
 
     /**Data**/
-    private final @Getter DataWatcher watcher;
+    private final @Getter SynchedEntityData watcher;
     private final Bed bedData;
 
     /**Packets*/
     //TODO change it with sendBlockUpdate
-    private final PacketPlayOutPlayerInfo addNPC;
-    private PacketPlayOutNamedEntitySpawn spawner;
-    private final PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook movePacket;
-    private final PacketPlayOutEntityDestroy destroy;
+    private final ClientboundPlayerInfoPacket addNPC;
+    private ClientboundAddPlayerPacket spawner;
+    private final ClientboundMoveEntityPacket.PosRot movePacket;
+    private final ClientboundRemoveEntityPacket destroy;
 
     public FakePlayer117(Player parent, Pose pose) {
         super(parent, pose);
@@ -78,9 +75,9 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
         //Create single instances of packet for optimisation purposes. So server won't need to create tons of copies of the same packet.
 
         //Create instance of move packet to pop up npc a little
-        this.movePacket = new PacketPlayOutEntity.PacketPlayOutRelEntityMoveLook(fake.getId(), (short) 0,(short)2,(short)0,(byte)0,(byte)0, true);
+        this.movePacket = new ClientboundMoveEntityPacket.PosRot(fake.getId(), (short) 0,(short)2,(short)0,(byte)0,(byte)0, true);
 
-        EnumDirection direction = getDirection(parent.getLocation().clone().getYaw());
+        Direction direction = getDirection(parent.getLocation().clone().getYaw());
 
         bedData = (Bed) Bukkit.createBlockData(Material.WHITE_BED);
         bedData.setFacing(CraftBlock.notchToBlockFace(direction));
@@ -88,16 +85,16 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
 
         //Create packet instance of fake bed(could've used sendBlockChange but im crazy and it will recreate copies of the same packet)
         //Create packet instance of NPC 's data
-        this.addNPC = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a, fake);
+        this.addNPC = new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, fake);
 
         //Set location of NPC
         Location parentLocation = parent.getLocation().clone();
-        fake.setPositionRotation(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(), parentLocation.getYaw(), parentLocation.getPitch());
+        fake.moveTo(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(), parentLocation.getYaw(), parentLocation.getPitch());
         //Create instance of npc
-        this.spawner = new PacketPlayOutNamedEntitySpawn(fake);
+        this.spawner = new ClientboundAddPlayerPacket(fake);
 
         //Create data watcher to modify entity metadata
-        this.watcher = cloneDataWatcher(parent, fake.getProfile());
+        this.watcher = cloneDataWatcher(parent, fake.getGameProfile());
         //Create instance of the packet with this data
         this.metadataAccessor = new NPCMetadataEditor117(this);
         //Set metadata
@@ -106,7 +103,7 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
 
         this.customEquipmentManager = new NPCInventory117(this);
 
-        this.destroy = new PacketPlayOutEntityDestroy(fake.getId());
+        this.destroy = new ClientboundRemoveEntityPacket(fake.getId());
 
     }
 
@@ -140,11 +137,10 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
     }
 
     @SneakyThrows
-    @SuppressWarnings("unchecked")
     private void setMetadata(){
 
         //Save current overlay bit mask
-        int overlays = ((EntityPlayer) asNMSCopy(parent)).getDataWatcher().get(NPCMetadataEditor117.OVERLAYS);
+        int overlays = ((ServerPlayer) asNMSCopy(parent)).getEntityData().get(NPCMetadataEditor117.OVERLAYS);
         //Set pose to the NPC
         metadataAccessor.setPose(pose);
         //Set current overlays to the NPC
@@ -201,13 +197,13 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
 
     public void swingHand(boolean mainHand) {
         if(isSwingAnimationEnabled()) {
-            PacketPlayOutAnimation animation = new PacketPlayOutAnimation(fake, mainHand ? 0 : 3);
+            ClientboundAnimatePacket animation = new ClientboundAnimatePacket(fake, mainHand ? 0 : 3);
             trackers.forEach(p -> sendPacket(p, animation));
         }
     }
 
     public void animation(byte id){
-        PacketPlayOutEntityStatus status = new PacketPlayOutEntityStatus(fake, id);
+        ClientboundEntityEventPacket status = new ClientboundEntityEventPacket(fake, id);
         trackers.forEach(p-> sendPacket(p,status));
     }
 
@@ -241,9 +237,9 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
 
         getMetadataAccessor().merge(true);
 
-        fake.setPosition(destination.getX(), destination.getY(), destination.getZ());
+        fake.setPos(destination.getX(), destination.getY(), destination.getZ());
 
-        spawner = new PacketPlayOutNamedEntitySpawn(fake);
+        spawner = new ClientboundAddPlayerPacket(fake);
 
         updateNPC();
 
@@ -257,12 +253,12 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
     }
 
     @Override
-    public DataWatcher getDataWatcher() {
+    public SynchedEntityData getDataWatcher() {
         return watcher;
     }
 
-    private DataWatcher cloneDataWatcher(Player parent, GameProfile profile){
-        EntityHuman human = new EntityHuman(((CraftPlayer)parent).getHandle().getWorld(), toBlockPosition(parent.getLocation()),0, profile) {
+    private SynchedEntityData cloneDataWatcher(Player parent, GameProfile profile){
+        net.minecraft.world.entity.player.Player human = new net.minecraft.world.entity.player.Player(((CraftPlayer)parent).getHandle().getLevel(), toBlockPosition(parent.getLocation()),0, profile) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -273,50 +269,54 @@ public class FakePlayer117 extends FakePlayer<DataWatcher>
                 return false;
             }
         };
-        return human.getDataWatcher();
+        return human.getEntityData();
     }
 
     private void fakeBed(){
         parent.sendBlockChange(cache.getLocation(), bedData);
     }
 
-    private EntityPlayer createNPC(Player parent) {
+    private ServerPlayer createNPC(Player parent) {
         CraftWorld world = (CraftWorld) parent.getWorld();
         CraftServer server = (CraftServer) Bukkit.getServer();
-        EntityPlayer parentVanilla= (EntityPlayer) asNMSCopy(parent);
+        ServerPlayer parentVanilla= (ServerPlayer) asNMSCopy(parent);
         GameProfile profile = new GameProfile(parent.getUniqueId(), parent.getName());
-        profile.getProperties().putAll(parentVanilla.getProfile().getProperties());
+        profile.getProperties().putAll(parentVanilla.getGameProfile().getProperties());
 
-        return new EntityPlayer(server.getServer(), world.getHandle(), profile){
-
-            @Override
-            public void sendMessage(IChatBaseComponent ichatbasecomponent, UUID uuid) {}
+        return new ServerPlayer(server.getServer(), world.getHandle(), profile){
 
             @Override
-            protected void collideNearby() {}
+            public void sendMessage(Component ichatbasecomponent, UUID uuid) {}
 
             @Override
-            public void collide(Entity entity) {}
+            public boolean isColliding(BlockPos blockposition, BlockState iblockdata) {
+                return false;
+            }
 
             @Override
-            public boolean isCollidable() {
+            public boolean canBeCollidedWith() {
+                return false;
+            }
+
+            @Override
+            public boolean canCollideWithBukkit(Entity entity) {
                 return false;
             }
         };
     }
     
     public static void sendPacket(Player receiver, Packet<?> packet) {
-        ((CraftPlayer)receiver).getHandle().b.sendPacket(packet);
+        ((CraftPlayer)receiver).getHandle().connection.send(packet);
     }
 
     @SneakyThrows
-    private static EnumDirection getDirection(float angle) {
+    private static Direction getDirection(float angle) {
         return CraftBlock.blockFaceToNotch(BlockPositionUtils.yawToFace(angle));
     }
 
     @SneakyThrows
-    public static BlockPosition toBlockPosition(Location location) {
-        return new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    public static BlockPos toBlockPosition(Location location) {
+        return new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     public static Location toBedLocation(Location location) {

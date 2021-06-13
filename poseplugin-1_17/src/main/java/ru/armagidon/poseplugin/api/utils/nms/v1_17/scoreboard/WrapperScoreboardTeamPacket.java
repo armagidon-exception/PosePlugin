@@ -2,14 +2,17 @@ package ru.armagidon.poseplugin.api.utils.nms.v1_17.scoreboard;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
-import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
-import net.minecraft.world.scores.ScoreboardTeam;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
+import net.minecraft.world.scores.PlayerTeam;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCMetadataEditor117.setBit;
 
@@ -33,19 +36,19 @@ public class WrapperScoreboardTeamPacket
 
     private static final byte marker = 66;
 
-    private final PacketPlayOutScoreboardTeam handle; //TODO make final
+    private final ClientboundSetPlayerTeamPacket handle; //TODO make final
 
     public WrapperScoreboardTeamPacket(Team team) {
-        this(PacketPlayOutScoreboardTeam.a(getHandleOfBukkitTeam(team)));
+        this(ClientboundSetPlayerTeamPacket.createRemovePacket(getHandleOfBukkitTeam(team)));
     }
 
     @SneakyThrows
-    public WrapperScoreboardTeamPacket(PacketPlayOutScoreboardTeam handle) {
+    public WrapperScoreboardTeamPacket(ClientboundSetPlayerTeamPacket handle) {
         this.handle = handle;
-        if (handle.f().isEmpty()) {
+        if (handle.getParameters().isEmpty()) {
             Field field = handle.getClass().getDeclaredField("k");
             field.setAccessible(true);
-            field.set(handle, Optional.of(new PacketPlayOutScoreboardTeam.b(createEmptyTeam())));
+            field.set(handle, Optional.of(new ClientboundSetPlayerTeamPacket.Parameters(createEmptyTeam())));
         }
         markPacket();
     }
@@ -55,24 +58,24 @@ public class WrapperScoreboardTeamPacket
     }
 
     @SneakyThrows
-    private static PacketPlayOutScoreboardTeam createEmptyPacket() {
-        return PacketPlayOutScoreboardTeam.a(createEmptyTeam(), false);
+    private static ClientboundSetPlayerTeamPacket createEmptyPacket() {
+        return ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(createEmptyTeam(), false);
     }
 
     public Team.OptionStatus getNameTagVisibility() {
-        return invertMapParams(hideBukkitToNotch).get(handle.f().get().d());
+        return invertMapParams(hideBukkitToNotch).get(handle.getParameters().get().getNametagVisibility());
     }
 
     public Team.OptionStatus getCollisionRule() {
-        return invertMapParams(pushBukkitToNotch).get(handle.f().get().e());
+        return invertMapParams(pushBukkitToNotch).get(handle.getParameters().get().getCollisionRule());
     }
 
 
     @SneakyThrows
     public void setPackOptionData(int optionData) {
-        Field optionDataF = PacketPlayOutScoreboardTeam.b.class.getDeclaredField("g");
+        Field optionDataF = ClientboundSetPlayerTeamPacket.Parameters.class.getDeclaredField("options");
         optionDataF.setAccessible(true);
-        handle.f().ifPresent(data -> {
+        handle.getParameters().ifPresent(data -> {
             try {
                 optionDataF.set(data, optionData);
             } catch (IllegalAccessException e) {
@@ -82,21 +85,21 @@ public class WrapperScoreboardTeamPacket
     }
 
     public int getPackOptionData() {
-        return handle.f().get().b();
+        return handle.getParameters().get().getOptions();
     }
 
     @SneakyThrows
     public void setNameTagVisibility(Team.OptionStatus nameTagVisibility) {
-        Field visibilityF = PacketPlayOutScoreboardTeam.b.class.getDeclaredField("d");
+        Field visibilityF = ClientboundSetPlayerTeamPacket.Parameters.class.getDeclaredField("nametagVisibility");
         visibilityF.setAccessible(true);
-        visibilityF.set(handle.f().get(), hideBukkitToNotch.get(nameTagVisibility));
+        visibilityF.set(handle.getParameters().get(), hideBukkitToNotch.get(nameTagVisibility));
     }
 
     @SneakyThrows
     public void setCollisionRule(Team.OptionStatus collisionRule) {
-        Field visibilityF = PacketPlayOutScoreboardTeam.b.class.getDeclaredField("e");
-        visibilityF.setAccessible(true);
-        visibilityF.set(handle.f().get(), pushBukkitToNotch.get(collisionRule));
+        Field collisionRuleF = ClientboundSetPlayerTeamPacket.Parameters.class.getDeclaredField("collisionRule");
+        collisionRuleF.setAccessible(true);
+        collisionRuleF.set(handle.getParameters().get(), pushBukkitToNotch.get(collisionRule));
     }
 
     public void setCanSeePlayersInvisibles(boolean flag){
@@ -105,42 +108,42 @@ public class WrapperScoreboardTeamPacket
     }
 
     public String getName() {
-        return handle.d();
+        return handle.getName();
     }
 
     @SneakyThrows
     public void setName(String name) {
-        Field nameF = PacketPlayOutScoreboardTeam.class.getDeclaredField("i");
+        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("name");
         nameF.setAccessible(true);
         nameF.set(handle, name);
     }
 
     @SneakyThrows
     public void setMode(int mode) {
-        Field nameF = PacketPlayOutScoreboardTeam.class.getDeclaredField("h");
+        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("method");
         nameF.setAccessible(true);
         nameF.set(handle, mode);
     }
 
     public Collection<String> getPlayers() {
-        return handle.e();
+        return handle.getPlayers();
     }
 
     @SneakyThrows
     public int getMode() {
-        Field nameF = PacketPlayOutScoreboardTeam.class.getDeclaredField("h");
+        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("method");
         nameF.setAccessible(true);
         return nameF.getInt(handle);
     }
 
     @SneakyThrows
     public void setTeamMateList(Collection<String> players){
-        Field nameF = PacketPlayOutScoreboardTeam.class.getDeclaredField("j");
+        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("players");
         nameF.setAccessible(true);
         nameF.set(handle, players);
     }
 
-    public PacketPlayOutScoreboardTeam getHandle() {
+    public ClientboundSetPlayerTeamPacket getHandle() {
         return handle;
     }
 
@@ -152,10 +155,10 @@ public class WrapperScoreboardTeamPacket
         setPackOptionData(data);
     }
 
-    public static boolean isMarked(PacketPlayOutScoreboardTeam packet) {
-        Optional<PacketPlayOutScoreboardTeam.b> optional = packet.f();
+    public static boolean isMarked(ClientboundSetPlayerTeamPacket packet) {
+        Optional<ClientboundSetPlayerTeamPacket.Parameters> optional = packet.getParameters();
         if (optional.isPresent()) {
-            int options = optional.get().b();
+            int options = optional.get().getOptions();
 
             byte rawData = (byte) (options >>> 8); //Restore marker value and clear it out of any other markers
             return rawData == marker;
@@ -170,19 +173,19 @@ public class WrapperScoreboardTeamPacket
     }
 
     @SneakyThrows
-    private static ScoreboardTeam getHandleOfBukkitTeam(Team team) {
+    private static PlayerTeam getHandleOfBukkitTeam(Team team) {
         var craftTeamClass = Class.forName("org.bukkit.craftbukkit.v1_17_R1.scoreboard.CraftTeam");
         var teamF = craftTeamClass.getDeclaredField("team");
         teamF.setAccessible(true);
-        return (ScoreboardTeam) teamF.get(team);
+        return (PlayerTeam) teamF.get(team);
     }
 
-    private static ScoreboardTeam createEmptyTeam() {
-        return new ScoreboardTeam(null, "");
+    private static PlayerTeam createEmptyTeam() {
+        return new PlayerTeam(null, "");
     }
 
     public void sendPacket(Player receiver) {
-        ((CraftPlayer)receiver).getHandle().b.sendPacket(handle);
+        ((CraftPlayer)receiver).getHandle().connection.send(handle);
     }
 
 }

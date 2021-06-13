@@ -4,7 +4,7 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import lombok.SneakyThrows;
-import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -27,11 +27,11 @@ public class ScoreboardUtil implements Listener {
     }
 
     public void hideTag() {
-        ((CraftPlayer)player).getHandle().b.a.k.pipeline().addBefore("packet_handler", PIPELINE_INJECTOR_NAME, new ChannelDuplexHandler() {
+        ((CraftPlayer)player).getHandle().connection.connection.channel.pipeline().addBefore("packet_handler", PIPELINE_INJECTOR_NAME, new ChannelDuplexHandler() {
             @Override
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                 //Pass all non-team-related packets
-                if (!(msg instanceof PacketPlayOutScoreboardTeam packet)) {
+                if (!(msg instanceof ClientboundSetPlayerTeamPacket packet)) {
                     super.channelRead(ctx, msg);
                     return;
                 }
@@ -59,7 +59,7 @@ public class ScoreboardUtil implements Listener {
     }
 
     public void showTag() {
-        ChannelPipeline pipeline =((CraftPlayer)player).getHandle().b.a.k.pipeline();
+        ChannelPipeline pipeline =((CraftPlayer)player).getHandle().connection.connection.channel.pipeline();
         if (pipeline.get(PIPELINE_INJECTOR_NAME) != null)
             pipeline.remove(PIPELINE_INJECTOR_NAME);
         Team playersTeam = player.getScoreboard().getEntryTeam(player.getName());

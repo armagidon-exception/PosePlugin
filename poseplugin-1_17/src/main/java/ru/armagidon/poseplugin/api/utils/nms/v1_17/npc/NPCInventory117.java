@@ -2,9 +2,8 @@ package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
 import com.mojang.datafixers.util.Pair;
 import lombok.SneakyThrows;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
-import net.minecraft.network.syncher.DataWatcher;
-import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -15,9 +14,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class NPCInventory117 extends NPCInventory<DataWatcher> {
+public class NPCInventory117 extends NPCInventory<SynchedEntityData> {
 
-    private PacketPlayOutEntityEquipment customEquipmentPacket;
+    private ClientboundSetEquipmentPacket customEquipmentPacket;
 
     public NPCInventory117(FakePlayer117 npc) {
         super(npc);
@@ -44,15 +43,15 @@ public class NPCInventory117 extends NPCInventory<DataWatcher> {
     }
 
     private void mergeCustomEquipmentPacket() {
-        List<Pair<EnumItemSlot, ItemStack>> slots = customEquipment.entrySet().stream().map(entry->
+        List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> slots = customEquipment.entrySet().stream().map(entry->
                 Pair.of(adaptToItemSlot(entry.getKey()), CraftItemStack.asNMSCopy(entry.getValue()))).collect(Collectors.toList());
-        customEquipmentPacket = new PacketPlayOutEntityEquipment(fakePlayer.getId(), slots);
+        customEquipmentPacket = new ClientboundSetEquipmentPacket(fakePlayer.getId(), slots);
         fakePlayer.updateNPC();
     }
 
     @SneakyThrows
-    public static EnumItemSlot adaptToItemSlot(EquipmentSlot slotType){
-        return EnumItemSlot.values()[slotType.ordinal()];
+    public static net.minecraft.world.entity.EquipmentSlot adaptToItemSlot(EquipmentSlot slotType){
+        return net.minecraft.world.entity.EquipmentSlot.values()[slotType.ordinal()];
     }
 
 }
