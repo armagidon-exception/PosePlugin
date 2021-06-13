@@ -20,6 +20,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.playerhider.PlayerHider;
+import ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,9 +62,9 @@ public final class PlayerHider117 extends PlayerHider implements Listener {
         packets[1] = eq;
 
         Bukkit.getOnlinePlayers().forEach(online->{
-            NMSUtils.sendPacket(online, metadata);
+            FakePlayer117.sendPacket(online, metadata);
             if(!online.getUniqueId().equals(player.getUniqueId())){
-                NMSUtils.sendPacket(online, eq);
+                FakePlayer117.sendPacket(online, eq);
             }
         });
         hiddenPlayers.put(player, packets);
@@ -81,9 +82,9 @@ public final class PlayerHider117 extends PlayerHider implements Listener {
         ClientboundSetEntityDataPacket metadata = resetInvisible(player);
 
         Bukkit.getOnlinePlayers().forEach(online->{
-            NMSUtils.sendPacket(online, metadata);
+            FakePlayer117.sendPacket(online, metadata);
             if(!online.getUniqueId().equals(player.getUniqueId())){
-                NMSUtils.sendPacket(online, eq);
+                FakePlayer117.sendPacket(online, eq);
             }
         });
         hiddenPlayers.remove(player);
@@ -99,10 +100,10 @@ public final class PlayerHider117 extends PlayerHider implements Listener {
         hiddenPlayers.forEach((hidden,packets) ->
                 Bukkit.getOnlinePlayers().forEach(online->{
             if(!hidden.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                NMSUtils.sendPacket(online, packets[0]);
+                FakePlayer117.sendPacket(online, packets[0]);
             }
             if(!online.getUniqueId().equals(hidden.getUniqueId())){
-                NMSUtils.sendPacket(online, packets[1]);
+                FakePlayer117.sendPacket(online, packets[1]);
             }
         }));
     }

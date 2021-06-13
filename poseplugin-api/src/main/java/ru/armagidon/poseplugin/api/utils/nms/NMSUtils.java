@@ -56,16 +56,11 @@ public class NMSUtils
         return getNmsClass(name).getConstructor(types).newInstance(params);
     }
 
+    @SneakyThrows
     public static void sendPacket(Player receiver, Object packet) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                Object nmsPlayer = asNMSCopy(receiver);
-                Object plrConnection = nmsPlayer.getClass().getDeclaredField("playerConnection").get(nmsPlayer);
-                plrConnection.getClass().getMethod("sendPacket", getNmsClass("Packet")).invoke(plrConnection, packet);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        Object nmsPlayer = asNMSCopy(receiver);
+        Object plrConnection = nmsPlayer.getClass().getDeclaredField("playerConnection").get(nmsPlayer);
+        plrConnection.getClass().getMethod("sendPacket", getNmsClass("Packet")).invoke(plrConnection, packet);
     }
 
     @SneakyThrows

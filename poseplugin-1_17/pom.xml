@@ -16,12 +16,6 @@
         <maven.compiler.target>16</maven.compiler.target>
     </properties>
 
-    <build>
-        <plugins>
-
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>

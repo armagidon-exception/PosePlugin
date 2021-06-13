@@ -47,7 +47,6 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
       */
 
     //Constants
-    public static EntityDataAccessor<Byte> DISPLAYING;
     public static EntityDataAccessor<Byte> OVERLAYS;
     public static EntityDataAccessor<net.minecraft.world.entity.Pose> POSE;
     public static EntityDataAccessor<Byte> ACTIVATE_HAND;
