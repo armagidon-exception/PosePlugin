@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
-import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCMetadataEditor117.OVERLAYS;
+import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.OVERLAYS;
 
 
 public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {

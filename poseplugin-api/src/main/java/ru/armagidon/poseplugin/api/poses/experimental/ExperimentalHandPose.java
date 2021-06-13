@@ -73,7 +73,7 @@ public abstract class ExperimentalHandPose extends AbstractPose
         PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());
         npc.remove();
-        npc.destroy();
+        npc.dispose();
     }
 
     @PersonalEventHandler

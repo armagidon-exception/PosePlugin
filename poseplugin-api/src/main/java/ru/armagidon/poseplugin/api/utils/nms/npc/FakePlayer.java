@@ -37,8 +37,7 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     protected Location bedLoc;
     protected @Getter NPCSynchronizer<DataWatcher> npcUpdater;
     protected @Getter NPCInventory<DataWatcher> customEquipmentManager;
-    protected @Getter
-    NPCMetadataEditor metadataAccessor;
+    protected @Getter NPCMetadataEditor<DataWatcher> metadataAccessor;
 
     /**Tracking**/
     //All players that tracks this npc
@@ -75,7 +74,7 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     }
 
     //Destroy method. Uses to fully delete NPC from server
-    public final void destroy() {
+    public final void dispose() {
         created = false;
         trackers.clear();
         PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(getClass(), this);

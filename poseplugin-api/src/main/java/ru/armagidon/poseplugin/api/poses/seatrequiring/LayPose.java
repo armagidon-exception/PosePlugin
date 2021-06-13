@@ -2,7 +2,6 @@ package ru.armagidon.poseplugin.api.poses.seatrequiring;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
-import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
@@ -37,9 +36,10 @@ public class LayPose extends SeatRequiringPose {
     public void initiate() {
         super.initiate();
         fakePlayer.initiate();
-        PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
+        //TODO uncomment this
+        /*PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
-        PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
+        PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());*/
     }
 
     @Override
@@ -54,10 +54,11 @@ public class LayPose extends SeatRequiringPose {
     public void stop() {
         super.stop();
         fakePlayer.remove();
-        fakePlayer.destroy();
-        PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
+        fakePlayer.dispose();
+        //TODO uncomment this
+        /*PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
-        PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());
+        PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());*/
     }
 
     @Override

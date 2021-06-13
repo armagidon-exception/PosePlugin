@@ -8,10 +8,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,9 +19,9 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.entity.NPC;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
@@ -47,6 +46,13 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
       erase all data - destroy
       */
 
+    //Constants
+    public static EntityDataAccessor<Byte> DISPLAYING;
+    public static EntityDataAccessor<Byte> OVERLAYS;
+    public static EntityDataAccessor<net.minecraft.world.entity.Pose> POSE;
+    public static EntityDataAccessor<Byte> ACTIVATE_HAND;
+    public static EntityDataAccessor<Byte> MAIN_HAND;
+
     /**Main data*/
     private @Getter final ServerPlayer fake;
 
@@ -56,7 +62,8 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
 
     /**Packets*/
     //TODO change it with sendBlockUpdate
-    private final ClientboundPlayerInfoPacket addNPC;
+    private final ClientboundPlayerInfoPacket addNPCData;
+    private final ClientboundPlayerInfoPacket removeNPCData;
     private ClientboundAddPlayerPacket spawner;
     private final ClientboundMoveEntityPacket.PosRot movePacket;
     private final ClientboundRemoveEntityPacket destroy;
@@ -86,11 +93,12 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
 
         //Create packet instance of fake bed(could've used sendBlockChange but im crazy and it will recreate copies of the same packet)
         //Create packet instance of NPC 's data
-        this.addNPC = new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, fake);
+        this.addNPCData = new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, fake);
+        this.removeNPCData = new ClientboundPlayerInfoPacket(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, fake);
 
         //Set location of NPC
         Location parentLocation = parent.getLocation().clone();
-        fake.moveTo(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ(), parentLocation.getYaw(), parentLocation.getPitch());
+        fake.setPos(parentLocation.getX(), parentLocation.getY(), parentLocation.getZ());
         //Create instance of npc
         this.spawner = new ClientboundAddPlayerPacket(fake);
 
@@ -114,8 +122,10 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p -> p.getWorld().equals(parent.getWorld()))
                 .filter(p -> p.getLocation().distanceSquared(parent.getLocation()) <= Math.pow(viewDistance,2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
-        Bukkit.getOnlinePlayers().forEach(receiver -> sendPacket(receiver, addNPC));
+        trackers.forEach(receiver -> sendPacket(receiver, addNPCData));
         trackers.forEach(this::spawnToPlayer);
+        PosePluginAPI.getAPI().getTickManager().later(() ->
+                trackers.forEach(receiver -> sendPacket(receiver, removeNPCData)), 5);
     }
 
     public void spawnToPlayer(Player receiver){
@@ -141,13 +151,14 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
     private void setMetadata(){
 
         //Save current overlay bit mask
-        int overlays = ((ServerPlayer) asNMSCopy(parent)).getEntityData().get(NPCMetadataEditor117.OVERLAYS);
+        int overlays = ((ServerPlayer) asNMSCopy(parent)).getEntityData().get(OVERLAYS);
+        metadataAccessor.setInvisible(parent.hasPotionEffect(PotionEffectType.INVISIBILITY));
         //Set pose to the NPC
         metadataAccessor.setPose(pose);
         //Set current overlays to the NPC
         metadataAccessor.setOverlays((byte) overlays);
         //Set BedLocation to NPC if its pose is SLEEPING
-        if(metadataAccessor.getPose().equals(Pose.SLEEPING))
+        if(metadataAccessor.getPose().name().equals(Pose.SLEEPING.name()))
             metadataAccessor.setBedPosition(bedLoc);
         metadataAccessor.merge(true);
 
@@ -205,7 +216,7 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
 
     public void animation(byte id){
         ClientboundEntityEventPacket status = new ClientboundEntityEventPacket(fake, id);
-        trackers.forEach(p-> sendPacket(p,status));
+        trackers.forEach(p-> sendPacket(p, status));
     }
 
     @Override
@@ -261,10 +272,10 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
     private SynchedEntityData cloneDataWatcher(Player parent, GameProfile profile){
         net.minecraft.world.entity.player.Player human = new net.minecraft.world.entity.player.Player(((CraftPlayer)parent).getHandle().getLevel(), toBlockPosition(parent.getLocation()),0, profile) {
             static {
-                NPCMetadataEditor117.POSE = DATA_POSE;
-                NPCMetadataEditor117.DISPLAYING = DATA_PLAYER_MODE_CUSTOMISATION;
-                NPCMetadataEditor117.MAIN_HAND = DATA_PLAYER_MAIN_HAND;
-                NPCMetadataEditor117.ACTIVATE_HAND = DATA_LIVING_ENTITY_FLAGS;
+                FakePlayer117.POSE = DATA_POSE;
+                FakePlayer117.OVERLAYS = DATA_PLAYER_MODE_CUSTOMISATION;
+                FakePlayer117.MAIN_HAND = DATA_PLAYER_MAIN_HAND;
+                FakePlayer117.ACTIVATE_HAND = DATA_LIVING_ENTITY_FLAGS;
             }
 
             @Override
@@ -287,29 +298,13 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
     private ServerPlayer createNPC(Player parent) {
         CraftWorld world = (CraftWorld) parent.getWorld();
         CraftServer server = (CraftServer) Bukkit.getServer();
-        ServerPlayer parentVanilla= (ServerPlayer) asNMSCopy(parent);
-        GameProfile profile = new GameProfile(parent.getUniqueId(), parent.getName());
+        ServerPlayer parentVanilla = (ServerPlayer) asNMSCopy(parent);
+        GameProfile profile = new GameProfile(UUID.randomUUID(), parent.getName());
         profile.getProperties().putAll(parentVanilla.getGameProfile().getProperties());
 
         return new ServerPlayer(server.getServer(), world.getHandle(), profile){
-
             @Override
             public void sendMessage(Component ichatbasecomponent, UUID uuid) {}
-
-            @Override
-            public boolean isColliding(BlockPos blockposition, BlockState iblockdata) {
-                return false;
-            }
-
-            @Override
-            public boolean canBeCollidedWith() {
-                return false;
-            }
-
-            @Override
-            public boolean canCollideWithBukkit(Entity entity) {
-                return false;
-            }
         };
     }
     
@@ -319,7 +314,7 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
 
     @SneakyThrows
     private static Direction getDirection(float angle) {
-        return CraftBlock.blockFaceToNotch(BlockPositionUtils.yawToFace(angle));
+        return CraftBlock.blockFaceToNotch(BlockPositionUtils.yawToFace(angle).getOppositeFace());
     }
 
     @SneakyThrows

@@ -1,8 +1,6 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import org.bukkit.Location;
@@ -11,7 +9,9 @@ import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
 
-import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.toBlockPosition;
+import java.util.Optional;
+
+import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.*;
 
 
 public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
@@ -19,13 +19,6 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
     
     private ClientboundSetEntityDataPacket metadata;
     private boolean invisible;
-
-    //Constants
-    public static EntityDataAccessor<Byte> DISPLAYING;
-    public static EntityDataAccessor<Byte> OVERLAYS;
-    public static EntityDataAccessor<net.minecraft.world.entity.Pose> POSE;
-    public static EntityDataAccessor<Byte> ACTIVATE_HAND;
-    public static EntityDataAccessor<Byte> MAIN_HAND;
 
     public NPCMetadataEditor117(FakePlayer117 npc) {
         super(npc);
@@ -45,8 +38,8 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
 
     @Override
     public void setBedPosition(Location location) {
-        Location bedLoc = location.clone().toVector().setY(0).toLocation(fakePlayer.getParent().getWorld());
-        ((FakePlayer117) fakePlayer).getFake().setSleepingPos(toBlockPosition(bedLoc));
+        fakePlayer.getDataWatcher().set(EntityDataSerializers.OPTIONAL_BLOCK_POS.createAccessor(14),
+                Optional.of(toBlockPosition(toBedLocation(location))));
     }
 
     @Override

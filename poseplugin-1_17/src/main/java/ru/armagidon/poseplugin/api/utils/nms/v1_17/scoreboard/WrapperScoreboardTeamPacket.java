@@ -42,14 +42,8 @@ public class WrapperScoreboardTeamPacket
         this(ClientboundSetPlayerTeamPacket.createRemovePacket(getHandleOfBukkitTeam(team)));
     }
 
-    @SneakyThrows
     public WrapperScoreboardTeamPacket(ClientboundSetPlayerTeamPacket handle) {
         this.handle = handle;
-        if (handle.getParameters().isEmpty()) {
-            Field field = handle.getClass().getDeclaredField("k");
-            field.setAccessible(true);
-            field.set(handle, Optional.of(new ClientboundSetPlayerTeamPacket.Parameters(createEmptyTeam())));
-        }
         markPacket();
     }
 
