@@ -40,7 +40,7 @@ public class LayPose extends SeatRequiringPose {
         //TODO uncomment this
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         //PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
-        //PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
+        PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
     }
 
     @Override
@@ -59,7 +59,7 @@ public class LayPose extends SeatRequiringPose {
         //TODO uncomment this
         PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
         //PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
-        //PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());
+        PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());
     }
 
     @Override

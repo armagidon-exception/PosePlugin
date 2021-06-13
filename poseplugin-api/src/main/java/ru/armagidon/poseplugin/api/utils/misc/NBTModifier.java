@@ -6,18 +6,42 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Method;
 
+import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.getCBClass;
+import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.getNmsClass;
+
 public class NBTModifier
 {
 
     private static final String COMPOUND_CLASS_NAME = "NBTTagCompound";
 
-    private static final Method AS_BUKKIT = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asBukkitCopy", getNmsClass("ItemStack"));
-    private static final Method AS_NMS = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
-    private static final Method GET_TAG = getMethodSafely(getNmsClass("ItemStack"), "getOrCreateTag");
-    private static final Method SET_STRING = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "setString", String.class, String.class);
-    private static final Method GET_STRING = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "getString", String.class);
-    private static final Method REMOVE_TAG = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "remove", String.class);
-    private static final Method HAS_KEY = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "hasKey", String.class);
+    private static Method AS_BUKKIT;
+    private static Method AS_NMS;
+    private static Method GET_TAG;
+    private static Method SET_STRING;
+    private static Method GET_STRING;
+    private static Method HAS_KEY;
+    private static Method REMOVE_TAG;
+
+    static {
+        try {
+            AS_BUKKIT = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asBukkitCopy", getNmsClass("ItemStack"));
+            AS_NMS = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
+            GET_TAG = getMethodSafely(getNmsClass("ItemStack"), "getOrCreateTag");
+            SET_STRING = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "setString", String.class, String.class);
+            GET_STRING = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "getString", String.class);
+            REMOVE_TAG = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "remove", String.class);
+            HAS_KEY = getMethodSafely(getNmsClass(COMPOUND_CLASS_NAME), "hasKey", String.class);
+        } catch (Exception e){
+            AS_BUKKIT = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asBukkitCopy", getNmsClass("ItemStack"));
+            AS_NMS = getMethodSafely(getCBClass("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
+            GET_TAG = getMethodSafely(getNmsClass("ItemStack"), "getOrCreateTag");
+            SET_STRING = getMethodSafely(getNmsClass("nbt."+COMPOUND_CLASS_NAME), "setString", String.class, String.class);
+            GET_STRING = getMethodSafely(getNmsClass("nbt."+COMPOUND_CLASS_NAME), "getString", String.class);
+            REMOVE_TAG = getMethodSafely(getNmsClass("nbt."+COMPOUND_CLASS_NAME), "remove", String.class);
+            HAS_KEY = getMethodSafely(getNmsClass("nbt."+COMPOUND_CLASS_NAME), "hasKey", String.class);
+        }
+
+    }
 
     @SneakyThrows
     public static void setString(ItemStack stack, String name, String value) {
@@ -69,16 +93,6 @@ public class NBTModifier
     @SneakyThrows
     private static Object asNMS(ItemStack source){
         return AS_NMS.invoke(null, source);
-    }
-
-    @SneakyThrows
-    private static Class<?> getCBClass(String craftBukkitClassName){
-        return Class.forName("org.bukkit.craftbukkit." +nmsVersion() + "." + craftBukkitClassName);
-    }
-
-    @SneakyThrows
-    private static Class<?> getNmsClass(String nmsClassName)  {
-        return Class.forName("net.minecraft.server." +nmsVersion() + "." + nmsClassName);
     }
 
     public static String nmsVersion(){
