@@ -37,7 +37,7 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
         List<Pair<EquipmentSlot, ItemStack>> slots =
                 Arrays.stream(EquipmentSlot.values()).map(slot-> {
                     if( !slot.equals(EquipmentSlot.OFFHAND) && !slot.equals(EquipmentSlot.MAINHAND) ) {
-                        org.bukkit.inventory.ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot);
+                        org.bukkit.inventory.ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot).clone();
                         //TODO implement NBTModifier for 1.17
                         NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
                         //PosePluginAPI.pluginTagClear.pushThrough(i);
