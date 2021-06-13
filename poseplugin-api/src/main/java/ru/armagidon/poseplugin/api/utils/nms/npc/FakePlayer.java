@@ -71,6 +71,8 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
         PosePluginAPI.getAPI().getTickingBundle().addToTickingBundle(getClass(), this);
         //Add all players nearby to trackers list
         trackers.addAll(BlockPositionUtils.getNear(getViewDistance(), parent));
+        //Register this as event Listener
+        PosePluginAPI.getAPI().registerListener(this);
     }
 
     //Destroy method. Uses to fully delete NPC from server
