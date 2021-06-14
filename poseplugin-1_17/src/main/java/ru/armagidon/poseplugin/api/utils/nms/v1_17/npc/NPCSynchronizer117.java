@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.EntityEquipment;
+import org.jetbrains.annotations.Nullable;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
@@ -69,19 +70,17 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
         });
     }
 
-    public static org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, Enum<?> slot){
-        org.bukkit.inventory.ItemStack item;
-        if (!slot.getDeclaringClass().getSimpleName().equalsIgnoreCase("EnumItemSlot"))
-            return new org.bukkit.inventory.ItemStack(Material.AIR);
-        item = switch (slot.name()) {
-            case "HEAD" -> e.getHelmet();
-            case "CHEST" -> e.getChestplate();
-            case "LEGS" -> e.getLeggings();
-            case "FEET" -> e.getBoots();
-            case "OFFHAND" -> e.getItemInOffHand();
+    public static org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, @Nullable EquipmentSlot slot){
+        if (slot == null) return new org.bukkit.inventory.ItemStack(Material.AIR);
+        org.bukkit.inventory.ItemStack stack = switch (slot) {
+            case HEAD -> e.getHelmet();
+            case CHEST -> e.getChestplate();
+            case LEGS -> e.getLeggings();
+            case FEET -> e.getBoots();
+            case OFFHAND -> e.getItemInOffHand();
             default -> e.getItemInMainHand();
         };
-        return item;
+        return stack == null ? new org.bukkit.inventory.ItemStack(Material.AIR) : stack;
     }
 
     public static byte getFixedRotation(float var1){
