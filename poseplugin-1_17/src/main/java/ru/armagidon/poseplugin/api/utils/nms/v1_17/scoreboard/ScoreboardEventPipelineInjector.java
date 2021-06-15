@@ -36,9 +36,6 @@ public class ScoreboardEventPipelineInjector extends ChannelDuplexHandler
                 } else if (wrapper.getMode() == TEAM_UPDATED) {
                     Bukkit.getPluginManager().callEvent(e);
                 }
-
-            } else {
-                System.out.println(Integer.toBinaryString(e.getPacket().getParameters().get().getOptions()));
             }
 
             super.write(ctx, e.getPacket(), promise);
