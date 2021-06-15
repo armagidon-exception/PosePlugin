@@ -25,11 +25,11 @@ public class LayPose extends SeatRequiringPose {
 
     private void registerProperties(){
         getProperties().registerProperty(EnumPoseOption.HEAD_ROTATION.mapper(), new Property<>(fakePlayer::isHeadRotationEnabled, fakePlayer::setHeadRotationEnabled))
-                .registerProperty(EnumPoseOption.SWING_ANIMATION.mapper(),new Property<>(fakePlayer::isSwingAnimationEnabled, fakePlayer::setSwingAnimationEnabled))
-                .registerProperty(EnumPoseOption.SYNC_EQUIPMENT.mapper(),new Property<>(fakePlayer::isSynchronizationEquipmentEnabled, fakePlayer::setSynchronizationEquipmentEnabled))
-                .registerProperty(EnumPoseOption.SYNC_OVERLAYS.mapper(),new Property<>(fakePlayer::isSynchronizationOverlaysEnabled, fakePlayer::setSynchronizationOverlaysEnabled))
-                .registerProperty(EnumPoseOption.VIEW_DISTANCE.mapper(),new Property<>(fakePlayer::getViewDistance, fakePlayer::setViewDistance))
-                .registerProperty(EnumPoseOption.INVISIBLE.mapper(),new Property<>(fakePlayer::isInvisible, fakePlayer::setInvisible))
+                .registerProperty(EnumPoseOption.SWING_ANIMATION.mapper(), new Property<>(fakePlayer::isSwingAnimationEnabled, fakePlayer::setSwingAnimationEnabled))
+                .registerProperty(EnumPoseOption.SYNC_EQUIPMENT.mapper(), new Property<>(fakePlayer::isSynchronizationEquipmentEnabled, fakePlayer::setSynchronizationEquipmentEnabled))
+                .registerProperty(EnumPoseOption.SYNC_OVERLAYS.mapper(), new Property<>(fakePlayer::isSynchronizationOverlaysEnabled, fakePlayer::setSynchronizationOverlaysEnabled))
+                .registerProperty(EnumPoseOption.VIEW_DISTANCE.mapper(), new Property<>(fakePlayer::getViewDistance, fakePlayer::setViewDistance))
+                .registerProperty(EnumPoseOption.INVISIBLE.mapper(), new Property<>(fakePlayer::isInvisible, fakePlayer::setInvisible))
                 .register();
     }
 
@@ -37,9 +37,8 @@ public class LayPose extends SeatRequiringPose {
     public void initiate() {
         super.initiate();
         fakePlayer.initiate();
-        //TODO uncomment this
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
-        //PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
+        PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
     }
 
@@ -56,9 +55,8 @@ public class LayPose extends SeatRequiringPose {
         super.stop();
         fakePlayer.remove();
         fakePlayer.dispose();
-        //TODO uncomment this
         PosePluginAPI.getAPI().getPlayerHider().show(getPlayer());
-        //PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
+        PosePluginAPI.getAPI().getNameTagHider().showTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().showArmor(getPlayer());
     }
 

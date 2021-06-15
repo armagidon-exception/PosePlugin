@@ -1,20 +1,23 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.scoreboard;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
-import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCMetadataEditor117.setBit;
+import static net.minecraft.world.scores.Team.Visibility.*;
 
 public class WrapperScoreboardTeamPacket
 {
@@ -26,127 +29,139 @@ public class WrapperScoreboardTeamPacket
     public static final int PLAYERS_ADDED = 3;
     public static final int PLAYERS_REMOVED = 4;
 
-    public static final ImmutableMap<Team.OptionStatus, String> pushBukkitToNotch = ImmutableMap.<Team.OptionStatus, String>builder().
-            put(Team.OptionStatus.ALWAYS, "always").put(Team.OptionStatus.NEVER, "never").put(Team.OptionStatus.FOR_OTHER_TEAMS, "pushOtherTeams").
-            put(Team.OptionStatus.FOR_OWN_TEAM, "pushOwnTeam").build();
+    public static final ImmutableMap<Team.OptionStatus, net.minecraft.world.scores.Team.CollisionRule> pushBukkitToNotch = ImmutableMap.<Team.OptionStatus, net.minecraft.world.scores.Team.CollisionRule>builder().
+            put(Team.OptionStatus.ALWAYS, net.minecraft.world.scores.Team.CollisionRule.ALWAYS).put(Team.OptionStatus.NEVER, net.minecraft.world.scores.Team.CollisionRule.NEVER).put(Team.OptionStatus.FOR_OTHER_TEAMS, net.minecraft.world.scores.Team.CollisionRule.PUSH_OTHER_TEAMS).
+            put(Team.OptionStatus.FOR_OWN_TEAM, net.minecraft.world.scores.Team.CollisionRule.PUSH_OWN_TEAM).build();
 
-    public static final ImmutableMap<Team.OptionStatus, String> hideBukkitToNotch = ImmutableMap.<Team.OptionStatus, String>builder().
-            put(Team.OptionStatus.ALWAYS, "always").put(Team.OptionStatus.NEVER, "never").put(Team.OptionStatus.FOR_OTHER_TEAMS, "hideForOtherTeams").
-            put(Team.OptionStatus.FOR_OWN_TEAM, "hideForOwnTeam").build();
+    public static final ImmutableMap<Team.OptionStatus, net.minecraft.world.scores.Team.Visibility> hideBukkitToNotch = ImmutableMap.<Team.OptionStatus, net.minecraft.world.scores.Team.Visibility>builder().
+            put(Team.OptionStatus.ALWAYS, ALWAYS).put(Team.OptionStatus.NEVER, NEVER).put(Team.OptionStatus.FOR_OTHER_TEAMS, HIDE_FOR_OTHER_TEAMS).
+            put(Team.OptionStatus.FOR_OWN_TEAM, HIDE_FOR_OWN_TEAM).build();
 
-    private static final byte marker = 66;
+    private static final byte marker = 12;
 
-    private final ClientboundSetPlayerTeamPacket handle; //TODO make final
+    @Getter private int mode = 0;
+    @Getter @Setter private List<String> teamMates = new ArrayList<>();
 
-    public WrapperScoreboardTeamPacket(Team team) {
-        this(ClientboundSetPlayerTeamPacket.createRemovePacket(getHandleOfBukkitTeam(team)));
+    private final PlayerTeam team;
+
+    public WrapperScoreboardTeamPacket(@NotNull Team team) {
+        this(getHandleOfBukkitTeam(team));
     }
 
-    public WrapperScoreboardTeamPacket(ClientboundSetPlayerTeamPacket handle) {
-        this.handle = handle;
-        markPacket();
+    public WrapperScoreboardTeamPacket(@NotNull ClientboundSetPlayerTeamPacket handle) {
+        this(createEmptyTeam(handle.getName()));
+        retrieveInfo(handle);
     }
 
-    public WrapperScoreboardTeamPacket() {
-        this(createEmptyPacket());
+    public WrapperScoreboardTeamPacket(@NotNull PlayerTeam team) {
+        this.team = team;
+    }
+
+    public WrapperScoreboardTeamPacket(String name) {
+        this(createEmptyTeam(name));
+    }
+
+    //Getters
+    public ClientboundSetPlayerTeamPacket getHandle() {
+
+        ClientboundSetPlayerTeamPacket packet;
+        try {
+            packet = switch (mode) {
+                case TEAM_CREATED -> ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true);
+                case TEAM_REMOVED -> ClientboundSetPlayerTeamPacket.createRemovePacket(team);
+                case TEAM_UPDATED -> ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, false);
+                case PLAYERS_ADDED -> ClientboundSetPlayerTeamPacket.createPlayerPacket(team, teamMates.get(0), ClientboundSetPlayerTeamPacket.Action.ADD);
+                case PLAYERS_REMOVED -> ClientboundSetPlayerTeamPacket.createPlayerPacket(team, teamMates.get(0), ClientboundSetPlayerTeamPacket.Action.REMOVE);
+                default -> null;
+            };
+        } catch (Exception e) {
+            packet = createEmptyPacket();
+        }
+        markPacket(packet);
+        return packet;
+    }
+
+
+
+    /**
+     * Use a the very end. Otherwise all the data will be overwritten
+     * */
+
+    public WrapperScoreboardTeamPacket setMode(int mode) {
+        this.mode = mode;
+        return this;
     }
 
     @SneakyThrows
-    private static ClientboundSetPlayerTeamPacket createEmptyPacket() {
-        return ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(createEmptyTeam(), false);
+    @SuppressWarnings("unchecked")
+    public void setPackOptionData(int optionData, ClientboundSetPlayerTeamPacket packet) {
+        Field parametersF = getPropertyField(Optional.class, ClientboundSetPlayerTeamPacket.class);
+        parametersF.setAccessible(true);
+        Optional<ClientboundSetPlayerTeamPacket.Parameters> parametersOptional = (Optional<ClientboundSetPlayerTeamPacket.Parameters>) parametersF.get(packet);
+        if (parametersOptional.isEmpty()) {
+            ClientboundSetPlayerTeamPacket.Parameters parameters = new ClientboundSetPlayerTeamPacket.Parameters(team);
+            parametersF.set(packet, Optional.of(parameters));
+            parametersOptional = (Optional<ClientboundSetPlayerTeamPacket.Parameters>) parametersF.get(packet);
+        }
+        ClientboundSetPlayerTeamPacket.Parameters parameters = parametersOptional.get();
+
+        Field optionsF = getPropertyField(int.class, ClientboundSetPlayerTeamPacket.Parameters.class);
+        optionsF.set(parameters, optionData);
     }
 
-    public Team.OptionStatus getNameTagVisibility() {
-        return invertMapParams(hideBukkitToNotch).get(handle.getParameters().get().getNametagVisibility());
+    public void setNameTagVisibility(Team.OptionStatus visibility) {
+        team.setNameTagVisibility(hideBukkitToNotch.get(visibility));
     }
 
-    public Team.OptionStatus getCollisionRule() {
-        return invertMapParams(pushBukkitToNotch).get(handle.getParameters().get().getCollisionRule());
-    }
-
-
-    @SneakyThrows
-    public void setPackOptionData(int optionData) {
-        Field optionDataF = ClientboundSetPlayerTeamPacket.Parameters.class.getDeclaredField("options");
-        optionDataF.setAccessible(true);
-        handle.getParameters().ifPresent(data -> {
-            try {
-                optionDataF.set(data, optionData);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public int getPackOptionData() {
-        return handle.getParameters().get().getOptions();
-    }
-
-    @SneakyThrows
-    public void setNameTagVisibility(Team.OptionStatus nameTagVisibility) {
-        Field visibilityF = ClientboundSetPlayerTeamPacket.Parameters.class.getDeclaredField("nametagVisibility");
-        visibilityF.setAccessible(true);
-        visibilityF.set(handle.getParameters().get(), hideBukkitToNotch.get(nameTagVisibility));
-    }
-
-    @SneakyThrows
     public void setCollisionRule(Team.OptionStatus collisionRule) {
-        Field collisionRuleF = ClientboundSetPlayerTeamPacket.Parameters.class.getDeclaredField("collisionRule");
-        collisionRuleF.setAccessible(true);
-        collisionRuleF.set(handle.getParameters().get(), pushBukkitToNotch.get(collisionRule));
+        team.setCollisionRule(pushBukkitToNotch.get(collisionRule));
     }
 
-    public void setCanSeePlayersInvisibles(boolean flag){
-        int curr = getPackOptionData();
-        setPackOptionData(setBit((byte) curr, 1, flag));
+    public void setSeeFriendlyInvisibles(boolean flag) {
+        team.setSeeFriendlyInvisibles(flag);
+    }
+
+    public List<String> getPlayers() {
+        return teamMates;
     }
 
     public String getName() {
-        return handle.getName();
+        return team.getName();
     }
+
+    public int getOptions() {
+        return team.packOptions();
+    }
+
+    public Team.OptionStatus getNameTagVisibility() {
+        return invertMapParams(hideBukkitToNotch).get(team.getNameTagVisibility());
+    }
+
+    public Team.OptionStatus getCollisionRule() {
+        return invertMapParams(pushBukkitToNotch).get(team.getCollisionRule());
+    }
+
+    public boolean canSeeFriendlyInvisibles() {
+        return team.canSeeFriendlyInvisibles();
+    }
+
+    //Utility methods
 
     @SneakyThrows
-    public void setName(String name) {
-        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("name");
-        nameF.setAccessible(true);
-        nameF.set(handle, name);
+    private static ClientboundSetPlayerTeamPacket createEmptyPacket() {
+        Constructor<ClientboundSetPlayerTeamPacket> packetConstructor =
+                ClientboundSetPlayerTeamPacket.class.getDeclaredConstructor(String.class, int.class,
+                        Optional.class, Collection.class);
+        packetConstructor.setAccessible(true);
+        return packetConstructor.newInstance("", 0, Optional.empty(), Collections.emptyList());
     }
 
-    @SneakyThrows
-    public void setMode(int mode) {
-        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("method");
-        nameF.setAccessible(true);
-        nameF.set(handle, mode);
-    }
-
-    public Collection<String> getPlayers() {
-        return handle.getPlayers();
-    }
-
-    @SneakyThrows
-    public int getMode() {
-        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("method");
-        nameF.setAccessible(true);
-        return nameF.getInt(handle);
-    }
-
-    @SneakyThrows
-    public void setTeamMateList(Collection<String> players){
-        Field nameF = ClientboundSetPlayerTeamPacket.class.getDeclaredField("players");
-        nameF.setAccessible(true);
-        nameF.set(handle, players);
-    }
-
-    public ClientboundSetPlayerTeamPacket getHandle() {
-        return handle;
-    }
-
-    public void markPacket() {
-        int data = getPackOptionData();
+    public void markPacket(ClientboundSetPlayerTeamPacket packet) {
+        int data = team.packOptions();
 
         data |= marker << 8;  //Shift marker 1 byte to the right
 
-        setPackOptionData(data);
+        setPackOptionData(data, packet);
     }
 
     public static boolean isMarked(ClientboundSetPlayerTeamPacket packet) {
@@ -171,15 +186,79 @@ public class WrapperScoreboardTeamPacket
         var craftTeamClass = Class.forName("org.bukkit.craftbukkit.v1_17_R1.scoreboard.CraftTeam");
         var teamF = craftTeamClass.getDeclaredField("team");
         teamF.setAccessible(true);
-        return (PlayerTeam) teamF.get(team);
+        PlayerTeam baseTeam = (PlayerTeam) teamF.get(team);
+        PlayerTeam emptyTeam = createEmptyTeam(team.getName());
+
+        Arrays.stream(baseTeam.getClass().getDeclaredFields())
+                .filter(field -> (field.getModifiers() & Modifier.STATIC) == 0)
+                .filter(field -> !field.getType().equals(Scoreboard.class))
+                .peek(field -> field.setAccessible(true))
+                .forEach(field -> {
+                    try {
+                        field.set(emptyTeam, field.get(baseTeam));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+        return emptyTeam;
     }
 
-    private static PlayerTeam createEmptyTeam() {
-        return new PlayerTeam(null, "");
+    private static PlayerTeam createEmptyTeam(String name) {
+        return new PlayerTeam(new Scoreboard(), name);
     }
 
     public void sendPacket(Player receiver) {
-        ((CraftPlayer)receiver).getHandle().connection.send(handle);
+        ((CraftPlayer)receiver).getHandle().connection.send(getHandle());
     }
+
+    private static Field getPropertyField(Class<?> type, Class<?> target) {
+        return Arrays.stream(target.getDeclaredFields())
+                .filter(f -> (f.getModifiers() & Modifier.STATIC) == 0)
+                .filter(f -> f.getType().equals(type))
+                .peek(f -> f.setAccessible(true))
+                .findFirst().get();
+    }
+
+    private void retrieveInfo(ClientboundSetPlayerTeamPacket handle) {
+        ClientboundSetPlayerTeamPacket.Action teamAction = handle.getTeamAction();
+        if (teamAction == null) {
+            ClientboundSetPlayerTeamPacket.Action playerAction = handle.getPlayerAction();
+            if (playerAction == null)
+                this.mode = TEAM_UPDATED;
+            else {
+                this.mode =  switch (playerAction) {
+                    case ADD -> PLAYERS_ADDED;
+                    case REMOVE -> PLAYERS_REMOVED;
+                };
+            }
+        } else {
+            this.mode =  switch (teamAction) {
+                case ADD -> TEAM_CREATED;
+                case REMOVE -> TEAM_REMOVED;
+            };
+        }
+        this.teamMates = new ArrayList<>(handle.getPlayers());
+
+        Optional<ClientboundSetPlayerTeamPacket.Parameters> parametersOptional = handle.getParameters();
+        parametersOptional.ifPresent(parameters -> {
+            team.setPlayerPrefix(parameters.getPlayerPrefix());
+            team.setPlayerSuffix(parameters.getPlayerSuffix());
+            team.setCollisionRule(net.minecraft.world.scores.Team.CollisionRule.byName(parameters.getCollisionRule()));
+            team.setNameTagVisibility(net.minecraft.world.scores.Team.Visibility.byName(parameters.getNametagVisibility()));
+            team.setDisplayName(parameters.getDisplayName());
+            team.setColor(parameters.getColor());
+            int options = parameters.getOptions();
+            team.setSeeFriendlyInvisibles(((options & 2) >> 1) == 1);
+            team.setAllowFriendlyFire((options & 1) == 1);
+        });
+
+    }
+
+
+
+
+
+
 
 }
