@@ -1,8 +1,8 @@
 package ru.armagidon.poseplugin.api.personalListener;
 
 import org.apache.commons.lang.Validate;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,19 +14,19 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PersonalHandlerList
 {
-    private final Map<PosePluginPlayer, Set<PersonalListener>> subscribers;
+    private final Map<Player, Set<PersonalListener>> subscribers;
 
     public PersonalHandlerList() {
         subscribers = new ConcurrentHashMap<>();
     }
 
-    public void subscribe(PosePluginPlayer player, PersonalListener listener){
+    public void subscribe(Player player, PersonalListener listener){
         Set<PersonalListener> listeners = subscribers.computeIfAbsent(player, (p) -> ConcurrentHashMap.newKeySet());
         Validate.notNull(listener);
         listeners.add(listener);
     }
 
-    public void unsubscribe(PosePluginPlayer player, PersonalListener listener){
+    public void unsubscribe(Player player, PersonalListener listener){
             if (subscribers.containsKey(player))
                 subscribers.get(player).remove(listener);
     }
@@ -59,7 +59,7 @@ public class PersonalHandlerList
         });
     }
 
-    public void dispatch(PosePluginPlayer player, Event event){
+    public void dispatch(Player player, Event event){
         if(subscribers.containsKey(player)) {
             subscribers.get(player).forEach(listener -> {
                 forEachMethods(listener, event);
