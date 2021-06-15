@@ -7,7 +7,7 @@ import ru.armagidon.poseplugin.api.poses.experimental.PrayPose;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
-import ru.armagidon.poseplugin.api.poses.swim.CrawlPose;
+import ru.armagidon.poseplugin.api.poses.crawl.CrawlPose;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
 

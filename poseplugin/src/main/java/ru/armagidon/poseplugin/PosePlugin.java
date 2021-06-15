@@ -2,7 +2,6 @@ package ru.armagidon.poseplugin;
 
 import io.papermc.lib.PaperLib;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -17,7 +16,7 @@ import ru.armagidon.poseplugin.api.poses.experimental.PrayPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
-import ru.armagidon.poseplugin.api.poses.swim.CrawlPose;
+import ru.armagidon.poseplugin.api.poses.crawl.CrawlPose;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.CoreWrapper;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.PaperCoreWrapper;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.SpigotCoreWrapper;
@@ -31,7 +30,6 @@ import ru.armagidon.poseplugin.plugin.configuration.Messages;
 import ru.armagidon.poseplugin.plugin.listeners.MessagePrintingHandler;
 import ru.armagidon.poseplugin.plugin.listeners.PluginEventListener;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

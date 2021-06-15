@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.swim;
+package ru.armagidon.poseplugin.api.poses.crawl;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

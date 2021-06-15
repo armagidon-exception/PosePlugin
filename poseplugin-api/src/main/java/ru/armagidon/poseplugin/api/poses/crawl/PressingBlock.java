@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.swim;
+package ru.armagidon.poseplugin.api.poses.crawl;
 
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
@@ -63,22 +63,6 @@ abstract class PressingBlock
         @SneakyThrows
         public void show0() {
             //Creating shulker
-            /*EntityShulker s = new EntityShulker(EntityTypes.SHULKER, ((CraftWorld)player.getWorld()).getHandle()) {
-
-                {
-                    o = EntityShulker.c;
-                }
-
-                @Override
-                public boolean isCollidable() {
-                    return true;
-                }
-
-                @Override
-                public void a(int i) {
-                    this.datawatcher.set(d, (byte)i);
-                }
-            };*/
             Object shulker = createShulker();
 
             //Get all fields
@@ -134,7 +118,7 @@ abstract class PressingBlock
             NMSUtils.sendPacket(player, living);
 
             //Create metadata packet
-            Object metadata = NMSUtils.createPacketInstance("PacketPlayOutEntityMetadata", new Class[]{int.class, getNmsClass("DataWatcher"), boolean.class}, id, NMSUtils.getDataWatcher(shulker), true);
+            Object metadata = NMSUtils.createPacketInstance("PacketPlayOutEntityMetadata", new Class[] {int.class, getNmsClass("DataWatcher"), boolean.class}, id, NMSUtils.getDataWatcher(shulker), true);
             NMSUtils.sendPacket(player, metadata);
 
             this.shulker = shulker;

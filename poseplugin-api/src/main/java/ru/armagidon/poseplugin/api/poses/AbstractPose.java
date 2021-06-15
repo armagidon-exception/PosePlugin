@@ -52,12 +52,12 @@ public abstract class AbstractPose implements IPluginPose, Listener, PersonalLis
 
     @Override
     public void initiate() {
-        PosePluginAPI.getAPI().getPersonalHandlerList().subscribe(getPosePluginPlayer(), this);
+        PosePluginAPI.getAPI().getPersonalHandlerList().subscribe(player, this);
         Bukkit.getPluginManager().registerEvents(this, PosePluginAPI.getAPI().getPlugin());
     }
 
     public void stop(){
-        PosePluginAPI.getAPI().getPersonalHandlerList().unsubscribe(getPosePluginPlayer(), this);
+        PosePluginAPI.getAPI().getPersonalHandlerList().unsubscribe(player, this);
         HandlerList.unregisterAll(this);
     }
 

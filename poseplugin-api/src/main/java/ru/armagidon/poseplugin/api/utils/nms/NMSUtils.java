@@ -19,8 +19,7 @@ public class NMSUtils
     @SneakyThrows
     public static void setAABB(Entity target, Object aabb) {
         Object handle = asNMSCopy(target);
-        Method setBoundingBox = getNmsClass("Entity").getDeclaredMethod("a", getNmsClass("AxisAlignedBB"));
-        setBoundingBox.invoke(handle, aabb);
+        setAABB(handle, aabb);
     }
 
     @SneakyThrows

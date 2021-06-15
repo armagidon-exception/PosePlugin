@@ -76,4 +76,8 @@ public final class BlockPositionUtils
         }
     }
 
+    public static Location getAbove(Location location) {
+        return location.clone().add(0, (isFraction(location.getY()) ? 2 : 1), 0);
+    }
+
 }
