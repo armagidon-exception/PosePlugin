@@ -7,7 +7,7 @@
 
 <p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. <br> There are 8 different poses you're definitely gonna like: laying, sitting, crawling, waving, pointing, handshaking, clapping and praying.</p>
 
-<h3>✔️ Recommended use on <a href="https://github.com/PaperMC/Paper">Paper</a> or other <a href="https://github.com/YatopiaMC">Paper Forks</a>.</h3>
+<h3>✔️ Recommended use on <a href="https://github.com/PaperMC/Paper">Paper</a> or others <a href="https://github.com/YatopiaMC">Paper Forks</a>.</h3>
 Tested on: <a href="https://github.com/PaperMC/Paper">Paper</a>, <a href="https://github.com/Tuinity/Tuinity">Tuinity</a>,
 <a href="https://github.com/pl3xgaming/Purpur">Purpur</a>, <a href="https://github.com/YatopiaMC">Yatopia</a>.
 
@@ -28,8 +28,7 @@ Available at the following options:
 * **[SpigotMC](https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose-1-15-2-1-16-3.76990/)** - Download plugin on SpigotMC
 * **[GitHub Releases](https://github.com/armagidon-exception/PosePlugin/releases)** - Download source code PosePlugin
 
-## PosePlugin-API ##
-<h3>Changing pose</h3>
+## Changing pose ##
 
 Main feature that PosePlugin provides is the pose changing
 
