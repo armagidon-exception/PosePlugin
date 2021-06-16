@@ -8,6 +8,7 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.ticking.Tickable;
+import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
 @PoseAvailabilitySince(version = "1.15")
@@ -17,7 +18,7 @@ public class CrawlPose extends AbstractPose implements Tickable {
 
     public CrawlPose(Player target) {
         super(target);
-        this.handler = new CrawlHandler(target);
+        this.handler = ToolFactory.create(CrawlHandler.class, new Class[]{Player.class}, target);
         registerProperties();
     }
 
@@ -34,14 +35,14 @@ public class CrawlPose extends AbstractPose implements Tickable {
 
     @Override
     public void play(Player receiver) {
-        handler.enable();
+        handler.init();
     }
 
     @Override
     public void stop() {
         super.stop();
         PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(CrawlPose.class, this);
-        handler.disable();
+        handler.dispose();
     }
 
     @Override
