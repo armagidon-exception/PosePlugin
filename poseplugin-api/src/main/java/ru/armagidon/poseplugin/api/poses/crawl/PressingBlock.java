@@ -18,7 +18,7 @@ import java.util.Optional;
 import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.getNmsClass;
 
 
-abstract class PressingBlock
+public abstract class PressingBlock
 {
 
     protected final Player player;
@@ -132,6 +132,8 @@ abstract class PressingBlock
             //destroy.setEntityIds(id);
             //destroy.sendPacket(player);
 
+            Object destroy = NMSUtils.createPacketInstance("PacketPlayOutEntityDestroy", new Class[] {int[].class}, new int[] {id}, true);
+            NMSUtils.sendPacket(player, destroy);
             /*PacketPlayOutEntityDestroy destroy = new PacketPlayOutEntityDestroy(id);
             NMSUtils.sendPacket(player, destroy);*/
         }

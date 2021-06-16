@@ -37,7 +37,12 @@ public abstract class CrawlHandler implements Tickable, PersonalListener, Listen
         PosePluginAPI.getAPI().registerListener(this);
         PosePluginAPI.getAPI().getPersonalHandlerList().subscribe(player, this);
         Location above = BlockPositionUtils.getAbove(player.getLocation());
-        setPressingBlock(above, player);
+        if (isSlabLike(player.getLocation().getY())) {
+            pressingBlock = createPressingBlock(above, true);
+        } else {
+            pressingBlock = createPressingBlock(above, false);
+        }
+        pressingBlock.show();
     }
 
     public void dispose() {
@@ -78,8 +83,7 @@ public abstract class CrawlHandler implements Tickable, PersonalListener, Listen
         if (isSlabLike(player.getLocation().getY())) { //Standing on a slab
             //Shulker
             if (!isOnSlab) {
-                if (pressingBlock != null)
-                    pressingBlock.hide();
+                pressingBlock.hide();
                 pressingBlock = createPressingBlock(above, true);
                 if (pressingBlock != null)
                     pressingBlock.show();
@@ -89,7 +93,7 @@ public abstract class CrawlHandler implements Tickable, PersonalListener, Listen
         } else {
             //Barrier
             if (isOnSlab) {
-                if (pressingBlock != null) pressingBlock.hide();
+                pressingBlock.hide();
                 pressingBlock = createPressingBlock(above, false);
                 if (pressingBlock != null) pressingBlock.show();
                 isOnSlab = false;
@@ -112,8 +116,9 @@ public abstract class CrawlHandler implements Tickable, PersonalListener, Listen
     @Override
     public void tick() {
         if (!BlockPositionUtils.getAbove(player.getLocation()).getBlock().getType().isSolid()) {
-            updatePose(player);
-            updateBoundingBox();
+
         }
+        updatePose(player);
+        updateBoundingBox();
     }
 }

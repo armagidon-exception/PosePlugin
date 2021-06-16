@@ -1,34 +1,24 @@
-package ru.armagidon.poseplugin.api.poses.crawl;
+package ru.armagidon.poseplugin.api.poses.crawl.v1_17;
 
 
 import lombok.SneakyThrows;
-import net.minecraft.BlockUtil;
 import net.minecraft.core.Direction;
-import net.minecraft.network.protocol.game.*;
-import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.protocol.game.ClientboundAddMobPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.monster.Shulker;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
-import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
+import ru.armagidon.poseplugin.api.poses.crawl.CrawlHandler;
+import ru.armagidon.poseplugin.api.poses.crawl.PressingBlock;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Optional;
-
-import static ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils.round;
-import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.getNmsClass;
 
 @ToolPackage(mcVersion = "1.17")
 public class CrawlHander117 extends CrawlHandler
@@ -40,11 +30,7 @@ public class CrawlHander117 extends CrawlHandler
     public CrawlHander117(Player player) {
         super(player);
         ServerPlayer vanillaPlayer = ((CraftPlayer)player).getHandle();
-        EntityDimensions entitysize = vanillaPlayer.getDimensions(Pose.SWIMMING);
-        float f = entitysize.width / 2.0F;
-        Vec3 vec3d = new Vec3(vanillaPlayer.getX() - (double)f, vanillaPlayer.getY(), vanillaPlayer.getZ() - (double)f);
-        Vec3 vec3d1 = new Vec3(vanillaPlayer.getX() + (double)f, vanillaPlayer.getY() + (double)entitysize.height, vanillaPlayer.getZ() + (double)f);
-        this.swimmingBoundingBox = new AABB(vec3d, vec3d1);
+        this.swimmingBoundingBox = vanillaPlayer.getLocalBoundsForPose(Pose.STANDING);
     }
 
     @Override
@@ -85,7 +71,7 @@ public class CrawlHander117 extends CrawlHandler
 
             //Get all fields
             shulker.setAttachFace(Direction.UP);
-            shulker.setPosRaw(0.5 + round(location.getBlockX()), round(location.getBlockY()), round(location.getZ()) + 0.5);
+            shulker.setPos(location.getX(), location.getBlockY(), location.getZ());
 
             //Set NO AI
             shulker.setNoAi(true);
