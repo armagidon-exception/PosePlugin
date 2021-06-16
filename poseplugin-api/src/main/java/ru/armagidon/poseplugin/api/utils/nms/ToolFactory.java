@@ -24,7 +24,7 @@ public class ToolFactory
     public static void scanTools() {
         if (!initialized) {
             Plugin protocolLib = Bukkit.getPluginManager().getPlugin("ProtocolLib");
-            Reflections reflections = new Reflections(new ConfigurationBuilder().addScanners(new TypeAnnotationsScanner()).forPackages("ru.armagidon.poseplugin.api.utils.nms"));
+            Reflections reflections = new Reflections(new ConfigurationBuilder().addScanners(new TypeAnnotationsScanner()).forPackages("ru.armagidon.poseplugin.api"));
             Set<Class<?>> classes;
             if (protocolLib != null && protocolLib.isEnabled()) {
                 PosePluginAPI.getAPI().getLogger().info("ProtocolLib is enabled! Running protocolized package");
