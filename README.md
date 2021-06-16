@@ -1,14 +1,20 @@
-  <h1>PosePlugin [Minecraft 1.15.2-1.16.5]</h1>
+  <h1>PosePlugin [Minecraft 1.15.2-1.17]</h1>
   <h3>Choose your favorite pose</h3>
 
-[![Discord](https://img.shields.io/discord/720917120862519347?color=%237289DA&label=Discord&logo=discord&logoColor=white)](https://discord.io/stumpstudio)
-![img](http://badge.henrya.org/spigot/downloads?id=76990&color=green)
-![img2](https://img.shields.io/spiget/version/76990?color=blue&label=current%20version)
+[![img1](https://img.shields.io/discord/720917120862519347?label=discord&logo=discord&style=for-the-badge)](https://discord.io/stumpstudio)
+[![img2](https://img.shields.io/spiget/downloads/76990?color=red&style=for-the-badge)](https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose-1-15-2-1-16-5.76990/)
+[![img3](https://img.shields.io/spiget/version/76990?color=blueviolet&label=version&style=for-the-badge)](https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose-1-15-2-1-16-5.76990/)
 
-<p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. <br> There are 7 different poses you're definitely gonna like: lying, sitting, swimming, waving, pointing, handshaking and praying.</p>
+<p align="left">PosePlugin - is powerful open-source plugin that can help you change your pose to whatever you want. <br> There are 8 different poses you're definitely gonna like: laying, sitting, crawling, waving, pointing, handshaking, clapping and praying.</p>
+
+<h3>✔️ Recommended use on <a href="https://github.com/PaperMC/Paper">Paper</a> or other <a href="https://github.com/YatopiaMC">Paper Forks</a>.</h3>
+Tested on: <a href="https://github.com/PaperMC/Paper">Paper</a>, <a href="https://github.com/Tuinity/Tuinity">Tuinity</a>,
+<a href="https://github.com/pl3xgaming/Purpur">Purpur</a>, <a href="https://github.com/YatopiaMC">Yatopia</a>.
+
+<h3>⚠️ Pose /point has been working exclusively since version 1.17.x</h3>
 
 ## Video review about the plugin ##
-In English
+In English language
 
 [![English review](https://img.youtube.com/vi/8ls495n5uY8/0.jpg)](https://www.youtube.com/watch?v=8ls495n5uY8)
 
@@ -22,7 +28,8 @@ Available at the following options:
 * **[SpigotMC](https://www.spigotmc.org/resources/poseplugin-choose-your-favorite-pose-1-15-2-1-16-3.76990/)** - Download plugin on SpigotMC
 * **[GitHub Releases](https://github.com/armagidon-exception/PosePlugin/releases)** - Download source code PosePlugin
 
-## Changing pose
+## PosePlugin-API ##
+<h3>Changing pose</h3>
 
 Main feature that PosePlugin provides is the pose changing
 
