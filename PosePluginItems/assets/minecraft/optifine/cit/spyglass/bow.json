@@ -1,0 +1,51 @@
+{
+	"credit": "Armagidon",
+	"elements": [
+		{
+			"from": [8, 0, 6],
+			"to": [9, 1, 7],
+			"rotation": {"angle": 0, "axis": "y", "origin": [16, 8, 14]},
+			"color": 5,
+			"faces": {
+				"north": {"uv": [0, 0, 1, 1], "texture": "#missing"},
+				"east": {"uv": [0, 0, 1, 1], "texture": "#missing"},
+				"south": {"uv": [0, 0, 1, 1], "texture": "#missing"},
+				"west": {"uv": [0, 0, 1, 1], "texture": "#missing"},
+				"up": {"uv": [0, 0, 1, 1], "texture": "#missing"},
+				"down": {"uv": [0, 0, 1, 1], "texture": "#missing"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [-5.75, -3.5, 6],
+			"scale": [0.1, 0.1, 0.1]
+		},
+		"thirdperson_lefthand": {
+			"translation": [-5, -3.5, 4.25],
+			"scale": [0.1, 0.1, 0.1]
+		},
+		"firstperson_righthand": {
+			"translation": [0, -1, 0]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, -1.25, 0]
+		},
+		"ground": {
+			"translation": [0, -7, 0],
+			"scale": [0.1, 0.1, 0.1]
+		},
+		"gui": {
+			"translation": [0, 0, 2.75],
+			"scale": [0.1, 0.1, 0.1]
+		},
+		"head": {
+			"translation": [-1.25, 4, 7],
+			"scale": [0.1, 0.1, 0.1]
+		},
+		"fixed": {
+			"translation": [0, 0, 3.75],
+			"scale": [0.1, 0.1, 0.1]
+		}
+	}
+}
