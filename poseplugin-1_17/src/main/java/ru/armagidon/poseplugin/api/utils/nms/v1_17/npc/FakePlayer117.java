@@ -268,6 +268,7 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         fake.setYRot(pitch);
         fake.setXRot(yaw);
         this.movePacket = new ClientboundMoveEntityPacket.PosRot(fake.getId(), (short) 0,(short)2,(short)0, getFixedRotation(pitch), getFixedRotation(yaw), true);
+        updateNPC();
     }
 
     private SynchedEntityData cloneDataWatcher(Player parent, GameProfile profile){

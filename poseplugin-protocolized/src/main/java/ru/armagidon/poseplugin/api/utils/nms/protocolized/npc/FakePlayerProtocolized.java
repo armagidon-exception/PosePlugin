@@ -203,6 +203,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         this.spawner.setX(x);
         this.spawner.setY(y);
         this.spawner.setZ(z);
+        updateNPC();
     }
 
     public void animation(byte id){
