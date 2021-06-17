@@ -37,7 +37,7 @@ public class SpinJitsu extends AbstractPose
         npc.setSynchronizationEquipmentEnabled(true);
         npc.setSynchronizationOverlaysEnabled(true);
         Location l = to.clone();
-        l.setPitch(-90f);
+        l.setPitch(90f);
         npc.setLocationRotation(l);
         npc.initiate();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
