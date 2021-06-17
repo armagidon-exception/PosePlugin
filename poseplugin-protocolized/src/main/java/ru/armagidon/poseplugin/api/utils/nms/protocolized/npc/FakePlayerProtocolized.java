@@ -31,6 +31,8 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
 
     @Getter private final WrappedDataWatcher dataWatcher;
 
+    @Getter private final Location position;
+
     private final WrapperPlayServerEntityDestroy destroy;
     private WrapperPlayServerNamedEntitySpawn spawner;
     private final WrapperPlayServerPlayerInfo addInfo;
@@ -38,14 +40,14 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
     private WrapperPlayServerBlockChange fakeBedPacket;
 
 
-
     public FakePlayerProtocolized(Player parent, Pose pose) {
         super(parent, pose);
+        this.position = parent.getLocation().clone();
 
         this.id = RANDOM.nextInt(9999);
 
         //Get Location of fake bed
-        this.bedLoc = FakePlayerUtils.toBedLocation(parent.getLocation());
+        this.bedLoc = FakePlayerUtils.toBedLocation(position);
         //Cache original type of block
         this.cache = new BlockCache(bedLoc.getBlock().getBlockData(), bedLoc);
 
@@ -58,7 +60,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         movePacket.setOnGround(true);
 
         //Create packet instance of fake bed(could've used sendBlockChange but im crazy and it will recreate copies of the same packet)
-        this.fakeBedPacket = bedPacket(parent.getLocation().getYaw());
+        this.fakeBedPacket = bedPacket(position.getYaw());
         //Create packet instance of NPC 's data
         this.addInfo = infoPacket();
 
@@ -72,7 +74,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         //Create instance of the packet with this data
 
         metadataAccessor = new MetadataEditorProtocolized(this);
-        npcUpdater = new NPCSynchronizedProtocolized(this);
+        npcSynchronizer = new NPCSynchronizerProtocolized(this);
         customEquipmentManager = new NPCInventoryProtocolized(this);
 
         //Set metadata
@@ -100,16 +102,16 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
     private WrapperPlayServerNamedEntitySpawn spawnerPacket(Player parent, int id) {
         WrapperPlayServerNamedEntitySpawn spawn = new WrapperPlayServerNamedEntitySpawn();
         spawn.setEntityID(id);
-        spawn.setX(parent.getLocation().getX());
-        spawn.setY(parent.getLocation().getY());
-        spawn.setZ(parent.getLocation().getZ());
+        spawn.setX(position.getX());
+        spawn.setY(position.getY());
+        spawn.setZ(position.getZ());
         spawn.setPlayerUUID(parent.getUniqueId());
         return spawn;
     }
 
     private WrapperPlayServerBlockChange bedPacket(float angle) {
         WrapperPlayServerBlockChange fakeBedPacket = new WrapperPlayServerBlockChange();
-        fakeBedPacket.setLocation(new BlockPosition(parent.getLocation().clone().toVector().setY(0)));
+        fakeBedPacket.setLocation(new BlockPosition(position.toVector().setY(0)));
         Bed bed = (Bed) Bukkit.createBlockData(Material.WHITE_BED);
         bed.setPart(Bed.Part.HEAD);
         bed.setFacing(BlockPositionUtils.yawToFace(angle).getOppositeFace());
@@ -158,7 +160,6 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p -> p.getWorld().equals(parent.getWorld()))
                 .filter(p -> p.getLocation().distanceSquared(parent.getLocation()) <= Math.pow(viewDistance, 2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
-        //Bukkit.getOnlinePlayers().forEach(addInfo::sendPacket);
         trackers.forEach(this::spawnToPlayer);
     }
 
@@ -190,6 +191,18 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
             animation.setAnimation(mainHand ? 0 : 3);
             trackers.forEach(animation::sendPacket);
         }
+    }
+
+    @Override
+    public void setLocationRotation(double x, double y, double z, float pitch, float yaw) {
+        this.movePacket.setPitch(pitch);
+        this.movePacket.setYaw(yaw);
+        this.position.set(x,y,z);
+        this.position.setPitch(pitch);
+        this.position.setYaw(yaw);
+        this.spawner.setX(x);
+        this.spawner.setY(y);
+        this.spawner.setZ(z);
     }
 
     public void animation(byte id){
@@ -227,14 +240,14 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
     }
 
     private void updateOverlays() {
-        npcUpdater.syncOverlays();
+        npcSynchronizer.syncOverlays();
     }
 
     private void updateHeadRotation() {
-        npcUpdater.syncHeadRotation();
+        npcSynchronizer.syncHeadRotation();
     }
 
     private void updateEquipment(){
-        npcUpdater.syncEquipment();
+        npcSynchronizer.syncEquipment();
     }
 }

@@ -51,6 +51,16 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
     }
 
     @Override
+    public byte getLivingEntityTags() {
+        return dataWatcher.get(ENTITY_LIVING_TAGS);
+    }
+
+    @Override
+    public void setLivingEntityTags(byte tags) {
+        fakePlayer.getDataWatcher().set(ENTITY_LIVING_TAGS, tags);
+    }
+
+    @Override
     public void setOverlays(byte overlays) {
         fakePlayer.getDataWatcher().set(OVERLAYS, overlays);
     }
@@ -58,18 +68,18 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
     @Override
     public void setActiveHand(boolean main) {
         setMainHand(main);
-        byte data = fakePlayer.getDataWatcher().get(ACTIVATE_HAND);
+        byte data = fakePlayer.getDataWatcher().get(ENTITY_LIVING_TAGS);
         if(!isHandActive()){
             data = setBit(data, 0,true);
         }
-        fakePlayer.getDataWatcher().set(ACTIVATE_HAND, setBit(data,1,false));
+        setLivingEntityTags(setBit(data,1,false));
     }
 
     @Override
     public void disableHand() {
-        byte data = fakePlayer.getDataWatcher().get(ACTIVATE_HAND);
+        byte data = fakePlayer.getDataWatcher().get(ENTITY_LIVING_TAGS);
         if(!isHandActive()) return;
-        fakePlayer.getDataWatcher().set(ACTIVATE_HAND,setBit(data, 0, false));
+        fakePlayer.getDataWatcher().set(ENTITY_LIVING_TAGS, setBit(data, 0, false));
     }
 
     @Override
@@ -89,7 +99,7 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
 
     @Override
     public boolean isHandActive() {
-        byte data = fakePlayer.getDataWatcher().get(ACTIVATE_HAND);
+        byte data = fakePlayer.getDataWatcher().get(ENTITY_LIVING_TAGS);
         return isKthBitSet(data, 1);
     }
 
@@ -106,7 +116,7 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
 
     public static byte setBit(byte input, int k, boolean flag){
         byte output;
-        if(flag){
+        if (flag) {
             output = (byte) (input | (1 << k));
         } else {
             output = (byte) (input & ~(1 << k));

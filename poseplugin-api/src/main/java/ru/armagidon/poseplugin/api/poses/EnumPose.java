@@ -5,28 +5,10 @@ import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 public interface EnumPose
 {
 
-    EnumPose STANDING = new EnumPose() {
-        @Override
-        public String getName() {
-            return "stand";
-        }
+    EnumPose STANDING = () -> "stand";
 
-        @Override
-        public EnumPoseOption<?>[] availableOptions() {
-            return new EnumPoseOption[0];
-        }
-    };
-    EnumPose SITTING = new EnumPose() {
-        @Override
-        public String getName() {
-            return "sit";
-        }
+    EnumPose SITTING = () -> "sit";
 
-        @Override
-        public EnumPoseOption<?>[] availableOptions() {
-            return new EnumPoseOption[0];
-        }
-    };
     EnumPose LYING = new EnumPose() {
         @Override
         public String getName() {
@@ -43,17 +25,8 @@ public interface EnumPose
                     EnumPoseOption.SWING_ANIMATION};
         }
     };
-    EnumPose CRAWLING = new EnumPose() {
-        @Override
-        public String getName() {
-            return "crawl";
-        }
+    EnumPose CRAWLING = () -> "crawl";
 
-        @Override
-        public EnumPoseOption<?>[] availableOptions() {
-            return new EnumPoseOption[0];
-        }
-    };
     EnumPose WAVING = new EnumPose() {
         @Override
         public String getName() {
@@ -100,6 +73,10 @@ public interface EnumPose
         }
     };
 
+    EnumPose SPINJITSU = () -> "spinjitsu";
+
     String getName();
-    EnumPoseOption<?>[] availableOptions();
+    default EnumPoseOption<?>[] availableOptions() {
+        return new EnumPoseOption[0];
+    }
 }

@@ -41,7 +41,7 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
                         org.bukkit.inventory.ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot).clone();
                         //TODO implement NBTModifier for 1.17
                         NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
-                        //PosePluginAPI.pluginTagClear.pushThrough(i);
+
                         return Pair.of(slot, CraftItemStack.asNMSCopy(i));
                     } else {
                         return Pair.of(slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot)));
@@ -62,8 +62,15 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
     }
 
     public void syncHeadRotation() {
-        ClientboundRotateHeadPacket rotation = new ClientboundRotateHeadPacket(((FakePlayer117)fakePlayer).getFake(), getFixedRotation(fakePlayer.getParent().getLocation().getYaw()));
-        ClientboundMoveEntityPacket.PosRot lookPacket = new ClientboundMoveEntityPacket.PosRot(fakePlayer.getId(), (short) 0, (short) 0, (short) 0, getFixedRotation(fakePlayer.getParent().getLocation().getYaw()), (byte) 0, true);
+        ((FakePlayer117) fakePlayer).getFake().setXRot(fakePlayer.getParent().getLocation().getYaw());
+        ClientboundRotateHeadPacket rotation = new ClientboundRotateHeadPacket(((FakePlayer117)fakePlayer).getFake(),
+                getFixedRotation(((FakePlayer117) fakePlayer).getFake().getXRot()));
+        ClientboundMoveEntityPacket.PosRot lookPacket = new ClientboundMoveEntityPacket.PosRot(fakePlayer.getId(),
+                (short) 0,
+                (short) 0,
+                (short) 0,
+                getFixedRotation(((FakePlayer117) fakePlayer).getFake().getXRot()),
+                getFixedRotation(((FakePlayer117) fakePlayer).getFake().getYRot()), true);
         fakePlayer.getTrackers().forEach(p -> {
             FakePlayer117.sendPacket(p, lookPacket);
             FakePlayer117.sendPacket(p, rotation);
@@ -88,7 +95,7 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
     }
 
     private static float round(float input){
-        int output = (int)input;
+        int output = (int) input;
         return input < (float)output ? output - 1 : output;
     }
 }

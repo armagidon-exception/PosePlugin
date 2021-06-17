@@ -63,7 +63,7 @@ public class PluginEventListener implements Listener
         if ( !PLAYERS_POSES.containsKey(event.getPlayer()) ) return;
         PosePluginPlayer player = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(event.getPlayer().getName());
 
-        Set<EnumPose> posesToCheck = Stream.of(WAVING, POINTING, HANDSHAKING).collect(Collectors.toSet());
+        Set<EnumPose> posesToCheck = Stream.of(WAVING, POINTING, HANDSHAKING, SPINJITSU).collect(Collectors.toSet());
 
 
         if (player.getPoseType().equals(CRAWLING) || player.getPoseType().equals(PRAYING)) {

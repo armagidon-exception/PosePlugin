@@ -27,6 +27,16 @@ public class MetadataEditorProtocolized extends NPCMetadataEditor<WrappedDataWat
     }
 
     @Override
+    public byte getLivingEntityTags() {
+        return dataWatcher.getByte(7);
+    }
+
+    @Override
+    public void setLivingEntityTags(byte tags) {
+        dataWatcher.setObject(7, BYTE, tags);
+    }
+
+    @Override
     public void showPlayer(Player receiver) {
         if(metadata != null){
             metadata.sendPacket(receiver);

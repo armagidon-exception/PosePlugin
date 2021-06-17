@@ -15,6 +15,10 @@ public abstract class NPCMetadataEditor<T>
         this.dataWatcher = fakePlayer.getDataWatcher();
     }
 
+    public abstract byte getLivingEntityTags();
+
+    public abstract void setLivingEntityTags(byte tags);
+
     public abstract void showPlayer(Player receiver);
 
     public abstract void setPose(Pose pose);

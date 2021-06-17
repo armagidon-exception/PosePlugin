@@ -17,6 +17,7 @@ import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
 import ru.armagidon.poseplugin.api.poses.crawl.CrawlPose;
+import ru.armagidon.poseplugin.api.poses.spin.SpinJitsu;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.CoreWrapper;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.PaperCoreWrapper;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.SpigotCoreWrapper;
@@ -125,6 +126,9 @@ public final class PosePlugin extends JavaPlugin implements Listener
                                 .option(EnumPoseOption.STEP, getCfg().getFloat("pray.step"))
                                 .build(sender);
                         break;
+                    case "spin":
+                        if (!performChecks(SpinJitsu.class, sender)) return true;
+                        pose = PoseBuilder.builder(EnumPose.SPINJITSU).build(sender);
                 }
                 PosePluginPlayer pluginInstance = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(sender);
                 PLAYERS_POSES.put(sender, pose.getType());
@@ -211,6 +215,11 @@ public final class PosePlugin extends JavaPlugin implements Listener
             return true;
         };
 
+        SimpleCommand.builder("spin")
+                .permission("poseplugin.commands.spin")
+                .permissionMessage(coreWrapper.getPermissionMessage())
+                .usage(messages.getColorized("spinjitsu.usage"))
+                .executor(simpleExecutor).register();
 
         SimpleCommand.builder("sit")
                 .permission("poseplugin.commands.sit")

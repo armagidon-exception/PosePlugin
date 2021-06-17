@@ -11,8 +11,9 @@ import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
-import java.util.function.IntFunction;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ToolFactory
@@ -52,18 +53,9 @@ public class ToolFactory
     @Nullable
     @SneakyThrows
     @SuppressWarnings("unchecked")
-    public static <T> T create(Class<T> clazz, Class<?> types[], Object... params) {
+    public static <T> T create(Class<T> clazz, Class<?>[] types, Object... params) {
         if (!toolPackages.containsKey(clazz)) return null;
         Class<?> packageClass = toolPackages.get(clazz);
-        //TODO REMOVE THIS PIECE OF SHIT
-
-        /*Set<Class<?>[]> clazzes = Arrays.stream(packageClass.getDeclaredConstructors()).map(Constructor::getParameterTypes).collect(Collectors.toSet());
-        clazzes.forEach(a -> {
-            for (Class<?> aClass : a) {
-                System.out.println(aClass.getSimpleName());
-            }
-        });*/
-        //Arrays.stream(types).map(Class::getSimpleName).forEach(System.out::println);
 
         Constructor<?> constructor = packageClass.getDeclaredConstructor(types);
         constructor.setAccessible(true);

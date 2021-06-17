@@ -8,6 +8,7 @@ import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
 import ru.armagidon.poseplugin.api.poses.crawl.CrawlPose;
+import ru.armagidon.poseplugin.api.poses.spin.SpinJitsu;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
 
@@ -28,6 +29,7 @@ public class PoseBuilder {
         put(EnumPose.POINTING, (player) -> new ExperimentalHandPose.PointPose(player));
         put(EnumPose.HANDSHAKING, (player) -> new ExperimentalHandPose.HandShakePose(player));
         put(EnumPose.PRAYING, (player) -> new PrayPose(player));
+        put(EnumPose.SPINJITSU, (player) -> new SpinJitsu(player));
     }};
 
 

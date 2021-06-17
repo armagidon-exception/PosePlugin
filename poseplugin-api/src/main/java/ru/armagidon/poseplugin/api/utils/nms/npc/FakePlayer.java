@@ -35,7 +35,7 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     protected BlockCache cache;
     protected final Pose pose;
     protected Location bedLoc;
-    protected @Getter NPCSynchronizer<DataWatcher> npcUpdater;
+    protected @Getter NPCSynchronizer<DataWatcher> npcSynchronizer;
     protected @Getter NPCInventory<DataWatcher> customEquipmentManager;
     protected @Getter NPCMetadataEditor<DataWatcher> metadataAccessor;
 
@@ -87,6 +87,12 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     public abstract void animation(byte id);
 
     public abstract void swingHand(boolean main);
+
+    public abstract void setLocationRotation(double x, double y, double z, float pitch, float yaw);
+
+    public void setLocationRotation(Location location) {
+        setLocationRotation(location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw());
+    }
 
     /**Setters and getters*/
     public final void setInvisible(boolean invisible){

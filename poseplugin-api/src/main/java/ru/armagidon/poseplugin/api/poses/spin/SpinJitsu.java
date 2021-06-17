@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.experimental;
+package ru.armagidon.poseplugin.api.poses.spin;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,44 +8,37 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import ru.armagidon.poseplugin.api.utils.misc.ItemBuilder;
-import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
-import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
+import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
-import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
-import ru.armagidon.poseplugin.api.utils.property.Property;
 
-public abstract class ExperimentalHandPose extends AbstractPose
+public class SpinJitsu extends AbstractPose
 {
 
-    private final ItemStack handItem;
     private final FakePlayer<?> npc;
     private final Location to;
 
-    public ExperimentalHandPose(Player target, Material type) {
+    public SpinJitsu(Player target) {
         super(target);
-        this.handItem = addHideTag(ItemBuilder.create(type).asItemStack());
-        this.npc = ToolFactory.create(FakePlayer.class, new Class[]{Player.class, Pose.class}, target, Pose.STANDING);
-
-        getProperties().registerProperty(EnumPoseOption.HANDTYPE.mapper(), new Property<>(npc::getActiveHand, npc::setActiveHand));
+        this.npc = ToolFactory.create(FakePlayer.class,new Class[]{Player.class, Pose.class}, target, Pose.SPIN_ATTACK);
         getProperties().register();
-
         this.to = target.getLocation().clone();
-
     }
 
     @Override
     public final void initiate() {
         super.initiate();
-        npc.setHeadRotationEnabled(true);
-        npc.setSynchronizationEquipmentEnabled(false);
+        npc.setHeadRotationEnabled(false);
+        npc.setSynchronizationEquipmentEnabled(true);
         npc.setSynchronizationOverlaysEnabled(true);
+        Location l = to.clone();
+        l.setPitch(-90f);
+        npc.setLocationRotation(l);
         npc.initiate();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
@@ -62,8 +55,6 @@ public abstract class ExperimentalHandPose extends AbstractPose
         } else {
             npc.spawnToPlayer(receiver);
         }
-        //Requires PosePluginItems resource-pack
-        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.HAND, handItem);
     }
 
     @Override
@@ -88,10 +79,9 @@ public abstract class ExperimentalHandPose extends AbstractPose
 
     @PersonalEventHandler
     public final void onArmorChange(PlayerArmorChangeEvent event){
-        if(event.getNewItem()==null) return;
+        if(event.getNewItem() == null) return;
 
         NBTModifier.remove(event.getNewItem(), "PosePluginItem");
-        //PosePluginAPI.pluginTagClear.pushThrough(event.getNewItem());
 
         npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(event.getSlotType().name()), event.getNewItem());
     }
@@ -110,48 +100,8 @@ public abstract class ExperimentalHandPose extends AbstractPose
         npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(slotType.name()), stack);
     }
 
-    protected static ItemStack addHideTag(ItemStack stack){
-        NBTModifier.setString(stack, "PosePluginItem", stack.getType().name());
-        return stack;
-    }
-
-    @PoseAvailabilitySince(version = "1.15")
-    public static class HandShakePose extends ExperimentalHandPose
-    {
-        public HandShakePose(Player target) {
-            super(target, Material.SHIELD);
-        }
-
-        @Override
-        public EnumPose getType() {
-            return EnumPose.HANDSHAKING;
-        }
-    }
-
-    @PoseAvailabilitySince(version = "1.15")
-    public static class PointPose extends ExperimentalHandPose {
-
-        public PointPose(Player target) {
-            super(target, Material.BOW);
-        }
-
-        @Override
-        public EnumPose getType() {
-            return EnumPose.POINTING;
-        }
-    }
-
-    @PoseAvailabilitySince(version = "1.15")
-    public static class WavePose extends ExperimentalHandPose
-    {
-
-        public WavePose(Player target) {
-            super(target, Material.TRIDENT);
-        }
-
-        @Override
-        public EnumPose getType() {
-            return EnumPose.WAVING;
-        }
+    @Override
+    public EnumPose getType() {
+        return EnumPose.SPINJITSU;
     }
 }
