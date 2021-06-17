@@ -16,7 +16,9 @@ import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
+import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
+@PoseAvailabilitySince(version = "1.15")
 public class SpinJitsu extends AbstractPose
 {
 
