@@ -17,7 +17,7 @@ import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.LayPose;
 import ru.armagidon.poseplugin.api.poses.seatrequiring.SitPose;
 import ru.armagidon.poseplugin.api.poses.crawl.CrawlPose;
-import ru.armagidon.poseplugin.api.poses.spin.SpinJitsu;
+import ru.armagidon.poseplugin.api.poses.experimental.SpinJitsuPose;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.CoreWrapper;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.PaperCoreWrapper;
 import ru.armagidon.poseplugin.plugin.commands.corewrapper.SpigotCoreWrapper;
@@ -127,7 +127,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
                                 .build(sender);
                         break;
                     case "spin":
-                        if (!performChecks(SpinJitsu.class, sender)) return true;
+                        if (!performChecks(SpinJitsuPose.class, sender)) return true;
                         pose = PoseBuilder.builder(EnumPose.SPINJITSU).build(sender);
                 }
                 PosePluginPlayer pluginInstance = PosePluginAPI.getAPI().getPlayerMap().getPosePluginPlayer(sender);
@@ -144,7 +144,7 @@ public final class PosePlugin extends JavaPlugin implements Listener
                     pose = EnumPose.WAVING;
                     break;
                 case "point":
-                    pose = EnumPose.POINTING;
+                    pose = EnumPose.CLAPPING;
                     break;
                 case "handshake":
                     pose = EnumPose.HANDSHAKING;
@@ -160,6 +160,9 @@ public final class PosePlugin extends JavaPlugin implements Listener
             switch (label) {
                 case "wave":
                     poseType = EnumPose.WAVING;
+                    break;
+                case "clap":
+                    poseType = EnumPose.CLAPPING;
                     break;
                 case "point":
                     poseType = EnumPose.POINTING;
@@ -191,11 +194,14 @@ public final class PosePlugin extends JavaPlugin implements Listener
                 case "wave":
                     poseType = EnumPose.WAVING;
                     break;
-                case "point":
-                    poseType = EnumPose.POINTING;
+                case "clap":
+                    poseType = EnumPose.CLAPPING;
                     break;
                 case "handshake":
                     poseType = EnumPose.HANDSHAKING;
+                    break;
+                case "point":
+                    poseType = EnumPose.POINTING;
                     break;
             }
             PosePluginPlayer player = PosePluginAPI.getAPI().getPlayer(sender);
@@ -214,12 +220,6 @@ public final class PosePlugin extends JavaPlugin implements Listener
             }
             return true;
         };
-
-        SimpleCommand.builder("spin")
-                .permission("poseplugin.commands.spin")
-                .permissionMessage(coreWrapper.getPermissionMessage())
-                .usage(messages.getColorized("spinjitsu.usage"))
-                .executor(simpleExecutor).register();
 
         SimpleCommand.builder("sit")
                 .permission("poseplugin.commands.sit")
@@ -241,6 +241,13 @@ public final class PosePlugin extends JavaPlugin implements Listener
                 .registerIf(label -> cfg.getBoolean(label + ".enabled"));
 
         if (cfg.getBoolean("x-mode")) {
+
+            SimpleCommand.builder("spin")
+                    .permission("poseplugin.commands.spin")
+                    .permissionMessage(coreWrapper.getPermissionMessage())
+                    .usage(messages.getColorized("spinjitsu.usage"))
+                    .executor(simpleExecutor).registerIf(label -> cfg.getBoolean(label + ".enabled"));
+
             SimpleCommand.builder("pray")
                     .permission("poseplugin.commands.pray")
                     .permissionMessage(coreWrapper.getPermissionMessage())
@@ -251,6 +258,16 @@ public final class PosePlugin extends JavaPlugin implements Listener
                     .permission("poseplugin.commands.wave")
                     .permissionMessage(coreWrapper.getPermissionMessage())
                     .usage(messages.getColorized("wave.usage"))
+                    .subCommand("off", turnOff)
+                    .subCommand("right", switchRight)
+                    .subCommand("left", switchLeft)
+                    .registerIf(label -> cfg.getBoolean(label + ".enabled"));
+
+
+            SimpleCommand.builder("clap")
+                    .permission("poseplugin.commands.clap")
+                    .permissionMessage(coreWrapper.getPermissionMessage())
+                    .usage(messages.getColorized("clap.usage"))
                     .subCommand("off", turnOff)
                     .subCommand("right", switchRight)
                     .subCommand("left", switchLeft)

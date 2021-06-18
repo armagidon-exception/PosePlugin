@@ -35,9 +35,6 @@ public class PosePluginPlayer
 
         if (pose == null) return;
 
-        if (PoseBuilder.getPoseBuilder(pose.getType()) == null)
-            throw new IllegalArgumentException("Unknown pose type: " + pose.getType().getName());
-
         if (pose.getType().equals(this.pose.getType()))
             throw new IllegalArgumentException("This pose type is already in use.");
 
