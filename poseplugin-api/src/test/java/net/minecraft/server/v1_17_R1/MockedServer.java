@@ -1,11 +1,6 @@
 package net.minecraft.server.v1_17_R1;
 
-import com.destroystokyo.paper.entity.ai.MobGoals;
-import com.destroystokyo.paper.profile.PlayerProfile;
 import com.google.common.collect.ImmutableList;
-import io.papermc.paper.datapack.DatapackManager;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.data.BlockData;
@@ -29,7 +24,6 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.armagidon.poseplugin.api.utils.nms.classes.MockedPluginManager;
@@ -38,7 +32,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -64,11 +57,6 @@ public class MockedServer implements Server
     }
 
     @Override
-    public @NotNull String getMinecraftVersion() {
-        return "1.17";
-    }
-
-    @Override
     public @NotNull Collection<? extends Player> getOnlinePlayers() {
         return ImmutableList.of();
     }
@@ -76,11 +64,6 @@ public class MockedServer implements Server
     @Override
     public int getMaxPlayers() {
         return 0;
-    }
-
-    @Override
-    public void setMaxPlayers(int i) {
-
     }
 
     @Override
@@ -205,11 +188,6 @@ public class MockedServer implements Server
 
     @Override
     public @Nullable Player getPlayer(@NotNull UUID uuid) {
-        return null;
-    }
-
-    @Override
-    public @Nullable UUID getPlayerUniqueId(@NotNull String s) {
         return null;
     }
 
@@ -390,11 +368,6 @@ public class MockedServer implements Server
             public @NotNull BukkitTask runTaskTimerAsynchronously(@NotNull Plugin plugin, @NotNull BukkitRunnable bukkitRunnable, long l, long l1) throws IllegalArgumentException {
                 return null;
             }
-
-            @Override
-            public @NotNull Executor getMainThreadExecutor(@NotNull Plugin plugin) {
-                return null;
-            }
         };
     }
 
@@ -430,11 +403,6 @@ public class MockedServer implements Server
 
     @Override
     public @Nullable World getWorld(@NotNull UUID uuid) {
-        return null;
-    }
-
-    @Override
-    public @Nullable World getWorld(@NotNull NamespacedKey namespacedKey) {
         return null;
     }
 
@@ -564,22 +532,7 @@ public class MockedServer implements Server
     }
 
     @Override
-    public int broadcast(@NotNull Component component) {
-        return 0;
-    }
-
-    @Override
-    public int broadcast(@NotNull Component component, @NotNull String s) {
-        return 0;
-    }
-
-    @Override
     public @NotNull OfflinePlayer getOfflinePlayer(@NotNull String s) {
-        return null;
-    }
-
-    @Override
-    public @Nullable OfflinePlayer getOfflinePlayerIfCached(@NotNull String s) {
         return null;
     }
 
@@ -660,11 +613,6 @@ public class MockedServer implements Server
     }
 
     @Override
-    public @NotNull Inventory createInventory(@Nullable InventoryHolder inventoryHolder, @NotNull InventoryType inventoryType, @NotNull Component component) {
-        return null;
-    }
-
-    @Override
     public @NotNull Inventory createInventory(@Nullable InventoryHolder inventoryHolder, @NotNull InventoryType inventoryType, @NotNull String s) {
         return null;
     }
@@ -675,17 +623,7 @@ public class MockedServer implements Server
     }
 
     @Override
-    public @NotNull Inventory createInventory(@Nullable InventoryHolder inventoryHolder, int i, @NotNull Component component) throws IllegalArgumentException {
-        return null;
-    }
-
-    @Override
     public @NotNull Inventory createInventory(@Nullable InventoryHolder inventoryHolder, int i, @NotNull String s) throws IllegalArgumentException {
-        return null;
-    }
-
-    @Override
-    public @NotNull Merchant createMerchant(@Nullable Component component) {
         return null;
     }
 
@@ -725,19 +663,10 @@ public class MockedServer implements Server
     }
 
     @Override
-    public @NotNull Component motd() {
-        return null;
-    }
-
-    @Override
     public @NotNull String getMotd() {
         return null;
     }
 
-    @Override
-    public @Nullable Component shutdownMessage() {
-        return null;
-    }
 
     @Override
     public @Nullable String getShutdownMessage() {
@@ -790,11 +719,6 @@ public class MockedServer implements Server
     }
 
     @Override
-    public ChunkGenerator. ChunkData createVanillaChunkData(@NotNull World world, int i, int i1) {
-        return null;
-    }
-
-    @Override
     public @NotNull BossBar createBossBar(@Nullable String s, @NotNull BarColor barColor, @NotNull BarStyle barStyle, @NotNull BarFlag... barFlags) {
         return null;
     }
@@ -821,28 +745,6 @@ public class MockedServer implements Server
 
     @Override
     public @Nullable Entity getEntity(@NotNull UUID uuid) {
-        return null;
-    }
-
-    @Override
-    public @NotNull
-    double[] getTPS() {
-        return new double[0];
-    }
-
-    @Override
-    public @NotNull
-    long[] getTickTimes() {
-        return new long[0];
-    }
-
-    @Override
-    public double getAverageTickTime() {
-        return 0;
-    }
-
-    @Override
-    public @NotNull CommandMap getCommandMap() {
         return null;
     }
 
@@ -903,66 +805,6 @@ public class MockedServer implements Server
 
     @Override
     public @NotNull Spigot spigot() {
-        return null;
-    }
-
-    @Override
-    public void reloadPermissions() {
-
-    }
-
-    @Override
-    public boolean reloadCommandAliases() {
-        return false;
-    }
-
-    @Override
-    public boolean suggestPlayerNamesWhenNullTabCompletions() {
-        return false;
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return null;
-    }
-
-    @Override
-    public @NotNull PlayerProfile createProfile(@NotNull UUID uuid) {
-        return null;
-    }
-
-    @Override
-    public @NotNull PlayerProfile createProfile(@NotNull String s) {
-        return null;
-    }
-
-    @Override
-    public @NotNull PlayerProfile createProfile(@Nullable UUID uuid, @Nullable String s) {
-        return null;
-    }
-
-    @Override
-    public int getCurrentTick() {
-        return 0;
-    }
-
-    @Override
-    public boolean isStopping() {
-        return false;
-    }
-
-    @Override
-    public @NotNull MobGoals getMobGoals() {
-        return null;
-    }
-
-    @Override
-    public @NotNull DatapackManager getDatapackManager() {
-        return null;
-    }
-
-    @Override
-    public @NonNull Iterable<? extends Audience> audiences() {
         return null;
     }
 

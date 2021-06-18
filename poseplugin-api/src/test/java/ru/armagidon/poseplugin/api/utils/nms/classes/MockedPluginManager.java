@@ -104,11 +104,6 @@ public class MockedPluginManager implements PluginManager
     }
 
     @Override
-    public void disablePlugin(@NotNull Plugin plugin, boolean b) {
-
-    }
-
-    @Override
     public @Nullable Permission getPermission(@NotNull String s) {
         return null;
     }
