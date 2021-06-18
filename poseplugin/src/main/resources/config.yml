@@ -1,6 +1,6 @@
 locale: en
 check-for-updates: true
-x-mode: false
+x-mode: true
 crawl:
   static: false
   stand-up-when-damaged: true
@@ -22,10 +22,14 @@ wave:
   stand-up-when-damaged: true
   disable-when-shift: true
 point:
-  enabled: false
+  enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
 handshake:
+  enabled: true
+  stand-up-when-damaged: true
+  disable-when-shift: true
+clap:
   enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
