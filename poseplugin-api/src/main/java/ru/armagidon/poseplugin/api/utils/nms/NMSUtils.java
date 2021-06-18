@@ -5,6 +5,9 @@ import lombok.SneakyThrows;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -109,5 +112,16 @@ public class NMSUtils
         Constructor<?> constructor = getNmsClass("AxisAlignedBB").getDeclaredConstructor(double.class, double.class, double.class, double.class, double.class, double.class);
         constructor.setAccessible(true);
         return constructor.newInstance(d, d1, d2, d3, d4, d5);
+    }
+
+    public static ItemStack getEquipmentBySlot(EntityEquipment e, EquipmentSlot slot){
+        return switch (slot) {
+            case HEAD -> e.getHelmet();
+            case CHEST -> e.getChestplate();
+            case LEGS -> e.getLeggings();
+            case FEET -> e.getBoots();
+            case OFF_HAND -> e.getItemInOffHand();
+            default -> e.getItemInMainHand();
+        };
     }
 }

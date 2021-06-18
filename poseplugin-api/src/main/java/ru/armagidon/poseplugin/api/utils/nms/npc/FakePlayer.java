@@ -36,7 +36,7 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     protected final Pose pose;
     protected Location bedLoc;
     protected @Getter NPCSynchronizer<DataWatcher> npcSynchronizer;
-    protected @Getter NPCInventory<DataWatcher> customEquipmentManager;
+    protected @Getter NPCInventory<DataWatcher> inventory;
     protected @Getter NPCMetadataEditor<DataWatcher> metadataAccessor;
 
     /**Tracking**/

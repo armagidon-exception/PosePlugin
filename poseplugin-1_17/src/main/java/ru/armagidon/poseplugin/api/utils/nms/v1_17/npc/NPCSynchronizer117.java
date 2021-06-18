@@ -1,24 +1,20 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCSynchronizer;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
@@ -35,20 +31,18 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
     }
 
     public void syncEquipment(){
-        List<Pair<EquipmentSlot, ItemStack>> slots =
-                Arrays.stream(EquipmentSlot.values()).map(slot-> {
-                    if( !slot.equals(EquipmentSlot.OFFHAND) && !slot.equals(EquipmentSlot.MAINHAND) ) {
-                        org.bukkit.inventory.ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot).clone();
-                        //TODO implement NBTModifier for 1.17
-                        NBTModifier.remove(i, PosePluginAPI.NBT_TAG);
-
-                        return Pair.of(slot, CraftItemStack.asNMSCopy(i));
+        List<Map.Entry<EquipmentSlot, ItemStack>> slots =
+                Arrays.stream(EquipmentSlot.values()).filter(slot -> !ignoredSlots.contains(slot)).map(slot-> {
+                    if( !slot.equals(EquipmentSlot.OFF_HAND) && !slot.equals(EquipmentSlot.HAND) ) {
+                        ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot).clone();
+                        return Map.entry(EquipmentSlot.values()[slot.ordinal()], i);
                     } else {
-                        return Pair.of(slot, CraftItemStack.asNMSCopy(getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot)));
+                        return Map.entry(EquipmentSlot.values()[slot.ordinal()], getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot));
                     }
                 }).collect(Collectors.toList());
-        ClientboundSetEquipmentPacket eq = new ClientboundSetEquipmentPacket(fakePlayer.getId(), slots);
-        fakePlayer.getTrackers().forEach(r -> FakePlayer117.sendPacket(r,eq));
+
+        fakePlayer.getInventory().setPiecesOfEquipment(slots);
+        fakePlayer.getInventory().update();
     }
 
     public void syncOverlays(){
@@ -84,7 +78,7 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
             case CHEST -> e.getChestplate();
             case LEGS -> e.getLeggings();
             case FEET -> e.getBoots();
-            case OFFHAND -> e.getItemInOffHand();
+            case OFF_HAND -> e.getItemInOffHand();
             default -> e.getItemInMainHand();
         };
         return stack == null ? new org.bukkit.inventory.ItemStack(Material.AIR) : stack;

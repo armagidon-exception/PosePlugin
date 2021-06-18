@@ -75,7 +75,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
 
         metadataAccessor = new MetadataEditorProtocolized(this);
         npcSynchronizer = new NPCSynchronizerProtocolized(this);
-        customEquipmentManager = new NPCInventoryProtocolized(this);
+        inventory = new NPCInventoryProtocolized(this);
 
         //Set metadata
         setMetadata();
@@ -167,7 +167,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
     public void spawnToPlayer(Player player) {
         spawner.sendPacket(player);
         fakeBedPacket.sendPacket(player);
-        customEquipmentManager.showEquipment(player);
+        inventory.showEquipment(player);
         metadataAccessor.showPlayer(player);
         if(metadataAccessor.getPose().equals(Pose.SLEEPING))
             movePacket.sendPacket(player);
@@ -197,7 +197,9 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
     public void setLocationRotation(double x, double y, double z, float pitch, float yaw) {
         this.movePacket.setPitch(pitch);
         this.movePacket.setYaw(yaw);
-        this.position.set(x,y,z);
+        this.position.setX(x);
+        this.position.setY(y);
+        this.position.setZ(z);
         this.position.setPitch(pitch);
         this.position.setYaw(yaw);
         this.spawner.setX(x);

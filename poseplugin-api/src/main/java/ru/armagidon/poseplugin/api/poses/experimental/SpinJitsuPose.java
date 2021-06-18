@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.api.poses.spin;
+package ru.armagidon.poseplugin.api.poses.experimental;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,13 +19,13 @@ import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
 @PoseAvailabilitySince(version = "1.15")
-public class SpinJitsu extends AbstractPose
+public class SpinJitsuPose extends AbstractPose
 {
 
     private final FakePlayer<?> npc;
     private final Location to;
 
-    public SpinJitsu(Player target) {
+    public SpinJitsuPose(Player target) {
         super(target);
         this.npc = ToolFactory.create(FakePlayer.class,new Class[]{Player.class, Pose.class}, target, Pose.SPIN_ATTACK);
         getProperties().register();
@@ -38,6 +38,7 @@ public class SpinJitsu extends AbstractPose
         npc.setHeadRotationEnabled(false);
         npc.setSynchronizationEquipmentEnabled(true);
         npc.setSynchronizationOverlaysEnabled(true);
+        npc.getInventory().setItemMapper(new TagRemovingMapper("PosePluginItem"));
         Location l = to.clone();
         l.setPitch(-90f);
         npc.setLocationRotation(l);
@@ -45,9 +46,6 @@ public class SpinJitsu extends AbstractPose
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
-        for (PlayerArmorChangeEvent.SlotType value : PlayerArmorChangeEvent.SlotType.values()) {
-            updateNPCsArmor(value, getEquipmentBySlot(value, getPlayer().getEquipment()));
-        }
     }
 
     @Override
@@ -79,15 +77,6 @@ public class SpinJitsu extends AbstractPose
         }
     }
 
-    @PersonalEventHandler
-    public final void onArmorChange(PlayerArmorChangeEvent event){
-        if(event.getNewItem() == null) return;
-
-        NBTModifier.remove(event.getNewItem(), "PosePluginItem");
-
-        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(event.getSlotType().name()), event.getNewItem());
-    }
-
     private ItemStack getEquipmentBySlot(PlayerArmorChangeEvent.SlotType slot, EntityEquipment eq){
         ItemStack out = switch (slot) {
             case HEAD -> eq.getHelmet();
@@ -96,10 +85,6 @@ public class SpinJitsu extends AbstractPose
             case FEET -> eq.getBoots();
         };
         return out != null ? out : new ItemStack(Material.AIR);
-    }
-
-    private void updateNPCsArmor(PlayerArmorChangeEvent.SlotType slotType, ItemStack stack){
-        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(slotType.name()), stack);
     }
 
     @Override

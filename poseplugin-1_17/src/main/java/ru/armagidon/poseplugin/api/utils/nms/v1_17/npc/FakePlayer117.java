@@ -107,7 +107,7 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         setMetadata();
         this.npcSynchronizer = new NPCSynchronizer117(this);
 
-        this.customEquipmentManager = new NPCInventory117(this);
+        this.inventory = new NPCInventory117(this);
 
         this.destroy = new ClientboundRemoveEntityPacket(fake.getId());
 
@@ -122,17 +122,15 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         Set<Player> detectedPlayers = Bukkit.getOnlinePlayers().stream().filter(p -> p.getWorld().equals(parent.getWorld()))
                 .filter(p -> p.getLocation().distanceSquared(parent.getLocation()) <= Math.pow(viewDistance, 2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
-        trackers.forEach(receiver -> sendPacket(receiver, addNPCData));
         trackers.forEach(this::spawnToPlayer);
-        PosePluginAPI.getAPI().getTickManager().later(() ->
-                trackers.forEach(receiver -> sendPacket(receiver, removeNPCData)), 5);
     }
 
     public void spawnToPlayer(Player receiver){
+        sendPacket(receiver, addNPCData);
         sendPacket(receiver, spawner);
         fakeBed();
 
-        customEquipmentManager.showEquipment(receiver);
+        inventory.showEquipment(receiver);
 
         metadataAccessor.showPlayer(receiver);
 
@@ -142,6 +140,8 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
             PosePluginAPI.getAPI().getTickManager().later(() ->
                     setHeadRotationEnabled(true), 10);
         }
+        PosePluginAPI.getAPI().getTickManager().later(() ->
+                sendPacket(receiver, removeNPCData), 5);
     }
 
     //Remove methods

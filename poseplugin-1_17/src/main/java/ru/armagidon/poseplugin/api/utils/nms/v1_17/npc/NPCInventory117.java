@@ -27,31 +27,14 @@ public class NPCInventory117 extends NPCInventory<SynchedEntityData> {
             FakePlayer117.sendPacket(receiver, customEquipmentPacket);
     }
 
-    @Override
-    public void setPieceOfEquipment(EquipmentSlot slotType, org.bukkit.inventory.ItemStack hand) {
-        if(hand == null) return;
-        customEquipment.put(slotType, hand);
-        mergeCustomEquipmentPacket();
-    }
-
-    @Override
-    public void removePieceOfEquipment(EquipmentSlot slot) {
-        if(slot == null) return;
-        if(!customEquipment.containsKey(slot)) return;
-        customEquipment.remove(slot);
-        mergeCustomEquipmentPacket();
-    }
-
-    private void mergeCustomEquipmentPacket() {
+    public void mergeCustomEquipmentPacket() {
         List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> slots = customEquipment.entrySet().stream().map(entry->
                 Pair.of(adaptToItemSlot(entry.getKey()), CraftItemStack.asNMSCopy(entry.getValue()))).collect(Collectors.toList());
         customEquipmentPacket = new ClientboundSetEquipmentPacket(fakePlayer.getId(), slots);
-        fakePlayer.updateNPC();
     }
 
     @SneakyThrows
     public static net.minecraft.world.entity.EquipmentSlot adaptToItemSlot(EquipmentSlot slotType){
         return net.minecraft.world.entity.EquipmentSlot.values()[slotType.ordinal()];
     }
-
 }

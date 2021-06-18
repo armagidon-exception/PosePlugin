@@ -5,21 +5,19 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import ru.armagidon.poseplugin.api.utils.misc.ItemBuilder;
-import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.events.PlayerArmorChangeEvent;
 import ru.armagidon.poseplugin.api.personalListener.PersonalEventHandler;
 import ru.armagidon.poseplugin.api.poses.AbstractPose;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
+import ru.armagidon.poseplugin.api.utils.misc.ItemBuilder;
+import ru.armagidon.poseplugin.api.utils.misc.NBTModifier;
 import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
-import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.property.Property;
+import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
 
 public abstract class ExperimentalHandPose extends AbstractPose
 {
@@ -37,22 +35,21 @@ public abstract class ExperimentalHandPose extends AbstractPose
         getProperties().register();
 
         this.to = target.getLocation().clone();
-
     }
 
     @Override
     public final void initiate() {
         super.initiate();
+        npc.getInventory().setPieceOfEquipment(EquipmentSlot.HAND, handItem);
+        npc.getNpcSynchronizer().ignoreSlot(EquipmentSlot.HAND);
+        npc.getInventory().setItemMapper(new TagRemovingMapper("PosePluginItem"));
         npc.setHeadRotationEnabled(true);
-        npc.setSynchronizationEquipmentEnabled(false);
+        npc.setSynchronizationEquipmentEnabled(true);
         npc.setSynchronizationOverlaysEnabled(true);
         npc.initiate();
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());
-        for (PlayerArmorChangeEvent.SlotType value : PlayerArmorChangeEvent.SlotType.values()) {
-            updateNPCsArmor(value, getEquipmentBySlot(value, getPlayer().getEquipment()));
-        }
     }
 
     @Override
@@ -62,8 +59,6 @@ public abstract class ExperimentalHandPose extends AbstractPose
         } else {
             npc.spawnToPlayer(receiver);
         }
-        //Requires PosePluginItems resource-pack
-        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.HAND, handItem);
     }
 
     @Override
@@ -86,30 +81,6 @@ public abstract class ExperimentalHandPose extends AbstractPose
         }
     }
 
-    @PersonalEventHandler
-    public final void onArmorChange(PlayerArmorChangeEvent event){
-        if(event.getNewItem()==null) return;
-
-        NBTModifier.remove(event.getNewItem(), "PosePluginItem");
-        //PosePluginAPI.pluginTagClear.pushThrough(event.getNewItem());
-
-        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(event.getSlotType().name()), event.getNewItem());
-    }
-
-    private ItemStack getEquipmentBySlot(PlayerArmorChangeEvent.SlotType slot, EntityEquipment eq){
-        ItemStack out = switch (slot) {
-            case HEAD -> eq.getHelmet();
-            case CHEST -> eq.getChestplate();
-            case LEGS -> eq.getLeggings();
-            case FEET -> eq.getBoots();
-        };
-        return out != null ? out : new ItemStack(Material.AIR);
-    }
-
-    private void updateNPCsArmor(PlayerArmorChangeEvent.SlotType slotType, ItemStack stack){
-        npc.getCustomEquipmentManager().setPieceOfEquipment(EquipmentSlot.valueOf(slotType.name()), stack);
-    }
-
     protected static ItemStack addHideTag(ItemStack stack){
         NBTModifier.setString(stack, "PosePluginItem", stack.getType().name());
         return stack;
@@ -129,15 +100,15 @@ public abstract class ExperimentalHandPose extends AbstractPose
     }
 
     @PoseAvailabilitySince(version = "1.15")
-    public static class PointPose extends ExperimentalHandPose {
+    public static class ClapPose extends ExperimentalHandPose {
 
-        public PointPose(Player target) {
+        public ClapPose(Player target) {
             super(target, Material.BOW);
         }
 
         @Override
         public EnumPose getType() {
-            return EnumPose.POINTING;
+            return EnumPose.CLAPPING;
         }
     }
 
@@ -152,6 +123,20 @@ public abstract class ExperimentalHandPose extends AbstractPose
         @Override
         public EnumPose getType() {
             return EnumPose.WAVING;
+        }
+    }
+
+    @PoseAvailabilitySince(version = "1.17")
+    public static class PointPose extends ExperimentalHandPose
+    {
+
+        public PointPose(Player target) {
+            super(target, Material.SPYGLASS);
+        }
+
+        @Override
+        public EnumPose getType() {
+            return EnumPose.POINTING;
         }
     }
 }

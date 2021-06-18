@@ -2,9 +2,6 @@ package ru.armagidon.poseplugin.api.utils.nms.protocolized.npc;
 
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCInventory;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.New.NewNPCInventory;
@@ -32,12 +29,7 @@ public class NPCInventoryProtocolized extends NPCInventory<WrappedDataWatcher>
     }
 
     @Override
-    public void setPieceOfEquipment(EquipmentSlot slotType, ItemStack stack) {
-        this.equipmentManager.setPieceOfEquipment(slotType, stack);
-    }
-
-    @Override
-    public void removePieceOfEquipment(EquipmentSlot slot) {
-        this.equipmentManager.removePieceOfEquipment(slot);
+    public void mergeCustomEquipmentPacket() {
+        equipmentManager.mergeCustomEquipmentPacket();
     }
 }
