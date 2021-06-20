@@ -1,5 +1,6 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -11,6 +12,8 @@ import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
 
 import java.util.Optional;
 
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.toBedLocation;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.toBlockPosition;
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.*;
 
 
@@ -39,7 +42,7 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
     @Override
     public void setBedPosition(Location location) {
         fakePlayer.getDataWatcher().set(EntityDataSerializers.OPTIONAL_BLOCK_POS.createAccessor(14),
-                Optional.of(toBlockPosition(toBedLocation(location))));
+                Optional.of(toBlockPosition(toBedLocation(location), BlockPos.class)));
     }
 
     @Override
@@ -129,4 +132,8 @@ public class NPCMetadataEditor117 extends NPCMetadataEditor<SynchedEntityData>
         return  ((n & (1 << (k - 1))) == 1);
     }
 
+    @Override
+    public void update() {
+        fakePlayer.getTrackers().forEach(this::showPlayer);
+    }
 }

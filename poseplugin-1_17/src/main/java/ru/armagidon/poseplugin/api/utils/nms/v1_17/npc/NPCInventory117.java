@@ -4,14 +4,16 @@ import com.mojang.datafixers.util.Pair;
 import lombok.SneakyThrows;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCInventory;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.adaptToItemSlot;
 
 
 public class NPCInventory117 extends NPCInventory<SynchedEntityData> {
@@ -28,13 +30,10 @@ public class NPCInventory117 extends NPCInventory<SynchedEntityData> {
     }
 
     public void mergeCustomEquipmentPacket() {
-        List<Pair<net.minecraft.world.entity.EquipmentSlot, ItemStack>> slots = customEquipment.entrySet().stream().map(entry->
-                Pair.of(adaptToItemSlot(entry.getKey()), CraftItemStack.asNMSCopy(entry.getValue()))).collect(Collectors.toList());
+        List<Pair<EquipmentSlot, ItemStack>> slots = customEquipment.entrySet().stream().map(entry->
+                Pair.of(adaptToItemSlot(entry.getKey(), EquipmentSlot.class), CraftItemStack.asNMSCopy(entry.getValue()))).collect(Collectors.toList());
         customEquipmentPacket = new ClientboundSetEquipmentPacket(fakePlayer.getId(), slots);
     }
 
-    @SneakyThrows
-    public static net.minecraft.world.entity.EquipmentSlot adaptToItemSlot(EquipmentSlot slotType){
-        return net.minecraft.world.entity.EquipmentSlot.values()[slotType.ordinal()];
-    }
+
 }

@@ -48,7 +48,6 @@ public class ArmorHider implements Listener, Tickable {
         Arrays.stream(armor).forEach(i -> NBTModifier.remove(i, NBT_TAG));
         player.updateInventory();
     }
-
     @EventHandler
     public void onArmor(PlayerArmorChangeEvent event){
         if(!hiddenArmor.contains(event.getPlayer())) return;

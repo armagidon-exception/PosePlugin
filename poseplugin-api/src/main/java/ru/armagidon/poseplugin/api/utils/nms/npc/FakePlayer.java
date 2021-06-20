@@ -25,11 +25,12 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
 {
 
     /**Flags**/
-    private boolean created = false;
+    private @Getter boolean created = false;
     private @Getter @Setter boolean headRotationEnabled;
     private @Getter @Setter boolean synchronizationOverlaysEnabled;
     private @Getter @Setter boolean synchronizationEquipmentEnabled;
     private @Getter @Setter boolean swingAnimationEnabled;
+    private @Getter @Setter boolean deepDiveEnabled;
 
     protected @Getter final Player parent;
     protected BlockCache cache;
@@ -82,6 +83,7 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
         PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(getClass(), this);
         HandlerList.unregisterAll(this);
         FAKE_PLAYERS.remove(this);
+        if (isDeepDiveEnabled()) deactivateDeepDive();
     }
 
     public abstract void animation(byte id);
@@ -89,6 +91,10 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     public abstract void swingHand(boolean main);
 
     public abstract void setLocationRotation(double x, double y, double z, float pitch, float yaw);
+
+    public abstract void setRotation(float pitch, float yaw);
+
+    public abstract Location getPosition();
 
     public void setLocationRotation(Location location) {
         setLocationRotation(location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw());
@@ -98,7 +104,7 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     public final void setInvisible(boolean invisible){
         getMetadataAccessor().setInvisible(invisible);
         getMetadataAccessor().merge(true);
-        updateNPC();
+        getMetadataAccessor().update();
     }
 
     public boolean isInvisible(){
@@ -112,14 +118,14 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
     public void setActiveHand(HandType type) {
         metadataAccessor.setActiveHand(type.getHandModeFlag());
         metadataAccessor.merge(true);
-        updateNPC();
+        metadataAccessor.update();
         activeHand = type;
     }
 
     public final void disableHands(){
         getMetadataAccessor().disableHand();
         getMetadataAccessor().merge(true);
-        updateNPC();
+        metadataAccessor.update();
     }
 
     public final void updateNPC(){
@@ -127,11 +133,27 @@ public abstract class FakePlayer<DataWatcher> implements Tickable, Listener
             broadCastSpawn();
     }
 
+    protected abstract void activateDeepDive();
+
+    protected abstract void deactivateDeepDive();
+
     public void teleport(Location destination) {}
 
     public abstract int getId();
 
     public abstract DataWatcher getDataWatcher();
+
+
+    public void setDeepDiveEnabled(boolean deepDiveEnabled) {
+        this.deepDiveEnabled = deepDiveEnabled;
+        if (isCreated()) {
+            if (deepDiveEnabled) {
+                activateDeepDive();
+            } else {
+                deactivateDeepDive();
+            }
+        }
+    }
 
     @EventHandler
     public void onArmSwing(PlayerAnimationEvent event){

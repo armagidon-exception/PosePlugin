@@ -11,7 +11,7 @@ import ru.armagidon.poseplugin.api.poses.AbstractPose;
 public abstract class SeatRequiringPose extends AbstractPose implements SeatObserver
 {
 
-    private final ArmorStandSeat seat;
+    protected final ArmorStandSeat seat;
 
     public SeatRequiringPose(Player target) {
         super(target);

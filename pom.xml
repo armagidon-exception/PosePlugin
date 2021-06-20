@@ -6,7 +6,7 @@
 
     <groupId>ru.armagidon</groupId>
     <artifactId>PosePlugin</artifactId>
-    <version>3.1-beta</version>
+    <version>4.0-beta-1</version>
     <modules>
         <module>poseplugin</module>
         <module>poseplugin-api</module>
@@ -21,12 +21,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <build.number>3</build.number>
-        <build.prefix>-beta</build.prefix>
-        <build.version>3.1</build.version>
-        <plugin.version>${build.version}${build.prefix}</plugin.version>
-        <plugin.name>poseplugin</plugin.name>
-        <build.name>${plugin.name}${build.prefix}-${build.version}-b${build.number}</build.name>
     </properties>
     <repositories>
         <repository>

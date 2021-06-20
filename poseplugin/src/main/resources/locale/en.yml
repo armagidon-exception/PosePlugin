@@ -27,12 +27,22 @@ point:
   stop: "§aYou've stopped pointing"
   usage: "§9/point [right/left/off]"
 handshake:
-  play: "§bYou started handshaking with you hand."
+  play: "§bYou started handshaking with your hand."
   damage: "§cYou suddenly stood up, because you got damaged"
   handmode-change: "§aYou've changed your hand to handshake with"
   stop: "§aYou've stopped your handshake"
   usage: "§9/handshake [right/left/off]"
+clap:
+  play: "§bYou started clapping with your hands."
+  damage: "§cYou suddenly stood up, because you got damaged"
+  handmode-change: "§aYou've changed your hand to clap with"
+  stop: "§aYou've stopped clapping"
+  usage: "§9/clap [right/left/off]"
 pray:
   play: "§bYou've started praying"
+  damage: "§cYou suddenly stood up, because you got damaged"
+  stop: "§aYou stood up"
+spinjitsu:
+  play: "§bYou've started spinjitsu"
   damage: "§cYou suddenly stood up, because you got damaged"
   stop: "§aYou stood up"

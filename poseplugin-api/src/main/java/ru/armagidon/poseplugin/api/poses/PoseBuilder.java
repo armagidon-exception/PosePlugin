@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import ru.armagidon.poseplugin.api.player.PosePluginPlayer;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.versions.PoseAvailabilitySince;
-import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
+import ru.armagidon.poseplugin.api.utils.versions.Version;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,9 +44,9 @@ public class PoseBuilder {
         }
 
         if (pose.getClass().isAnnotationPresent(PoseAvailabilitySince.class)) {
-            int currentVersion = VersionControl.getMCVersion();
+            int currentVersion = Version.getCurrentVersionPriority();
             PoseAvailabilitySince ann = pose.getClass().getAnnotation(PoseAvailabilitySince.class);
-            int allowedVersion = VersionControl.getVersionPriority(ann.version());
+            int allowedVersion = Version.getVersionPriority(ann.version());
             if (currentVersion == -1) {
                 throw new IllegalMCVersionException("This version is not supported by plugin");
             }

@@ -20,21 +20,27 @@ public enum EnumPose {
             EnumPoseOption.INVISIBLE,
             EnumPoseOption.SWING_ANIMATION),
     CRAWLING("crawl", CrawlPose.class),
-    WAVING("wave", ExperimentalHandPose.WavePose.class, EnumPoseOption.HANDTYPE),
-    POINTING("point", ExperimentalHandPose.PointPose.class, EnumPoseOption.HANDTYPE),
-    CLAPPING("clap", ExperimentalHandPose.ClapPose.class, EnumPoseOption.HANDTYPE),
-    HANDSHAKING("handshake", ExperimentalHandPose.HandShakePose.class, EnumPoseOption.HANDTYPE),
-    PRAYING("pray", PrayPose.class, EnumPoseOption.STEP),
-    SPINJITSU("spinjitsu", SpinJitsuPose.class);
+    WAVING("wave", ExperimentalHandPose.WavePose.class, true, EnumPoseOption.HANDTYPE),
+    POINTING("point", ExperimentalHandPose.PointPose.class, true, EnumPoseOption.HANDTYPE),
+    CLAPPING("clap", ExperimentalHandPose.ClapPose.class, true, EnumPoseOption.HANDTYPE),
+    HANDSHAKING("handshake", ExperimentalHandPose.HandShakePose.class, true, EnumPoseOption.HANDTYPE),
+    PRAYING("pray", PrayPose.class, true, EnumPoseOption.STEP),
+    SPINJITSU("spinjitsu", SpinJitsuPose.class, true);
 
     @Getter private final String name;
     private final EnumPoseOption<?>[] enumPoseOptions;
     @Getter private final Class<? extends IPluginPose> poseClass;
+    @Getter private final boolean experimental;
 
-    EnumPose(String name, Class<? extends IPluginPose> poseClass, EnumPoseOption<?>... enumPoseOptions) {
+    EnumPose(String name, Class<? extends IPluginPose> poseClass, boolean experimental, EnumPoseOption<?>... enumPoseOptions) {
         this.name = name;
         this.poseClass = poseClass;
         this.enumPoseOptions = enumPoseOptions;
+        this.experimental = experimental;
+    }
+
+    EnumPose(String name, Class<? extends IPluginPose> poseClass, EnumPoseOption<?>... enumPoseOptions) {
+        this(name, poseClass, false, enumPoseOptions);
     }
 
     EnumPose(String name, Class<? extends IPluginPose> poseClass) {

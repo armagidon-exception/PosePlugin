@@ -111,7 +111,7 @@ public class SimpleCommand
 
     public static class Builder {
 
-        private String permission, permissionMessage, usage;
+        private String permission ="", permissionMessage ="", usage = "";
         private Executor executor = Executor.EMPTY;
 
         private final Map<String, Executor> subCommands = new HashMap<>();

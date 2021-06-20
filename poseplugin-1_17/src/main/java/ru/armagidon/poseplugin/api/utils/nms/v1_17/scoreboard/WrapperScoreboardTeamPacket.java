@@ -18,6 +18,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 import static net.minecraft.world.scores.Team.Visibility.*;
+import static ru.armagidon.poseplugin.api.utils.nms.ReflectionTools.getPropertyField;
 
 public class WrapperScoreboardTeamPacket
 {
@@ -210,14 +211,6 @@ public class WrapperScoreboardTeamPacket
 
     public void sendPacket(Player receiver) {
         ((CraftPlayer)receiver).getHandle().connection.send(getHandle());
-    }
-
-    private static Field getPropertyField(Class<?> type, Class<?> target) {
-        return Arrays.stream(target.getDeclaredFields())
-                .filter(f -> (f.getModifiers() & Modifier.STATIC) == 0)
-                .filter(f -> f.getType().equals(type))
-                .peek(f -> f.setAccessible(true))
-                .findFirst().get();
     }
 
     private void retrieveInfo(ClientboundSetPlayerTeamPacket handle) {

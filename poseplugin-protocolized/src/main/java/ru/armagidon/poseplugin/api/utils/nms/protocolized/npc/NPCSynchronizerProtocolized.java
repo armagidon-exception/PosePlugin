@@ -1,6 +1,7 @@
 package ru.armagidon.poseplugin.api.utils.nms.protocolized.npc;
 
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import org.bukkit.Location;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
@@ -13,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.getEquipmentBySlot;
-import static ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.FakePlayerUtils.getFixedRotation;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getEquipmentBySlot;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getFixedRotation;
 
 
 public class NPCSynchronizerProtocolized extends NPCSynchronizer<WrappedDataWatcher>
@@ -38,14 +39,15 @@ public class NPCSynchronizerProtocolized extends NPCSynchronizer<WrappedDataWatc
     }
 
     public void syncHeadRotation() {
-        ((FakePlayerProtocolized)fakePlayer).getPosition().setYaw(fakePlayer.getParent().getLocation().getYaw());
+        fakePlayer.setRotation(fakePlayer.getParent().getLocation().getPitch(), fakePlayer.getParent().getLocation().getYaw());
+
         WrapperPlayServerEntityHeadRotation rotation = new WrapperPlayServerEntityHeadRotation();
         rotation.setEntityID(fakePlayer.getId());
-        rotation.setHeadYaw(getFixedRotation(((FakePlayerProtocolized)fakePlayer).getPosition().getYaw()));
+        rotation.setHeadYaw(getFixedRotation(fakePlayer.getPosition().getYaw()));
         WrapperPlayServerRelEntityMoveLook lookPacket = new WrapperPlayServerRelEntityMoveLook();
         lookPacket.setEntityID(fakePlayer.getId());
-        lookPacket.setYaw(((FakePlayerProtocolized)fakePlayer).getPosition().getYaw());
-        lookPacket.setPitch(((FakePlayerProtocolized)fakePlayer).getPosition().getPitch());
+        lookPacket.setYaw(fakePlayer.getPosition().getYaw());
+        lookPacket.setPitch(fakePlayer.getPosition().getPitch());
         lookPacket.setOnGround(true);
         fakePlayer.getTrackers().forEach(p -> {
             lookPacket.sendPacket(p);

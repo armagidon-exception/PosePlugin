@@ -29,7 +29,7 @@ public class ArmorStandSeat implements Listener, Tickable
     private ArmorStand seat;
     private final Set<SeatObserver> seatObservers = new HashSet<>();
     private static final String METADATA_KEY = "PosePluginSeatStandUpCause";
-
+    private double yOffset = 0;
 
     public ArmorStandSeat(Player sitter) {
         this.sitter = sitter;
@@ -38,9 +38,13 @@ public class ArmorStandSeat implements Listener, Tickable
     }
 
     public void takeASeat() {
+        takeASeat(0);
+    }
 
+    public void takeASeat(double yOffset) {
         Location location = sitter.getLocation().clone();
-        seat = sitter.getWorld().spawn(location.clone().subtract(0, 0.2D, 0), ArmorStand.class, (armorStand -> {
+        this.yOffset = yOffset;
+        seat = sitter.getWorld().spawn(location.clone().add(0, yOffset, 0).subtract(0, 0.2D, 0), ArmorStand.class, (armorStand -> {
             armorStand.setGravity(false);
             armorStand.setMarker(true);
             armorStand.setSmall(true);
@@ -50,21 +54,24 @@ public class ArmorStandSeat implements Listener, Tickable
         }));
     }
 
+
     public void standUp() {
+        if (seat == null) return;
         HandlerList.unregisterAll(this);
         sitter.eject();
         seat.addScoreboardTag("PPGC");
         seat.remove();
-        sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection()));
+        sitter.teleport(seat.getLocation().clone().subtract(0, yOffset, 0).add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection()));
         if( PosePluginAPI.getAPI().getPlugin().isEnabled() ) {
             Bukkit.getScheduler().runTaskLater(PosePluginAPI.getAPI().getPlugin(), () ->
-                    sitter.teleport(seat.getLocation().clone().add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection())), 1);
+                    sitter.teleport(seat.getLocation().clone().subtract(0, yOffset, 0).add(0, 0.2D,0).setDirection(sitter.getLocation().getDirection())), 1);
         }
         PosePluginAPI.getAPI().getTickingBundle().removeFromTickingBundle(ArmorStandSeat.class, this);
     }
 
     @EventHandler
     private void armorManipulate(PlayerArmorStandManipulateEvent event){
+        if (seat == null) return;
         if(event.getRightClicked().equals(seat)){
             event.setCancelled(true);
         }
@@ -72,6 +79,7 @@ public class ArmorStandSeat implements Listener, Tickable
 
     @EventHandler
     private void playerStoodUpEvent(EntityDismountEvent event){
+        if (seat == null) return;
         if( event.getEntity().getType().equals(EntityType.PLAYER) && event.getDismounted().getType().equals(EntityType.ARMOR_STAND) ){
             ArmorStand stand = (ArmorStand) event.getDismounted();
             Player player = (Player) event.getEntity();
@@ -97,6 +105,7 @@ public class ArmorStandSeat implements Listener, Tickable
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onTeleport(PlayerTeleportEvent event) {
+        if (seat == null) return;
         if (event.getPlayer().hasMetadata(METADATA_KEY)) return;
         if (event.getPlayer().equals(sitter) && event.getPlayer().getVehicle() != null && event.getPlayer().getVehicle().equals(seat)) {
             event.getPlayer().setMetadata(METADATA_KEY, new FixedMetadataValue(PosePluginAPI.getAPI().getPlugin(), StandUpCause.TELEPORT));
@@ -142,6 +151,7 @@ public class ArmorStandSeat implements Listener, Tickable
     }
 
     public void pushBack() {
+        if (seat == null) return;
         PosePluginAPI.getAPI().getTickManager().later(() -> seat.addPassenger(sitter), 3);
     }
 

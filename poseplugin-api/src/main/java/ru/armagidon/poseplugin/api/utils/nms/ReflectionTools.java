@@ -3,7 +3,10 @@ package ru.armagidon.poseplugin.api.utils.nms;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 public class ReflectionTools
 {
@@ -53,5 +56,14 @@ public class ReflectionTools
     @SneakyThrows
     public static Class<?> getCBClass(String craftBukkitClassName){
         return Class.forName("org.bukkit.craftbukkit." +nmsVersion() + "." + craftBukkitClassName);
+    }
+
+    @SneakyThrows
+    public static Field getPropertyField(Class<?> type, Class<?> target) {
+        return Arrays.stream(target.getDeclaredFields())
+                .filter(f -> (f.getModifiers() & Modifier.STATIC) == 0)
+                .filter(f -> f.getType().equals(type))
+                .peek(f -> f.setAccessible(true))
+                .findFirst().get();
     }
 }

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.FakePlayerUtils.setBit;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.setBit;
 
 public class WrapperScoreboardTeamPacket
 {

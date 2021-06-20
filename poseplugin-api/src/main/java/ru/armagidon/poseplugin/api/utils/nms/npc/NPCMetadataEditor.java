@@ -3,8 +3,9 @@ package ru.armagidon.poseplugin.api.utils.nms.npc;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
+import ru.armagidon.poseplugin.api.utils.nms.Updatable;
 
-public abstract class NPCMetadataEditor<T>
+public abstract class NPCMetadataEditor<T> implements Updatable
 {
     protected final T dataWatcher;
     protected boolean invisible;

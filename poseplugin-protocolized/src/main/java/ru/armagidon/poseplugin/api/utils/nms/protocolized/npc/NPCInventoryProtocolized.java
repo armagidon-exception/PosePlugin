@@ -6,7 +6,7 @@ import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCInventory;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.New.NewNPCInventory;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.Old.OldNPCInventory;
-import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
+import ru.armagidon.poseplugin.api.utils.versions.Version;
 
 
 public class NPCInventoryProtocolized extends NPCInventory<WrappedDataWatcher>
@@ -16,7 +16,7 @@ public class NPCInventoryProtocolized extends NPCInventory<WrappedDataWatcher>
 
     public NPCInventoryProtocolized(FakePlayer<WrappedDataWatcher> fakePlayer) {
         super(fakePlayer);
-        if (VersionControl.getMCVersion() == 1) {
+        if (Version.getCurrentVersionPriority() == 1) {
             this.equipmentManager = new OldNPCInventory(fakePlayer);
         } else {
             this.equipmentManager = new NewNPCInventory(fakePlayer);

@@ -4,7 +4,7 @@ import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
 public interface EnumPoseOption<T> {
 
-    EnumPoseOption<HandType> HANDTYPE = new EnumPoseOption<HandType>() {
+    EnumPoseOption<HandType> HANDTYPE = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "handtype";
@@ -21,7 +21,7 @@ public interface EnumPoseOption<T> {
         }
     };
 
-    EnumPoseOption<Boolean> HEAD_ROTATION = new EnumPoseOption<Boolean>() {
+    EnumPoseOption<Boolean> HEAD_ROTATION = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "head-rotation";
@@ -38,7 +38,7 @@ public interface EnumPoseOption<T> {
         }
     };
 
-    EnumPoseOption<Boolean> SWING_ANIMATION = new EnumPoseOption<Boolean>() {
+    EnumPoseOption<Boolean> SWING_ANIMATION = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "swing-animation";
@@ -55,7 +55,7 @@ public interface EnumPoseOption<T> {
         }
     };
 
-    EnumPoseOption<Boolean> SYNC_EQUIPMENT = new EnumPoseOption<Boolean>() {
+    EnumPoseOption<Boolean> SYNC_EQUIPMENT = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "sync-equipment";
@@ -72,7 +72,7 @@ public interface EnumPoseOption<T> {
         }
     };
 
-    EnumPoseOption<Boolean> SYNC_OVERLAYS = new EnumPoseOption<Boolean>() {
+    EnumPoseOption<Boolean> SYNC_OVERLAYS = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "sync-overlays";
@@ -89,7 +89,7 @@ public interface EnumPoseOption<T> {
         }
     };
 
-    EnumPoseOption<Boolean> INVISIBLE = new EnumPoseOption<Boolean>() {
+    EnumPoseOption<Boolean> INVISIBLE = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "invisible";
@@ -106,7 +106,7 @@ public interface EnumPoseOption<T> {
         }
     };
 
-    EnumPoseOption<Integer> VIEW_DISTANCE = new EnumPoseOption<Integer>() {
+    EnumPoseOption<Integer> VIEW_DISTANCE = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "view-distance";
@@ -123,7 +123,7 @@ public interface EnumPoseOption<T> {
         }
     };
 
-    EnumPoseOption<Float> STEP = new EnumPoseOption<Float>() {
+    EnumPoseOption<Float> STEP = new EnumPoseOption<>() {
         @Override
         public String mapper() {
             return "step";
@@ -137,6 +137,23 @@ public interface EnumPoseOption<T> {
         @Override
         public Float defaultValue() {
             return 1f;
+        }
+    };
+
+    EnumPoseOption<Boolean> DEEP_DIVE = new EnumPoseOption<>() {
+        @Override
+        public String mapper() {
+            return "deep-dive";
+        }
+
+        @Override
+        public Class<Boolean> getTypeClass() {
+            return Boolean.class;
+        }
+
+        @Override
+        public Boolean defaultValue() {
+            return false;
         }
     };
     

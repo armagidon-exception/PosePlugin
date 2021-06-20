@@ -5,7 +5,7 @@
     <parent>
         <artifactId>PosePlugin</artifactId>
         <groupId>ru.armagidon</groupId>
-        <version>3.1-beta</version>
+        <version>4.0-beta-1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>ru.armagidon</groupId>
             <artifactId>poseplugin-api</artifactId>
-            <version>3.1-beta</version>
+            <version>4.0-beta-1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -14,4 +14,11 @@ public enum HandType
     public boolean getHandModeFlag(){
         return handModeFlag;
     }
+
+    public HandType opposite() {
+        return switch (this) {
+            case LEFT -> RIGHT;
+            case RIGHT -> LEFT;
+        };
+    }
 }

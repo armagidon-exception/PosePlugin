@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.plugin.commands.corewrapper;
+package ru.armagidon.poseplugin.plugin.corewrapper;
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import org.bukkit.Bukkit;

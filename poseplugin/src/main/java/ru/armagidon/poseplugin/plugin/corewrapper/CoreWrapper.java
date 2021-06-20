@@ -1,4 +1,4 @@
-package ru.armagidon.poseplugin.plugin.commands.corewrapper;
+package ru.armagidon.poseplugin.plugin.corewrapper;
 
 import org.bukkit.command.CommandMap;
 import org.bukkit.event.Listener;

@@ -4,11 +4,9 @@ import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
-import org.bukkit.Material;
-import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.Location;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
 import ru.armagidon.poseplugin.api.utils.nms.npc.NPCSynchronizer;
 
@@ -18,6 +16,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
+import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.createPacketInstance;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getEquipmentBySlot;
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.FakePlayer117.OVERLAYS;
 
 
@@ -56,9 +56,8 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
     }
 
     public void syncHeadRotation() {
-        ((FakePlayer117) fakePlayer).getFake().setXRot(fakePlayer.getParent().getLocation().getYaw());
-        ClientboundRotateHeadPacket rotation = new ClientboundRotateHeadPacket(((FakePlayer117)fakePlayer).getFake(),
-                getFixedRotation(((FakePlayer117) fakePlayer).getFake().getXRot()));
+        fakePlayer.setRotation(fakePlayer.getParent().getLocation().getPitch(), fakePlayer.getParent().getLocation().getYaw());
+        ClientboundRotateHeadPacket rotation = new ClientboundRotateHeadPacket(((FakePlayer117)fakePlayer).getFake(), getFixedRotation(((FakePlayer117) fakePlayer).getFake().getXRot()));
         ClientboundMoveEntityPacket.PosRot lookPacket = new ClientboundMoveEntityPacket.PosRot(fakePlayer.getId(),
                 (short) 0,
                 (short) 0,
@@ -69,19 +68,6 @@ public class NPCSynchronizer117 extends NPCSynchronizer<SynchedEntityData> {
             FakePlayer117.sendPacket(p, lookPacket);
             FakePlayer117.sendPacket(p, rotation);
         });
-    }
-
-    public static org.bukkit.inventory.ItemStack getEquipmentBySlot(EntityEquipment e, @Nullable EquipmentSlot slot){
-        if (slot == null) return new org.bukkit.inventory.ItemStack(Material.AIR);
-        org.bukkit.inventory.ItemStack stack = switch (slot) {
-            case HEAD -> e.getHelmet();
-            case CHEST -> e.getChestplate();
-            case LEGS -> e.getLeggings();
-            case FEET -> e.getBoots();
-            case OFF_HAND -> e.getItemInOffHand();
-            default -> e.getItemInMainHand();
-        };
-        return stack == null ? new org.bukkit.inventory.ItemStack(Material.AIR) : stack;
     }
 
     public static byte getFixedRotation(float var1){

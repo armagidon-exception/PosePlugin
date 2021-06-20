@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.poses.EnumPose;
+import ru.armagidon.poseplugin.api.poses.experimental.TagRemovingMapper;
 import ru.armagidon.poseplugin.api.poses.options.EnumPoseOption;
 import ru.armagidon.poseplugin.api.utils.nms.ToolFactory;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
@@ -30,6 +31,7 @@ public class LayPose extends SeatRequiringPose {
                 .registerProperty(EnumPoseOption.SYNC_OVERLAYS.mapper(), new Property<>(fakePlayer::isSynchronizationOverlaysEnabled, fakePlayer::setSynchronizationOverlaysEnabled))
                 .registerProperty(EnumPoseOption.VIEW_DISTANCE.mapper(), new Property<>(fakePlayer::getViewDistance, fakePlayer::setViewDistance))
                 .registerProperty(EnumPoseOption.INVISIBLE.mapper(), new Property<>(fakePlayer::isInvisible, fakePlayer::setInvisible))
+                .registerProperty(EnumPoseOption.DEEP_DIVE.mapper(), new Property<>(fakePlayer::isDeepDiveEnabled, fakePlayer::setDeepDiveEnabled))
                 .register();
     }
 
@@ -37,6 +39,7 @@ public class LayPose extends SeatRequiringPose {
     public void initiate() {
         super.initiate();
         fakePlayer.initiate();
+        fakePlayer.getInventory().setItemMapper(new TagRemovingMapper("PosePluginItem"));
         PosePluginAPI.getAPI().getPlayerHider().hide(getPlayer());
         PosePluginAPI.getAPI().getNameTagHider().hideTag(getPlayer());
         PosePluginAPI.getAPI().getArmorHider().hideArmor(getPlayer());

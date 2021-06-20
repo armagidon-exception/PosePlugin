@@ -13,6 +13,7 @@ import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
+import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.wrappers.*;
 
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.setBit;
 
 @ToolPackage(mcVersion = "protocolized")
 public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
@@ -95,6 +98,9 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         //Set BedLocation to NPC if its pose is SLEEPING
         if(metadataAccessor.getPose().equals(Pose.SLEEPING))
             metadataAccessor.setBedPosition(bedLoc);
+        else if (metadataAccessor.getPose().equals(Pose.SPIN_ATTACK)){
+            metadataAccessor.setLivingEntityTags(setBit(metadataAccessor.getLivingEntityTags(), 2, true));
+        }
         metadataAccessor.merge(true);
 
     }
@@ -123,7 +129,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         WrapperPlayServerPlayerInfo addInfo = new WrapperPlayServerPlayerInfo();
         addInfo.setAction(EnumWrappers.PlayerInfoAction.ADD_PLAYER);
         List<PlayerInfoData> dataList = new ArrayList<>();
-        dataList.add(new PlayerInfoData(new WrappedGameProfile(parent.getUniqueId(), parent.getName()), 1, EnumWrappers.NativeGameMode.NOT_SET, WrappedChatComponent.fromText("")));
+        dataList.add(new PlayerInfoData(new WrappedGameProfile(parent.getUniqueId(), parent.getName()), 1, EnumWrappers.NativeGameMode.SURVIVAL, WrappedChatComponent.fromText("")));
         addInfo.setData(dataList);
         return addInfo;
     }
@@ -161,6 +167,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
                 .filter(p -> p.getLocation().distanceSquared(parent.getLocation()) <= Math.pow(viewDistance, 2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
         trackers.forEach(this::spawnToPlayer);
+        if (isDeepDiveEnabled()) activateDeepDive();
     }
 
     @Override
@@ -193,6 +200,17 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         }
     }
 
+
+    @Override
+    protected void activateDeepDive() {
+
+    }
+
+    @Override
+    protected void deactivateDeepDive() {
+
+    }
+
     @Override
     public void setLocationRotation(double x, double y, double z, float pitch, float yaw) {
         this.movePacket.setPitch(pitch);
@@ -205,7 +223,14 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
         this.spawner.setX(x);
         this.spawner.setY(y);
         this.spawner.setZ(z);
-        updateNPC();
+    }
+
+    @Override
+    public void setRotation(float pitch, float yaw) {
+        this.movePacket.setPitch(pitch);
+        this.movePacket.setYaw(yaw);
+        this.position.setPitch(pitch);
+        this.position.setYaw(yaw);
     }
 
     public void animation(byte id){

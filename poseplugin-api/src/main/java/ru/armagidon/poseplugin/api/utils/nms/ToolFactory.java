@@ -8,7 +8,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
-import ru.armagidon.poseplugin.api.utils.versions.VersionControl;
+import ru.armagidon.poseplugin.api.utils.versions.Version;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -27,7 +27,16 @@ public class ToolFactory
             Plugin protocolLib = Bukkit.getPluginManager().getPlugin("ProtocolLib");
             Reflections reflections = new Reflections(new ConfigurationBuilder().addScanners(new TypeAnnotationsScanner()).forPackages("ru.armagidon.poseplugin.api"));
             Set<Class<?>> classes;
-            if (protocolLib != null && protocolLib.isEnabled()) {
+
+            Version version = Version.getVersion();
+            if (version.isForceload()) {
+                PosePluginAPI.getAPI().getLogger().info(Version.getCurrentVersionString() + " is forced to use versioned packages. Loading...");
+                classes = reflections.getTypesAnnotatedWith(ToolPackage.class).stream().filter(clazz -> {
+                    String v = clazz.getAnnotation(ToolPackage.class).mcVersion();
+                    int priority = Version.getVersionPriority(v);
+                    return priority == Version.getCurrentVersionPriority();
+                }).collect(Collectors.toSet());
+            } else if (protocolLib != null && protocolLib.isEnabled()) {
                 PosePluginAPI.getAPI().getLogger().info("ProtocolLib is enabled! Running protocolized package");
                 classes = reflections.getTypesAnnotatedWith(ToolPackage.class).stream().filter(clazz ->
                         clazz.getAnnotation(ToolPackage.class).mcVersion().equalsIgnoreCase("protocolized")).collect(Collectors.toSet());
@@ -35,8 +44,8 @@ public class ToolFactory
                 PosePluginAPI.getAPI().getLogger().warning("ProtocolLib seems to be down. Using versioned package...");
                 classes = reflections.getTypesAnnotatedWith(ToolPackage.class).stream().filter(clazz -> {
                     String v = clazz.getAnnotation(ToolPackage.class).mcVersion();
-                    int priority = VersionControl.getVersionPriority(v);
-                    return priority == VersionControl.getMCVersion();
+                    int priority = Version.getVersionPriority(v);
+                    return priority == Version.getCurrentVersionPriority();
                 }).collect(Collectors.toSet());
             }
             if (classes.isEmpty()) {

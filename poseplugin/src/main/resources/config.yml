@@ -15,24 +15,29 @@ lay:
   update-overlays: true
   sync-equipment: true
   sync-overlays: true
+  deep-dive: false
 sit:
   stand-up-when-damaged: true
 wave:
   enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
+  deep-dive: false
 point:
   enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
+  deep-dive: false
 handshake:
   enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
+  deep-dive: false
 clap:
   enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
+  deep-dive: false
 pray:
   enabled: true
   step: 3.0
@@ -40,3 +45,4 @@ spinjitsu:
   enabled: true
   stand-up-when-damaged: true
   disable-when-shift: true
+  deep-dive: false

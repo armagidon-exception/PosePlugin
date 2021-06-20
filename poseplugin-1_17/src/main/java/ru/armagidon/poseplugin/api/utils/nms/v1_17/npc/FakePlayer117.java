@@ -1,6 +1,9 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
 import com.mojang.authlib.GameProfile;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.minecraft.core.BlockPos;
@@ -25,15 +28,20 @@ import org.bukkit.potion.PotionEffectType;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.misc.BlockCache;
 import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
+import ru.armagidon.poseplugin.api.utils.nms.NMSUtils;
+import ru.armagidon.poseplugin.api.utils.nms.ReflectionTools;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.HandType;
 
+import java.lang.reflect.Field;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.NMSUtils.asNMSCopy;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.toBedLocation;
+import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.toBlockPosition;
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCMetadataEditor117.setBit;
 import static ru.armagidon.poseplugin.api.utils.nms.v1_17.npc.NPCSynchronizer117.getFixedRotation;
 
@@ -47,6 +55,8 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
       on end - remove npc
       erase all data - destroy
       */
+
+    private static final String DEEP_DIVE_PACKET_CATCHER = "PPPCatcher";
 
     //Constants
     public static EntityDataAccessor<Byte> OVERLAYS;
@@ -123,15 +133,15 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
                 .filter(p -> p.getLocation().distanceSquared(parent.getLocation()) <= Math.pow(viewDistance, 2)).collect(Collectors.toSet());
         trackers.addAll(detectedPlayers);
         trackers.forEach(this::spawnToPlayer);
+        if (isDeepDiveEnabled()) activateDeepDive();
     }
 
     public void spawnToPlayer(Player receiver){
         sendPacket(receiver, addNPCData);
         sendPacket(receiver, spawner);
-        fakeBed();
+        fakeBed(receiver);
 
         inventory.showEquipment(receiver);
-
         metadataAccessor.showPlayer(receiver);
 
         sendPacket(receiver, movePacket);
@@ -194,10 +204,7 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         if(isSynchronizationOverlaysEnabled()) npcSynchronizer.syncOverlays();
         if(isHeadRotationEnabled()) npcSynchronizer.syncHeadRotation();
 
-        trackers.forEach(tracker->{
-            //Send fake bed
-            fakeBed();
-        });
+        trackers.forEach(this::fakeBed);
     }
 
     public void swingHand(boolean mainHand) {
@@ -221,7 +228,7 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
     public void setActiveHand(HandType type) {
         metadataAccessor.setActiveHand(type.getHandModeFlag());
         metadataAccessor.merge(true);
-        updateNPC();
+        metadataAccessor.update();
         activeHand = type;
     }
 
@@ -268,11 +275,53 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         fake.setYRot(pitch);
         fake.setXRot(yaw);
         this.movePacket = new ClientboundMoveEntityPacket.PosRot(fake.getId(), (short) 0,(short)2,(short)0, getFixedRotation(yaw), getFixedRotation(pitch), true);
-        updateNPC();
+    }
+
+    @Override
+    public void setRotation(float pitch, float yaw) {
+        fake.setYRot(pitch);
+        fake.setXRot(yaw);
+        this.movePacket = new ClientboundMoveEntityPacket.PosRot(fake.getId(), (short) 0,(short)2,(short)0, getFixedRotation(yaw), getFixedRotation(pitch), true);
+    }
+
+    @Override
+    public Location getPosition() {
+        return new Location(parent.getWorld(), fake.getX(), fake.getY(), fake.getZ(), fake.getYRot(), fake.getXRot());
+    }
+
+    @Override
+    protected void activateDeepDive() {
+        ServerPlayer vanilla = NMSUtils.asNMSCopy(parent);
+        vanilla.connection.connection.channel.pipeline().addBefore("packet_handler", DEEP_DIVE_PACKET_CATCHER, new ChannelDuplexHandler() {
+            @Override
+            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                if (msg instanceof ServerboundInteractPacket packet) {
+
+                    Field f = ReflectionTools.getPropertyField(int.class, ServerboundInteractPacket.class);
+                    int id = (int) f.get(packet);
+
+                    if (id == vanilla.getId())
+                        return;
+                }
+                super.channelRead(ctx, msg);
+            }
+        });
+        FakePlayer117.sendPacket(parent, new ClientboundSetCameraPacket(fake));
+    }
+
+    @Override
+    protected void deactivateDeepDive() {
+        ServerPlayer vanilla = NMSUtils.asNMSCopy(parent);
+        FakePlayer117.sendPacket(parent, new ClientboundSetCameraPacket(vanilla));
+        ChannelPipeline pipeline = vanilla.connection.connection.channel.pipeline();
+        if (pipeline.get(DEEP_DIVE_PACKET_CATCHER) != null) {
+            pipeline.remove(DEEP_DIVE_PACKET_CATCHER);
+        }
     }
 
     private SynchedEntityData cloneDataWatcher(Player parent, GameProfile profile){
-        net.minecraft.world.entity.player.Player human = new net.minecraft.world.entity.player.Player(((CraftPlayer)parent).getHandle().getLevel(), toBlockPosition(parent.getLocation()),0, profile) {
+        net.minecraft.world.entity.player.Player human = new net.minecraft.world.entity.player.Player(((CraftPlayer)parent).getHandle().getLevel(),
+                toBlockPosition(parent.getLocation(), BlockPos.class),0, profile) {
             static {
                 FakePlayer117.POSE = DATA_POSE;
                 FakePlayer117.OVERLAYS = DATA_PLAYER_MODE_CUSTOMISATION;
@@ -293,14 +342,15 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         return human.getEntityData();
     }
 
-    private void fakeBed(){
-        parent.sendBlockChange(cache.getLocation(), bedData);
+    private void fakeBed(Player tracker){
+        tracker.sendBlockChange(cache.getLocation(), bedData);
     }
 
     private ServerPlayer createNPC(Player parent) {
         CraftWorld world = (CraftWorld) parent.getWorld();
         CraftServer server = (CraftServer) Bukkit.getServer();
-        ServerPlayer parentVanilla = (ServerPlayer) asNMSCopy(parent);
+        ServerPlayer parentVanilla = asNMSCopy(parent);
+
         GameProfile profile = new GameProfile(UUID.randomUUID(), parent.getName());
         profile.getProperties().putAll(parentVanilla.getGameProfile().getProperties());
 
@@ -317,15 +367,6 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
     @SneakyThrows
     private static Direction getDirection(float angle) {
         return CraftBlock.blockFaceToNotch(BlockPositionUtils.yawToFace(angle).getOppositeFace());
-    }
-
-    @SneakyThrows
-    public static BlockPos toBlockPosition(Location location) {
-        return new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-    }
-
-    public static Location toBedLocation(Location location) {
-        return location.clone().toVector().setY(0).toLocation(location.getWorld());
     }
 
 }

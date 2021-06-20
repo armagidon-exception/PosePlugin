@@ -47,10 +47,10 @@ public class NMSUtils
     }
 
     @SneakyThrows
-    public static Object asNMSCopy(Entity e) {
+    public static <T> T asNMSCopy(Entity e) {
         Method m = e.getClass().getDeclaredMethod("getHandle");
         m.setAccessible(true);
-        return m.invoke(e);
+        return (T) m.invoke(e);
     }
 
     @SneakyThrows
@@ -112,16 +112,5 @@ public class NMSUtils
         Constructor<?> constructor = getNmsClass("AxisAlignedBB").getDeclaredConstructor(double.class, double.class, double.class, double.class, double.class, double.class);
         constructor.setAccessible(true);
         return constructor.newInstance(d, d1, d2, d3, d4, d5);
-    }
-
-    public static ItemStack getEquipmentBySlot(EntityEquipment e, EquipmentSlot slot){
-        return switch (slot) {
-            case HEAD -> e.getHelmet();
-            case CHEST -> e.getChestplate();
-            case LEGS -> e.getLeggings();
-            case FEET -> e.getBoots();
-            case OFF_HAND -> e.getItemInOffHand();
-            default -> e.getItemInMainHand();
-        };
     }
 }
