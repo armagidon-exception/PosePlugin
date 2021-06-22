@@ -78,7 +78,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
 
         metadataAccessor = new MetadataEditorProtocolized(this);
         npcSynchronizer = new NPCSynchronizerProtocolized(this);
-        inventory = new NPCInventoryProtocolized(this);
+        inventory = NPCInventoryProtocolized.createInventory(this);
 
         //Set metadata
         setMetadata();
@@ -154,9 +154,9 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
             }
         }
 
-        if(isSynchronizationEquipmentEnabled()) updateEquipment();
-        if(isSynchronizationOverlaysEnabled()) updateOverlays();
-        if(isHeadRotationEnabled()) updateHeadRotation();
+        if(isSynchronizationEquipmentEnabled()) npcSynchronizer.syncEquipment();
+        if(isSynchronizationOverlaysEnabled()) npcSynchronizer.syncOverlays();
+        if(isHeadRotationEnabled()) npcSynchronizer.syncHeadRotation();
 
         trackers.forEach(fakeBedPacket::sendPacket);
     }
@@ -174,7 +174,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
     public void spawnToPlayer(Player player) {
         spawner.sendPacket(player);
         fakeBedPacket.sendPacket(player);
-        inventory.showEquipment(player);
+        inventory.show(player);
         metadataAccessor.showPlayer(player);
         if(metadataAccessor.getPose().equals(Pose.SLEEPING))
             movePacket.sendPacket(player);

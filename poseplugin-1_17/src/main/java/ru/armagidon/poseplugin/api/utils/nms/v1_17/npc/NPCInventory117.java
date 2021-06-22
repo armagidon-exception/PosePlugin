@@ -1,7 +1,6 @@
 package ru.armagidon.poseplugin.api.utils.nms.v1_17.npc;
 
 import com.mojang.datafixers.util.Pair;
-import lombok.SneakyThrows;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -24,16 +23,25 @@ public class NPCInventory117 extends NPCInventory<SynchedEntityData> {
         super(npc);
     }
 
-    public void showEquipment(Player receiver){
-        if(!customEquipment.isEmpty())
-            FakePlayer117.sendPacket(receiver, customEquipmentPacket);
+    public void show(Player receiver){
+        FakePlayer117.sendPacket(receiver, customEquipmentPacket);
     }
 
     public void mergeCustomEquipmentPacket() {
-        List<Pair<EquipmentSlot, ItemStack>> slots = customEquipment.entrySet().stream().map(entry->
+        List<Pair<EquipmentSlot, ItemStack>> slots = getCustomEquipment().getAll().stream().map(entry->
                 Pair.of(adaptToItemSlot(entry.getKey(), EquipmentSlot.class), CraftItemStack.asNMSCopy(entry.getValue()))).collect(Collectors.toList());
         customEquipmentPacket = new ClientboundSetEquipmentPacket(fakePlayer.getId(), slots);
     }
 
 
+    @Override
+    public void update() {
+        List<Pair<EquipmentSlot, ItemStack>> slots = getCustomEquipment().getDirty().stream().map(entry->
+                Pair.of(adaptToItemSlot(entry.getKey(), EquipmentSlot.class), CraftItemStack.asNMSCopy(entry.getValue()))).collect(Collectors.toList());
+        if (slots.isEmpty()) return;
+        ClientboundSetEquipmentPacket updatePacket = new ClientboundSetEquipmentPacket(fakePlayer.getId(), slots);
+
+        fakePlayer.getTrackers().forEach(tracker -> FakePlayer117.sendPacket(tracker, updatePacket));
+
+    }
 }

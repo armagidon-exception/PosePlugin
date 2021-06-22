@@ -56,7 +56,9 @@ public class NPCSynchronizerProtocolized extends NPCSynchronizer<WrappedDataWatc
     }
 
     public void syncEquipment(){
-        List<Map.Entry<EquipmentSlot, ItemStack>> slots = Arrays.stream(EquipmentSlot.values()).filter(slot -> !ignoredSlots.contains(slot)).map(slot -> {
+        List<Map.Entry<EquipmentSlot, ItemStack>> slots = Arrays.stream(EquipmentSlot.values())
+                .filter(slot -> !ignoredSlots.contains(slot))
+                .map(slot -> {
                     if( !slot.equals(EquipmentSlot.HAND) && !slot.equals(EquipmentSlot.OFF_HAND) ) {
                         ItemStack i = getEquipmentBySlot(fakePlayer.getParent().getEquipment(), slot);
                         return Map.entry(slot, i);

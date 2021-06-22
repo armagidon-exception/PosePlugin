@@ -141,7 +141,7 @@ public class FakePlayer117 extends FakePlayer<SynchedEntityData>
         sendPacket(receiver, spawner);
         fakeBed(receiver);
 
-        inventory.showEquipment(receiver);
+        inventory.show(receiver);
         metadataAccessor.showPlayer(receiver);
 
         sendPacket(receiver, movePacket);

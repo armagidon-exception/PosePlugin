@@ -55,11 +55,13 @@ public class WrapperPlayServerEntityEquipment extends AbstractPacket {
 
 	/**
 	 * Set Entity ID.
-	 * 
+	 *
 	 * @param value - new value.
+	 * @return
 	 */
-	public void setEntityID(int value) {
+	public WrapperPlayServerEntityEquipment setEntityID(int value) {
 		handle.getIntegers().write(0, value);
+		return this;
 	}
 
 	/**
@@ -86,19 +88,22 @@ public class WrapperPlayServerEntityEquipment extends AbstractPacket {
 		return handle.getItemSlots().read(0);
 	}
 
-	public void setSlot(ItemSlot value) {
+	public WrapperPlayServerEntityEquipment setSlot(ItemSlot value) {
 		handle.getItemSlots().write(0, value);
+		return this;
 	}
 
-	public void setSlotStackPair(ItemSlot slot, ItemStack item) {
+	public WrapperPlayServerEntityEquipment setSlotStackPair(ItemSlot slot, ItemStack item) {
 		List<Pair<ItemSlot, ItemStack>> slotStackPairs = handle.getSlotStackPairLists().read(0);
 		slotStackPairs.removeIf(pair -> pair.getFirst().equals(slot));
 		slotStackPairs.add(new Pair<>(slot, item));
 		handle.getSlotStackPairLists().write(0, slotStackPairs);
+		return this;
 	}
 
-	public void setSlotStackPairsList(List<Pair<ItemSlot, ItemStack>> pairs) {
+	public WrapperPlayServerEntityEquipment setSlotStackPairsList(List<Pair<ItemSlot, ItemStack>> pairs) {
 		handle.getSlotStackPairLists().write(0, pairs);
+		return this;
 	}
 
 	public List<Pair<ItemSlot, ItemStack>> getSlotStackPairs() {
@@ -121,7 +126,8 @@ public class WrapperPlayServerEntityEquipment extends AbstractPacket {
 	 * 
 	 * @param value - new value.
 	 */
-	public void setItem(ItemStack value) {
+	public WrapperPlayServerEntityEquipment setItem(ItemStack value) {
 		handle.getItemModifier().write(0, value);
+		return this;
 	}
 }
