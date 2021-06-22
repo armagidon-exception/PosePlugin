@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getEquipmentBySlot;
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.getFixedRotation;
+import static ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.MetadataEditorProtocolized.OVERLAYS;
 
 
 public class NPCSynchronizerProtocolized extends NPCSynchronizer<WrappedDataWatcher>
@@ -25,11 +26,11 @@ public class NPCSynchronizerProtocolized extends NPCSynchronizer<WrappedDataWatc
 
     public NPCSynchronizerProtocolized(FakePlayer<WrappedDataWatcher> fakePlayer) {
         super(fakePlayer);
-        this.pOverlays = fakePlayer.getDataWatcher().getByte(16);
+        this.pOverlays = fakePlayer.getDataWatcher().getByte(OVERLAYS.getKey());
     }
 
     public void syncOverlays(){
-        byte overlays = WrappedDataWatcher.getEntityWatcher(fakePlayer.getParent()).getByte(16);
+        byte overlays = WrappedDataWatcher.getEntityWatcher(fakePlayer.getParent()).getByte(OVERLAYS.getKey());
         if(overlays != pOverlays){
             pOverlays = overlays;
             fakePlayer.getMetadataAccessor().setOverlays(pOverlays);

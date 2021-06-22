@@ -14,6 +14,7 @@ import ru.armagidon.poseplugin.api.utils.misc.BlockPositionUtils;
 import ru.armagidon.poseplugin.api.utils.nms.ToolPackage;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayer;
 import ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils;
+import ru.armagidon.poseplugin.api.utils.nms.npc.NPCMetadataEditor;
 import ru.armagidon.poseplugin.api.utils.nms.protocolized.wrappers.*;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static ru.armagidon.poseplugin.api.utils.nms.npc.FakePlayerUtils.setBit;
+import static ru.armagidon.poseplugin.api.utils.nms.protocolized.npc.MetadataEditorProtocolized.OVERLAYS;
 
 @ToolPackage(mcVersion = "protocolized")
 public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
@@ -90,7 +92,7 @@ public class FakePlayerProtocolized extends FakePlayer<WrappedDataWatcher>
 
     private void setMetadata(){
         //Save current overlay bit mask
-        byte overlays = getDataWatcher().getByte(16);
+        byte overlays = getDataWatcher().getByte(OVERLAYS.getKey());
         //Set pose to the NPC
         metadataAccessor.setPose(pose);
         //Set current overlays to the NPC
