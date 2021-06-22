@@ -35,6 +35,7 @@ public class PoseCommandGenerator
                     return true;
                 });
                 Arrays.stream(HandType.values()).forEach(handType -> builder.subCommand(handType.name().toLowerCase(), (sender, label, args) -> {
+                    if (!performChecks(poseType.getPoseClass(), sender)) return true;
                     PosePluginPlayer player = PosePluginAPI.getAPI().getPlayer(sender);
                     if (player.getPoseType().equals(poseType)) {
                         HandType currentHandType = player.getPose().getProperty(EnumPoseOption.HANDTYPE).getValue();
