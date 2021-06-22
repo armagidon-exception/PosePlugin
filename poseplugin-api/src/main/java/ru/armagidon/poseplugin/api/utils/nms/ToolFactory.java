@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.helpers.NOPLogger;
 import ru.armagidon.poseplugin.api.PosePluginAPI;
 import ru.armagidon.poseplugin.api.utils.versions.Version;
 
@@ -24,8 +25,9 @@ public class ToolFactory
 
     public static void scanTools() {
         if (!initialized) {
+            Reflections.log = NOPLogger.NOP_LOGGER;
             Plugin protocolLib = Bukkit.getPluginManager().getPlugin("ProtocolLib");
-            Reflections reflections = new Reflections(new ConfigurationBuilder().addScanners(new TypeAnnotationsScanner()).forPackages("ru.armagidon.poseplugin.api"));
+            var reflections = new Reflections(new ConfigurationBuilder().addScanners(new TypeAnnotationsScanner()).forPackages("ru.armagidon.poseplugin.api"));
             Set<Class<?>> classes;
 
             Version version = Version.getVersion();
